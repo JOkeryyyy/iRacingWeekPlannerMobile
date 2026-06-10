@@ -83,6 +83,12 @@ xcode-select -p
 /usr/bin/xcrun xcodebuild -version
 ```
 
+To run an iOS Gradle task without changing the global developer directory, point the command at the installed full Xcode:
+
+```bash
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :shared:iosSimulatorArm64Test
+```
+
 Only debug app source after the local Xcode selection is known to be valid.
 
 ## Documentation Workflow

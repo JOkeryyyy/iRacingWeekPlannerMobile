@@ -6,7 +6,11 @@ import kotlin.test.assertEquals
 class SharedCommonTest {
 
     @Test
-    fun example() {
-        assertEquals(3, 1 + 2)
+    fun sharedSmokeInfoIdentifiesTheMobilePlanner() {
+        val info = SharedSmokeInfo()
+
+        assertEquals("iRacing Week Planner Mobile", info.appName)
+        assertEquals("shared", info.sourceSet)
+        assertEquals("iRacing Week Planner Mobile shared module is ready", info.statusMessage())
     }
 }
