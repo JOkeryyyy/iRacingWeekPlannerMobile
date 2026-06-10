@@ -116,9 +116,11 @@ Rules:
 - Platform entry points are responsible for starting Koin and combining common modules with platform modules.
 - Tests should use Koin test modules or simple fakes to replace repositories, data sources, and state-holder dependencies.
 
+Until the Koin module is added, `platform` owns the small manual composition root that wires the static data repository into domain use cases and presentation state holders.
+
 ## Package Direction
 
-Target package organization in shared code:
+Current package organization in shared common code:
 
 ```text
 shared/src/commonMain/kotlin/com/iracingweekplanner/mobile/

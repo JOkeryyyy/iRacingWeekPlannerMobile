@@ -1,4 +1,4 @@
-package com.iracingweekplanner.mobile
+package com.iracingweekplanner.mobile.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -14,17 +14,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.iracingweekplanner.mobile.domain.GetAppInfoUseCase
+import com.iracingweekplanner.mobile.domain.PlannerAppInfo
+import com.iracingweekplanner.mobile.domain.PlannerAppInfoRepository
 import org.jetbrains.compose.resources.painterResource
 
 import iracingweekplannermobile.shared.generated.resources.Res
 import iracingweekplannermobile.shared.generated.resources.compose_multiplatform
 
 @Composable
-@Preview
-fun App(sharedInfo: SharedSmokeInfo = SharedSmokeInfo()) {
+fun App(stateHolder: AppInfoStateHolder) {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
-        val smokeInfo = remember(sharedInfo) { sharedInfo }
+        val appInfo = remember(stateHolder) { stateHolder.uiState }
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.primaryContainer)
@@ -32,21 +34,38 @@ fun App(sharedInfo: SharedSmokeInfo = SharedSmokeInfo()) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(smokeInfo.appName)
+            Text(appInfo.appName)
             Button(onClick = { showContent = !showContent }) {
                 Text("Click me!")
             }
             AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                    Text(smokeInfo.statusMessage())
+                    Text("Source: ${appInfo.sourceSet}")
+                    Text(appInfo.statusMessage)
                 }
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun AppPreview() {
+    App(
+        stateHolder = AppInfoStateHolder(
+            getAppInfo = GetAppInfoUseCase(
+                repository = object : PlannerAppInfoRepository {
+                    override fun getAppInfo(): PlannerAppInfo =
+                        PlannerAppInfo(
+                            name = "iRacing Week Planner Mobile",
+                            sourceSet = "shared",
+                        )
+                },
+            ),
+        ),
+    )
 }
