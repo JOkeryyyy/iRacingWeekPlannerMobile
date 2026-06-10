@@ -13,6 +13,8 @@ data -> domain
 
 The domain layer is the center. It defines app business concepts and repository interfaces. Data and presentation depend on domain, but domain does not depend on them.
 
+Dependency injection uses Koin. Dagger Hilt should not be used in shared KMP code because Hilt is Android-specific and does not define the shared app dependency graph.
+
 ## Layers
 
 ### Domain
@@ -88,6 +90,32 @@ Purpose:
 
 Platform code should be thin. Most behavior belongs in shared domain, data, and presentation code.
 
+## Dependency Injection
+
+Koin is the project DI framework.
+
+Shared/common Koin modules should register:
+
+- Domain use cases
+- Repository interfaces to repository implementations
+- Data sources
+- DTO-to-domain mappers
+- Serializers and JSON configuration
+- State holders/ViewModels where they are shared
+
+Platform Koin modules should register:
+
+- Android-specific or iOS-specific storage implementations
+- Platform-specific HTTP client configuration if needed
+- Platform-specific app services
+
+Rules:
+
+- Register dependencies through interfaces where practical.
+- Domain models, repository interfaces, and use cases should not import or call Koin APIs directly.
+- Platform entry points are responsible for starting Koin and combining common modules with platform modules.
+- Tests should use Koin test modules or simple fakes to replace repositories, data sources, and state-holder dependencies.
+
 ## Package Direction
 
 Target package organization in shared code:
@@ -104,11 +132,13 @@ Tests should mirror the layer being tested.
 
 ## Testing Strategy
 
+- Use TDD for implementation stories: write or update focused tests before implementation when the behavior can be meaningfully tested.
 - Domain: use fake repositories and pure unit tests.
 - Data DTOs: parse local mock JSON fixtures.
 - Mappers: verify conversion from DTOs to domain models.
 - Repositories: verify refresh, cache fallback, and error behavior.
 - Presentation: verify loading, loaded, empty, cached, and error states.
+- DI: smoke-test baseline Koin modules when wiring becomes non-trivial.
 
 ## Boundary Checks
 
@@ -117,4 +147,5 @@ Before completing a story, check:
 - Did any domain file import Compose, Ktor, serialization DTOs, storage, Android, or iOS APIs?
 - Did UI code consume raw DTOs?
 - Did data code leak cache/network details into domain?
+- Did domain code import Koin or platform DI APIs?
 - Did new behavior get covered by focused tests?

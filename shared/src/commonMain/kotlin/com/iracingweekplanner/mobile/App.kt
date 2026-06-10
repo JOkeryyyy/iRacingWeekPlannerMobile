@@ -21,9 +21,10 @@ import iracingweekplannermobile.shared.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
-fun App() {
+fun App(sharedInfo: SharedSmokeInfo = SharedSmokeInfo()) {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
+        val smokeInfo = remember(sharedInfo) { sharedInfo }
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.primaryContainer)
@@ -31,6 +32,7 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Text(smokeInfo.appName)
             Button(onClick = { showContent = !showContent }) {
                 Text("Click me!")
             }
@@ -42,6 +44,7 @@ fun App() {
                 ) {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
                     Text("Compose: $greeting")
+                    Text(smokeInfo.statusMessage())
                 }
             }
         }

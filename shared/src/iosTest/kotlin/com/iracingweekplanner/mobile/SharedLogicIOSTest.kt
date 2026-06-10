@@ -6,7 +6,10 @@ import kotlin.test.assertEquals
 class SharedLogicIOSTest {
 
     @Test
-    fun example() {
-        assertEquals(3, 1 + 2)
+    fun sharedSmokeInfoIsAvailableOnIos() {
+        assertEquals(
+            "iRacing Week Planner Mobile shared module is ready",
+            SharedSmokeInfo().statusMessage(),
+        )
     }
 }

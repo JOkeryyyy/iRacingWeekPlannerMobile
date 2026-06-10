@@ -77,10 +77,11 @@ This mobile checkout is already the dedicated mobile repository. The Gradle root
 - The shared module has dependencies for:
   - Ktor client
   - kotlinx.serialization
-  - Koin or selected lightweight DI
+  - Koin
   - KMP-compatible settings/storage
   - Kotlin test
 - Compose Multiplatform dependencies are available to the app UI layer.
+- A minimal Koin smoke setup exists or is explicitly documented as the next wiring task.
 - The project syncs without unused platform-specific configuration errors.
 
 ### Implementation Tasks
@@ -88,9 +89,10 @@ This mobile checkout is already the dedicated mobile repository. The Gradle root
 - Add or update Gradle version catalog entries.
 - Add Ktor client dependencies.
 - Add kotlinx.serialization plugin and JSON dependency.
-- Add Koin dependencies or document the chosen lightweight DI alternative.
+- Add Koin dependencies and baseline modules.
 - Add Multiplatform Settings or equivalent storage dependency.
 - Add Compose Multiplatform plugin/dependencies.
+- Add a minimal Koin module smoke test if dependencies are wired in this story.
 
 ## Story 0.5: Create Android Runnable Target
 

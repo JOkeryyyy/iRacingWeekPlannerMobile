@@ -14,6 +14,7 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
+            binaryOption("bundleId", "com.iracingweekplanner.mobile.shared")
             isStatic = true
         }
     }

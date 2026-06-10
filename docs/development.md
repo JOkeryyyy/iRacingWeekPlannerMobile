@@ -54,6 +54,26 @@ open iosApp
 
 Opening Xcode may require user approval or manual action depending on the environment.
 
+## TDD Workflow
+
+Use TDD for implementation stories when behavior can be meaningfully tested:
+
+1. Write or adjust a focused test.
+2. Run the targeted test and confirm failure when practical.
+3. Implement the smallest change that satisfies the test.
+4. Re-run targeted tests.
+5. Run broader verification before completing the story.
+
+Good default test targets:
+
+- Domain use cases with fake repositories.
+- DTO parsing against local mock JSON.
+- Mapper conversion from DTOs to domain models.
+- Repository refresh/cache behavior with fake data sources.
+- State-holder/ViewModel loading, loaded, empty, and error states.
+
+Use Koin test modules or simple fakes to replace repositories, data sources, and state-holder dependencies in tests.
+
 ## iOS Toolchain Notes
 
 If iOS Gradle tasks fail with `xcrun`, `xcodebuild`, or `MissingXcodeException`, verify that full Xcode is selected instead of only Command Line Tools:
@@ -61,6 +81,12 @@ If iOS Gradle tasks fail with `xcrun`, `xcodebuild`, or `MissingXcodeException`,
 ```bash
 xcode-select -p
 /usr/bin/xcrun xcodebuild -version
+```
+
+To run an iOS Gradle task without changing the global developer directory, point the command at the installed full Xcode:
+
+```bash
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :shared:iosSimulatorArm64Test
 ```
 
 Only debug app source after the local Xcode selection is known to be valid.

@@ -40,13 +40,23 @@
 - Shared business logic should live in Kotlin Multiplatform shared code.
 - UI should be built with Compose Multiplatform where practical.
 
+### Architecture
+
+- Dependency injection should use Koin.
+- Dagger Hilt should not be used for shared KMP dependency injection.
+- Shared DI modules should be usable from Android and iOS.
+- Platform-specific dependencies should be provided through platform modules.
+
 ## Quality Requirements
 
+- Implementation stories should follow TDD when behavior can be meaningfully tested.
+- New behavior should start with a failing or updated focused test before implementation.
 - Domain logic should have unit tests.
 - JSON parsing should have serialization tests.
 - DTO-to-domain mapping should have mapper tests.
 - Repository refresh/cache behavior should have tests before beta.
 - State holders/ViewModels should have tests for loading, loaded, empty, and error states.
+- Documentation-only changes and pure wiring that cannot be meaningfully tested may skip the red test step, but still require verification.
 
 ## Constraints
 
