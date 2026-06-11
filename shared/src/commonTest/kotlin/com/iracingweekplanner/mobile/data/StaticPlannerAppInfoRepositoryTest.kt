@@ -1,13 +1,12 @@
-package com.iracingweekplanner.mobile
+package com.iracingweekplanner.mobile.data
 
-import com.iracingweekplanner.mobile.data.StaticPlannerAppInfoRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class SharedCommonTest {
+class StaticPlannerAppInfoRepositoryTest {
 
     @Test
-    fun sharedSmokeInfoIdentifiesTheMobilePlanner() {
+    fun mapsStaticSharedAppInfoToDomainModel() {
         val info = StaticPlannerAppInfoRepository().getAppInfo()
 
         assertEquals("iRacing Week Planner Mobile", info.name)

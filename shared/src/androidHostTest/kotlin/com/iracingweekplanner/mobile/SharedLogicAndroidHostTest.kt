@@ -1,5 +1,6 @@
 package com.iracingweekplanner.mobile
 
+import com.iracingweekplanner.mobile.data.StaticPlannerAppInfoRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -9,7 +10,7 @@ class SharedLogicAndroidHostTest {
     fun sharedSmokeInfoIsAvailableOnAndroidHost() {
         assertEquals(
             "iRacing Week Planner Mobile shared module is ready",
-            SharedSmokeInfo().statusMessage(),
+            StaticPlannerAppInfoRepository().getAppInfo().statusMessage,
         )
     }
 }

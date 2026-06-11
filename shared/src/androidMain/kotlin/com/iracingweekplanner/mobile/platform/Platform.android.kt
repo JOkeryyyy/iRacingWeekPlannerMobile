@@ -1,4 +1,4 @@
-package com.iracingweekplanner.mobile
+package com.iracingweekplanner.mobile.platform
 
 import android.os.Build
 

@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.iracingweekplanner.mobile.platform.createAppInfoStateHolder
+import com.iracingweekplanner.mobile.presentation.App
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +15,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App(sharedInfo = SharedSmokeInfo())
+            App(stateHolder = createAppInfoStateHolder())
         }
     }
 }
@@ -21,5 +23,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App(sharedInfo = SharedSmokeInfo())
+    App(stateHolder = createAppInfoStateHolder())
 }
