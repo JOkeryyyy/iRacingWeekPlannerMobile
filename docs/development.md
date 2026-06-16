@@ -46,13 +46,23 @@ Run shared iOS simulator tests:
 ./gradlew :shared:iosSimulatorArm64Test
 ```
 
-Open iOS app:
+Open iOS app in Xcode:
 
 ```bash
-open iosApp
+open iosApp/iosApp.xcodeproj
 ```
 
-Opening Xcode may require user approval or manual action depending on the environment.
+Build the iOS simulator app from the command line:
+
+```bash
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build
+```
+
+The iOS target hosts shared Compose UI through `iosApp/iosApp/ContentView.swift`, which imports the generated `Shared` framework and presents `MainViewController()` from `shared/src/iosMain/kotlin/com/iracingweekplanner/mobile/MainViewController.kt`. The Xcode target has a `Compile Kotlin Framework` build phase that runs `./gradlew :shared:embedAndSignAppleFrameworkForXcode`.
+
+Signing metadata lives in `iosApp/Configuration/Config.xcconfig`. Simulator builds can usually leave `TEAM_ID` empty; device builds require an Apple development team ID.
+
+Opening Xcode may require user approval or manual action depending on the environment. Command-line iOS builds require full Xcode, not only Command Line Tools.
 
 ## TDD Workflow
 
