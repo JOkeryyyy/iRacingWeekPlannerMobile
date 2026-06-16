@@ -180,3 +180,32 @@ Only debug app source after the local Xcode selection is known to be valid.
 - Clean Architecture package boundaries exist.
 - Baseline dependencies are added or explicitly deferred.
 - Local setup and verification commands are documented.
+
+## Sprint 0 Verification Record
+
+Recorded on 2026-06-16 from branch `codex/story-0-9-sprint-0-exit-verification`.
+
+| Area | Command or check | Result |
+| --- | --- | --- |
+| Android debug build | `./gradlew :androidApp:assembleDebug` | PASS: `BUILD SUCCESSFUL in 1s`; 57 actionable tasks, 1 executed. |
+| Android emulator availability | `adb devices` | PASS: `emulator-5556 device`. |
+| Android install | `./gradlew :androidApp:installDebug` | PASS: installed `androidApp-debug.apk` on `Pixel_10_Pro_Fold(AVD) - 17`. |
+| Android launch target | `adb -s emulator-5556 shell cmd package resolve-activity --brief com.iracingweekplanner.mobile` | PASS: `com.iracingweekplanner.mobile/.MainActivity`. |
+| Android app launch | `adb -s emulator-5556 shell am start -n com.iracingweekplanner.mobile/.MainActivity` | PASS: activity started. |
+| Android placeholder UI | `adb -s emulator-5556 exec-out uiautomator dump /dev/tty` after launch and one button tap | PASS: UI tree contained `iRacing Week Planner Mobile`, `Source: shared`, and `iRacing Week Planner Mobile shared module is ready`. |
+| Shared Android host tests | `./gradlew :shared:testAndroidHostTest` | PASS: `BUILD SUCCESSFUL in 696ms`; 32 actionable tasks, 1 executed. |
+| Shared iOS simulator tests | `./gradlew :shared:iosSimulatorArm64Test` | BLOCKED: compile/link tasks reached `linkDebugTestIosSimulatorArm64`, then simulator discovery failed because `/usr/bin/xcrun` could not find `simctl`. |
+| Xcode selection | `xcode-select -p` | BLOCKED: active developer directory is `/Library/Developer/CommandLineTools`. |
+| Xcode build tool | `/usr/bin/xcrun xcodebuild -version` | BLOCKED: `xcrun: error: unable to find utility "xcodebuild", not a developer tool or in PATH`. |
+| Simulator tool | `/usr/bin/xcrun simctl list devices` | BLOCKED: `xcrun: error: unable to find utility "simctl", not a developer tool or in PATH`. |
+| iOS app build command | `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build` | BLOCKED: `xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance`. |
+| Clean Architecture package boundaries | `find shared/src/commonMain/kotlin/com/iracingweekplanner/mobile -maxdepth 2 -type d -print` | PASS: `domain`, `data`, `presentation`, and `platform` package directories exist. |
+| Domain dependency boundary | `rg -n "import .*compose|import .*ktor|import .*koin|import .*platform|import .*android|import .*UIKit|import .*Settings|import .*serialization" shared/src/commonMain/kotlin/com/iracingweekplanner/mobile/domain` | PASS: no disallowed domain imports found. |
+| Local setup docs | `README.md` and this file | PASS: required tools, Gradle commands, Android build/test commands, iOS open/build commands, troubleshooting, and web-repo separation are documented. |
+
+Follow-up backlog before Sprint 1:
+
+- Install or select full Xcode, then rerun `./gradlew :shared:iosSimulatorArm64Test`.
+- After full Xcode is active, run `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build`.
+- Launch the iOS app in Simulator and verify the placeholder screen shows the shared app name/status text.
+- Set `TEAM_ID` in `iosApp/Configuration/Config.xcconfig` only when device signing is needed.
