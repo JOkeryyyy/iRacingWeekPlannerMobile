@@ -46,6 +46,29 @@ Run shared iOS simulator tests:
 ./gradlew :shared:iosSimulatorArm64Test
 ```
 
+## Shared Smoke Tests
+
+The shared module currently has smoke coverage in common, Android host, and iOS source sets:
+
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/SharedCommonTest.kt` verifies the shared app info smoke path.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/GetAppInfoUseCaseTest.kt` verifies the initial domain use case.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/AppInfoStateHolderTest.kt` verifies the presentation state holder.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt` verifies Koin wiring and platform-owned dependencies.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/SharedLogicAndroidHostTest.kt` verifies the shared smoke path from the Android host test target.
+- `shared/src/iosTest/kotlin/com/iracingweekplanner/mobile/SharedLogicIOSTest.kt` verifies the shared smoke path from the iOS test source set.
+
+Default local shared verification:
+
+```bash
+./gradlew :shared:testAndroidHostTest
+```
+
+Additional iOS verification when full Xcode is available:
+
+```bash
+./gradlew :shared:iosSimulatorArm64Test
+```
+
 Open iOS app in Xcode:
 
 ```bash
