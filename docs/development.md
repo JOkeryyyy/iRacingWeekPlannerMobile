@@ -26,7 +26,37 @@ Use common/popular versions compatible with the current Kotlin Multiplatform and
 - Xcode for iOS builds
 - Gradle wrapper from this repo
 
+## Clean Checkout Setup
+
+1. Open this repository root in Android Studio and let Gradle sync from `settings.gradle.kts`.
+2. Confirm the expected modules are visible: `androidApp`, `shared`, and the `iosApp` Xcode project directory.
+3. Run a lightweight Gradle project check:
+
+```bash
+./gradlew projects
+```
+
+4. Run the Android debug build and shared smoke tests:
+
+```bash
+./gradlew :androidApp:assembleDebug
+./gradlew :shared:testAndroidHostTest
+```
+
+5. If full Xcode is installed, open and build the iOS app:
+
+```bash
+open iosApp/iosApp.xcodeproj
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build
+```
+
 ## Common Commands
+
+List Gradle projects:
+
+```bash
+./gradlew projects
+```
 
 Run shared Android host tests:
 
@@ -114,6 +144,7 @@ If iOS Gradle tasks fail with `xcrun`, `xcodebuild`, or `MissingXcodeException`,
 ```bash
 xcode-select -p
 /usr/bin/xcrun xcodebuild -version
+/usr/bin/xcrun simctl list devices
 ```
 
 To run an iOS Gradle task without changing the global developer directory, point the command at the installed full Xcode:
@@ -123,6 +154,14 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :shared:iosSi
 ```
 
 Only debug app source after the local Xcode selection is known to be valid.
+
+## Troubleshooting
+
+- If Gradle sync cannot resolve Android artifacts, verify Android Studio has the Android SDK installed and that this repository root, not a nested directory, was opened.
+- If Android builds fail with SDK version errors, install the compile SDK listed in `gradle/libs.versions.toml`.
+- If iOS commands fail with `xcrun: error: unable to find utility "xcodebuild"` or `simctl`, install/select full Xcode with `xcode-select`.
+- If iOS device builds fail signing, set `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`.
+- If shared tests fail after a dependency change, run `./gradlew :shared:tasks --all` and confirm the expected test task still exists.
 
 ## Documentation Workflow
 

@@ -1,30 +1,37 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# iRacing Week Planner Mobile
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+This is the dedicated Kotlin Multiplatform + Compose Multiplatform mobile app for iRacing Week Planner, targeting Android and iOS.
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+The existing web app and scraper remain separate and are still the source of truth for schedule generation. This mobile repo starts from local/shared scaffolding and does not scrape iRacing or store iRacing credentials.
 
-### Running the apps
+## Project Layout
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+- [/androidApp](./androidApp) contains the Android app entry point.
+- [/iosApp](./iosApp) contains the Xcode iOS app entry point.
+- [/shared](./shared/src) contains shared Kotlin code for domain, data, presentation, platform, and DI wiring.
+- [docs/development.md](./docs/development.md) contains the detailed local setup, build, test, and troubleshooting workflow.
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+## Quick Start
 
-### Running tests
+Required tools:
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+- JDK compatible with the Gradle/Android plugin in this repo
+- Android Studio and Android SDK
+- Xcode for iOS builds
+- The checked-in Gradle wrapper
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+Common commands:
+
+```bash
+./gradlew projects
+./gradlew :androidApp:assembleDebug
+./gradlew :shared:testAndroidHostTest
+./gradlew :shared:iosSimulatorArm64Test
+open iosApp/iosApp.xcodeproj
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build
+```
+
+Use Android Studio to sync the Gradle root at this repository root. Use Xcode to open `iosApp/iosApp.xcodeproj` for the iOS target.
 
 ---
 
