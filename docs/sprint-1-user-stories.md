@@ -6,15 +6,20 @@ Define the mobile data contract, add local mock JSON, and create the domain foun
 
 The mobile contract should be designed for the app, but derived from the existing web repo/generated data so the scraper remains the source of truth.
 
+Sprint 1 should still be implemented story-by-story. Do not combine contract inspection, fixture work, DTOs, mappers, domain models, and use cases into one implementation diff unless explicitly approved.
+
 ## Story 1.1: Inspect Existing Web Data Shape
 
 **As a developer, I want to inspect the current web generated data so that the mobile contract is grounded in real schedule output.**
 
 ### Acceptance Criteria
 
-- The relevant generated data shape in the web repo is identified.
+- The relevant source files in the web repo are identified, including generated/mock JSON, race derivation logic, season date config, off-week handling, and default owned car/track settings.
+- A source-data audit table is added to `docs/data-contract.md`.
 - Required fields for mobile planner MVP are listed.
-- Web-only fields and mobile-only derived fields are documented.
+- Web-only fields, mobile-required fields, and mobile-only derived fields are documented.
+- The audit records important ID choices, including car IDs used for ownership/filtering and track IDs used for ownership/filtering.
+- Race-week and session-time derivation rules are documented well enough to inform the mobile contract.
 - Open questions are recorded in `docs/data-contract.md`.
 
 ## Story 1.2: Define Mobile JSON Contract
@@ -23,12 +28,14 @@ The mobile contract should be designed for the app, but derived from the existin
 
 ### Acceptance Criteria
 
-- `manifest.json` contract is documented.
+- The mobile data manifest contract is documented and clearly distinguished from the existing web/PWA `manifest.json`.
+- The planned hosted path or file naming convention for the mobile data manifest is documented.
 - `season.json` contract is documented.
 - `cars.json` contract is documented.
 - `tracks.json` contract is documented.
 - Versioning or generated-at metadata is included.
 - Required and optional fields are clear.
+- User preference data is explicitly excluded from hosted schedule/catalog JSON.
 
 ## Story 1.3: Add Local Mock JSON Fixtures
 
@@ -39,7 +46,7 @@ The mobile contract should be designed for the app, but derived from the existin
 - Mock fixtures exist in a shared-testable location.
 - Fixtures include at least one race week.
 - Fixtures include multiple cars and tracks.
-- Fixtures cover owned/favorite filter test scenarios.
+- Fixtures include enough cars, tracks, and races to exercise owned/favorite filter test scenarios with separate local preference test data.
 - Fixtures match `docs/data-contract.md`.
 
 ## Story 1.4: Add DTOs and Serialization Tests
