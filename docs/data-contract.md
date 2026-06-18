@@ -6,74 +6,210 @@ MVP development starts with local mock JSON. The contract should be designed for
 
 Future hosted data files:
 
-- Mobile data manifest, for example `/data/manifest.json` or `data-manifest.json`
+- Mobile planner data manifest: `/data/mobile/v1/manifest.json`
 - `season.json`
 - `cars.json`
 - `tracks.json`
 
 The existing web app already has a PWA `manifest.json` under its static assets. Sprint 1 must document a mobile data manifest separately so the app icon/PWA manifest is not confused with the planner data refresh manifest.
 
+The mobile app should treat `/data/mobile/v1/manifest.json` as the entry point. The manifest file points to the other JSON files with paths relative to the manifest URL, such as `season.json`, `cars.json`, and `tracks.json`. Local mock fixtures added in Story 1.3 should use the same filenames and JSON shapes.
+
 The data layer should parse DTOs from this contract and map them into domain models. Domain and presentation code should not depend on the raw JSON shape.
 
 ## Contract Principles
 
-- Include a contract or schema version.
-- Include generation metadata.
+- Every hosted file includes `schemaVersion` and `generatedAt`.
 - Keep stable IDs for cars, tracks, series, weeks, and races.
 - Prefer explicit fields over fields that require UI guessing.
 - Avoid platform-specific values.
 - Keep user preferences out of hosted schedule data.
 - Keep owned/favorite cars and tracks as local preference data. Mock schedule/catalog fixtures may include data that exercises those scenarios, but ownership and favorite state should live in separate test inputs or settings storage.
+- Use ISO-8601 UTC strings for timestamps, for example `2026-06-16T00:00:00Z`.
+- Use minutes for time offsets and durations when the source data is not a timestamp.
+
+## Common Metadata
+
+Each JSON file starts with these fields:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `schemaVersion` | Integer | Yes | Start at `1`. Increment only when parsing compatibility changes. |
+| `generatedAt` | String | Yes | ISO-8601 UTC timestamp for the export. |
+
+Files that describe a season also include:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `seasonId` | String | Yes | Stable season identifier derived from web `seasonid`. Use a string in JSON so the app is not tied to a numeric source type. |
 
 ## Mobile Data Manifest
 
 Purpose: tell the app what data files are available and whether a refresh is needed.
 
-The final filename or hosted path should be confirmed in Sprint 1. If it remains `manifest.json`, documentation and hosting should make clear that this is a planner data manifest, not the web app's PWA manifest.
+Hosted path: `/data/mobile/v1/manifest.json`.
 
-Expected fields:
+This is the mobile planner data manifest. It is not the web/PWA manifest, and it should not be served from the web app's root `/manifest.json` path.
 
-- `schemaVersion`
-- `generatedAt`
-- `seasonId`
-- `seasonFile`
-- `carsFile`
-- `tracksFile`
-- Optional checksum or revision fields for cache validation
+Required fields:
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `schemaVersion` | Integer | Manifest schema version. |
+| `generatedAt` | String | Export timestamp in UTC. |
+| `seasonId` | String | Season represented by the referenced data files. |
+| `seasonFile` | String | Relative URL for `season.json`. |
+| `carsFile` | String | Relative URL for `cars.json`. |
+| `tracksFile` | String | Relative URL for `tracks.json`. |
+
+Optional fields:
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `revision` | String | Opaque scraper/export revision, commit SHA, or content revision. |
+| `checksums` | Object | Map from referenced filename to checksum string for cache validation. |
+
+Example:
+
+```json
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-16T00:00:00Z",
+  "seasonId": "2026-s2",
+  "seasonFile": "season.json",
+  "carsFile": "cars.json",
+  "tracksFile": "tracks.json",
+  "revision": "2026-s2-001",
+  "checksums": {
+    "season.json": "sha256:...",
+    "cars.json": "sha256:...",
+    "tracks.json": "sha256:..."
+  }
+}
+```
 
 ## `season.json`
 
 Purpose: provide season, week, series, and race schedule data.
 
-Expected concepts:
+Required top-level fields:
 
-- Season identity
-- Race weeks
-- Series
-- Race sessions
-- Car IDs
-- Track IDs
-- Start times
-- Race duration or laps when available
-- License/category metadata when available
+| Field | Type | Notes |
+| --- | --- | --- |
+| `schemaVersion` | Integer | Season file schema version. |
+| `generatedAt` | String | Export timestamp in UTC. |
+| `seasonId` | String | Stable season identifier derived from web `seasonid`. |
+| `seasonName` | String | Display label, for example `2026 Season 2`. |
+| `seasonStart` | String | Season start timestamp in UTC. |
+| `seasonEnd` | String | Season end timestamp in UTC. |
+| `weekSeasonStart` | String | UTC timestamp used for current-week calculation. |
+| `weeks` | Array | Race-week metadata. |
+| `series` | Array | Series metadata. |
+| `races` | Array | Planner-ready race rows. |
 
-Open questions for Sprint 1:
+`weeks[]` entries:
 
-- Exact web source fields for race start times
-- How to represent recurring race sessions
-- Whether week boundaries follow iRacing season week or local calendar week
-- Whether sessions need track configuration IDs
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `weekNumber` | Integer | Yes | iRacing race week number. |
+| `startsAt` | String | Yes | Week start timestamp in UTC. |
+| `endsAt` | String | Yes | Week end timestamp in UTC. |
+
+`series[]` entries:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `seriesId` | String | Yes | Stable series identifier derived from web `seriesid`. |
+| `name` | String | Yes | Series display name from web `seriesname`. |
+| `category` | String | Yes | Normalized category label such as `Road`, `Oval`, `Sports Car`, or `Formula Car`. |
+| `license` | Object | Yes | Display and filter metadata for license requirements. |
+| `isOfficial` | Boolean | Yes | Whether the series is official. |
+| `isFixedSetup` | Boolean | Yes | Whether the series uses fixed setup. |
+
+`license` object:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `className` | String | Yes | Display class such as `Rookie`, `D`, `C`, `B`, `A`, or `Pro`. |
+| `level` | Integer | No | Source numeric license level when available. |
+
+`races[]` entries:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `raceId` | String | Yes | Stable ID. For v1 use a composite of season ID, series ID, week number, track package ID, and race start timestamp. |
+| `seriesId` | String | Yes | Links to `series[].seriesId`. |
+| `weekNumber` | Integer | Yes | Links to `weeks[].weekNumber`. |
+| `startsAt` | String | Yes | Race-week start timestamp in UTC after off-week adjustments. |
+| `endsAt` | String | Yes | Race-week end timestamp in UTC. |
+| `trackPackageId` | String | Yes | Track ownership/filter key derived from web `pkgid`. |
+| `trackName` | String | Yes | Display track/package name. |
+| `carSkus` | Array of strings | Yes | Car ownership/filter keys derived from web `sku`. |
+| `carClasses` | Array of strings | Yes | Display car class labels. Empty array is allowed when the source has no class mapping. |
+| `sessions` | Array | Yes | Structured session timing rules. |
+| `trackConfigName` | String | No | Configuration/layout display name when known separately from `trackName`. |
+| `raceLength` | Object | No | Race length as laps and/or minutes. |
+| `precipChance` | Number | No | Rain chance from source data when available. |
+
+`raceLength` object:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `laps` | Integer | No | Include when the source describes race length by laps. |
+| `minutes` | Integer | No | Include when the source describes race length by time. |
+
+`sessions[]` entries use one of these shapes:
+
+```json
+{
+  "type": "recurring",
+  "firstSessionOffsetMinutes": 60,
+  "repeatEveryMinutes": 120
+}
+```
+
+```json
+{
+  "type": "setTimes",
+  "offsetMinutes": [120, 480, 840]
+}
+```
+
+Session fields:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `type` | String | Yes | Either `recurring` or `setTimes`. |
+| `firstSessionOffsetMinutes` | Integer | For `recurring` | Minutes after `races[].startsAt` for the first session. |
+| `repeatEveryMinutes` | Integer | For `recurring` | Repeat interval from web `repeat_minutes`. |
+| `offsetMinutes` | Array of integers | For `setTimes` | Session offsets from `races[].startsAt`. |
+
+The season file publishes planner-ready race rows. Mobile shared code should not duplicate web off-week insertion or race-week date derivation for v1.
 
 ## `cars.json`
 
 Purpose: provide the car catalog used by schedule data and local ownership/favorite settings.
 
-Expected fields:
+Required top-level fields:
 
-- Stable car ID
-- Display name
-- Optional class/category
-- Optional image or asset reference later
+| Field | Type | Notes |
+| --- | --- | --- |
+| `schemaVersion` | Integer | Cars file schema version. |
+| `generatedAt` | String | Export timestamp in UTC. |
+| `cars` | Array | Car catalog entries. |
+
+`cars[]` entries:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `sku` | String | Yes | Stable car ownership/filter key from web `sku`. |
+| `displayName` | String | Yes | User-facing car name. Prefer web `name`; fall back to `skuname` only if needed. |
+| `sourceCarId` | Integer | No | iRacing `car_id` for source reconciliation. |
+| `sourceSkuName` | String | No | Raw web `skuname` if it differs from display name. |
+| `categories` | Array of strings | No | Source category labels when useful for grouping. |
+| `carClasses` | Array of strings | No | Class labels when available. |
+| `freeWithSubscription` | Boolean | No | Include if local default ownership seeding stays aligned with web defaults. |
+| `imageUrl` | String | No | Future asset URL. Omit for MVP fixtures unless a real asset exists. |
 
 User-owned and favorite state must not be stored in this file. Those are local settings.
 
@@ -81,15 +217,42 @@ User-owned and favorite state must not be stored in this file. Those are local s
 
 Purpose: provide the track catalog used by schedule data and local ownership/favorite settings.
 
-Expected fields:
+Required top-level fields:
 
-- Stable track ID
-- Display name
-- Optional configuration name
-- Optional country/location metadata
-- Optional image or asset reference later
+| Field | Type | Notes |
+| --- | --- | --- |
+| `schemaVersion` | Integer | Tracks file schema version. |
+| `generatedAt` | String | Export timestamp in UTC. |
+| `tracks` | Array | Track catalog entries. |
+
+`tracks[]` entries:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `packageId` | String | Yes | Stable track ownership/filter key derived from web `pkgid`. |
+| `displayName` | String | Yes | User-facing track/package name. |
+| `sourceTrackIds` | Array of integers | Yes | Concrete iRacing track/config IDs from web `ids`. Empty array is allowed only when the source cannot provide IDs. |
+| `type` | String | No | Primary type label such as `road`, `oval`, `dirtOval`, or `dirtRoad`. |
+| `supportedTypes` | Array of strings | No | Type flags from source data when a package supports multiple disciplines. |
+| `isDefaultContent` | Boolean | No | Include if local default ownership seeding stays aligned with web defaults. |
+| `mapUrl` | String | No | Track map URL from source data when available. |
+| `imageUrl` | String | No | Future asset URL. Omit for MVP fixtures unless a real asset exists. |
 
 User-owned and favorite state must not be stored in this file. Those are local settings.
+
+## User Preference Data Exclusion
+
+Hosted `manifest.json`, `season.json`, `cars.json`, and `tracks.json` must not contain:
+
+- `ownedCars`
+- `ownedTracks`
+- `favoriteCars`
+- `favoriteTracks`
+- account identifiers
+- iRacing credentials
+- Firebase sync state
+
+Owned and favorite settings are local-only v1 data. Domain and data-layer tests may create separate preference inputs to exercise filter behavior, but those preferences are not part of hosted schedule or catalog JSON.
 
 ## Local Mock Data
 
@@ -101,11 +264,11 @@ Local mock JSON should:
 - Include data that can exercise filters and sorting.
 - Live somewhere testable from shared code.
 
-Sprint 1 should finalize exact field names after inspecting the current web generated data.
+Story 1.3 fixtures should use the exact field names defined above.
 
 ## Sprint 1 Source Audit
 
-Story 1.1 should audit the existing web source of truth before final field names are chosen.
+Story 1.1 audited the existing web source of truth before Story 1.2 finalized the mobile JSON field names.
 
 Source repo audited: `/Users/gaojiahao/Documents/iracing/iRacing-week-planner`.
 
@@ -137,7 +300,7 @@ Those files are written by `build/scrape.js` and ignored by `.gitignore`. The co
 
 ### Required Mobile Planner MVP Fields
 
-The MVP planner needs these fields after the source audit. Exact JSON names are finalized in Story 1.2.
+The MVP planner needs these fields after the source audit. The Story 1.2 contract above maps these concepts into exact JSON names.
 
 Season and week metadata:
 
@@ -245,12 +408,10 @@ Mobile contract guidance:
 - Prefer publishing explicit race start/end timestamps and structured session rules so mobile shared code does not have to duplicate off-week and date math.
 - If mobile must derive this locally, the contract must include off-week entries, week offsets, raw series start/end, raw track race weeks, and the exact week-start rule.
 
-### Open Questions
+### Remaining Follow-Up Questions
 
-- Should hosted mobile `season.json` contain planner-ready race rows, or raw web series/tracks plus derivation metadata? Planner-ready rows are recommended for v1.
-- Should the mobile contract preserve `catid` and license numeric fields, normalized display labels, or both?
-- Does the mobile MVP need precipitation chance/rain display, or should `precipChance` wait for a later UI story?
-- Should free/default catalog flags be included in hosted `cars.json` and `tracks.json` to seed local ownership defaults, or should the mobile app ship its own default preference seed?
-- Should track config identity be represented as a dedicated `trackConfigId` once the scraper can provide it, or is `pkgid` plus config/display name enough for MVP?
-- How should null car class/car mapping data be represented when the scraper cannot resolve a class or car? The web scraper can produce nulls in intermediate class data.
-- What hosted path will distinguish the mobile data manifest from the web PWA manifest?
+These are not blockers for Story 1.2, but should be revisited when hosted data generation or later UI stories are implemented:
+
+- Should `precipChance` be populated for the MVP UI or left absent until a rain indicator story needs it?
+- Should optional catalog default flags be generated from the web source or seeded from app-local defaults?
+- Should track config identity become a dedicated `trackConfigId` once the scraper can provide stable config IDs?
