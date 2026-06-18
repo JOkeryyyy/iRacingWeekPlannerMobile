@@ -183,29 +183,31 @@ Only debug app source after the local Xcode selection is known to be valid.
 
 ## Sprint 0 Verification Record
 
-Recorded on 2026-06-16 from branch `codex/story-0-9-sprint-0-exit-verification`.
+Recorded on 2026-06-16 from branch `main`.
 
 | Area | Command or check | Result |
 | --- | --- | --- |
-| Android debug build | `./gradlew :androidApp:assembleDebug` | PASS: `BUILD SUCCESSFUL in 1s`; 57 actionable tasks, 1 executed. |
+| Android debug build | `./gradlew :androidApp:assembleDebug` | PASS: `BUILD SUCCESSFUL`; 57 actionable tasks, 1 executed. |
 | Android emulator availability | `adb devices` | PASS: `emulator-5556 device`. |
 | Android install | `./gradlew :androidApp:installDebug` | PASS: installed `androidApp-debug.apk` on `Pixel_10_Pro_Fold(AVD) - 17`. |
 | Android launch target | `adb -s emulator-5556 shell cmd package resolve-activity --brief com.iracingweekplanner.mobile` | PASS: `com.iracingweekplanner.mobile/.MainActivity`. |
 | Android app launch | `adb -s emulator-5556 shell am start -n com.iracingweekplanner.mobile/.MainActivity` | PASS: activity started. |
-| Android placeholder UI | `adb -s emulator-5556 exec-out uiautomator dump /dev/tty` after launch and one button tap | PASS: UI tree contained `iRacing Week Planner Mobile`, `Source: shared`, and `iRacing Week Planner Mobile shared module is ready`. |
-| Shared Android host tests | `./gradlew :shared:testAndroidHostTest` | PASS: `BUILD SUCCESSFUL in 696ms`; 32 actionable tasks, 1 executed. |
-| Shared iOS simulator tests | `./gradlew :shared:iosSimulatorArm64Test` | BLOCKED: compile/link tasks reached `linkDebugTestIosSimulatorArm64`, then simulator discovery failed because `/usr/bin/xcrun` could not find `simctl`. |
-| Xcode selection | `xcode-select -p` | BLOCKED: active developer directory is `/Library/Developer/CommandLineTools`. |
-| Xcode build tool | `/usr/bin/xcrun xcodebuild -version` | BLOCKED: `xcrun: error: unable to find utility "xcodebuild", not a developer tool or in PATH`. |
-| Simulator tool | `/usr/bin/xcrun simctl list devices` | BLOCKED: `xcrun: error: unable to find utility "simctl", not a developer tool or in PATH`. |
-| iOS app build command | `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build` | BLOCKED: `xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance`. |
+| Android placeholder UI | `adb -s emulator-5556 exec-out uiautomator dump /dev/tty` before and after one button tap | PASS: initial UI contained `iRacing Week Planner Mobile` and `Click me!`; expanded UI contained `Source: shared` and `iRacing Week Planner Mobile shared module is ready`. |
+| Android screenshots | `adb -s emulator-5556 shell screencap -p ...` and `adb -s emulator-5556 pull ...` | PASS: evidence saved in `docs/qa/sprint-0-evidence/android-initial.png` and `docs/qa/sprint-0-evidence/android-expanded.png`. |
+| Shared Android host tests | `./gradlew :shared:testAndroidHostTest` | PASS: `BUILD SUCCESSFUL`; 32 actionable tasks, 1 executed. |
+| Shared iOS simulator tests | `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :shared:iosSimulatorArm64Test` | PASS: `BUILD SUCCESSFUL`; 24 actionable tasks, 3 executed. |
+| Xcode build tool | `/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version` | PASS: Xcode 26.5, build 17F42. |
+| iOS simulator availability | `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer /usr/bin/xcrun simctl list devices available` | PASS: `iPhone 17 Pro` was booted on iOS 26.5. |
+| iOS app build command | `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,id=569EBA36-164A-4D82-B362-5B2D87A351A7' -derivedDataPath build/xcode-derived-data build` | PASS: `BUILD SUCCEEDED`. |
+| iOS install and launch | `simctl install ... iRacingWeekPlannerMobile.app` and `simctl launch ... com.iracingweekplanner.mobile` | PASS: launch returned process id `56565`. |
+| iOS placeholder UI | Computer Use on Simulator before and after one button click | PASS: initial UI contained `iRacing Week Planner Mobile` and `Click me!`; expanded UI contained `Source: shared` and `iRacing Week Planner Mobile shared module is ready`. |
+| iOS screenshots | `simctl io ... screenshot ...` | PASS: evidence saved in `docs/qa/sprint-0-evidence/ios-initial.png` and `docs/qa/sprint-0-evidence/ios-expanded.png`. |
 | Clean Architecture package boundaries | `find shared/src/commonMain/kotlin/com/iracingweekplanner/mobile -maxdepth 2 -type d -print` | PASS: `domain`, `data`, `presentation`, and `platform` package directories exist. |
 | Domain dependency boundary | `rg -n "import .*compose|import .*ktor|import .*koin|import .*platform|import .*android|import .*UIKit|import .*Settings|import .*serialization" shared/src/commonMain/kotlin/com/iracingweekplanner/mobile/domain` | PASS: no disallowed domain imports found. |
 | Local setup docs | `README.md` and this file | PASS: required tools, Gradle commands, Android build/test commands, iOS open/build commands, troubleshooting, and web-repo separation are documented. |
+| QA evidence index | `docs/qa/sprint-0-evidence/README.md` | PASS: product-review screenshots and command evidence are indexed for Sprint 0 closeout. |
 
-Follow-up backlog before Sprint 1:
+Known setup risks before Sprint 1:
 
-- Install or select full Xcode, then rerun `./gradlew :shared:iosSimulatorArm64Test`.
-- After full Xcode is active, run `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build`.
-- Launch the iOS app in Simulator and verify the placeholder screen shows the shared app name/status text.
+- The global `xcode-select -p` value was `/Library/Developer/CommandLineTools` during QA. iOS verification passes when commands set `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`, or when full Xcode is selected globally.
 - Set `TEAM_ID` in `iosApp/Configuration/Config.xcconfig` only when device signing is needed.
