@@ -264,7 +264,17 @@ Local mock JSON should:
 - Include data that can exercise filters and sorting.
 - Live somewhere testable from shared code.
 
-Story 1.3 fixtures should use the exact field names defined above.
+Story 1.3 fixtures use the exact field names defined above. The hosted-shape mock files live under
+`shared/src/commonMain/composeResources/files/mock-data/`:
+
+- `manifest.json`
+- `season.json`
+- `cars.json`
+- `tracks.json`
+
+Separate local preference test data lives under
+`shared/src/commonTest/resources/mock-data/local-preferences.json` so owned/favorite scenarios can be tested
+without adding user preference fields to hosted schedule or catalog JSON.
 
 ## Sprint 1 Source Audit
 

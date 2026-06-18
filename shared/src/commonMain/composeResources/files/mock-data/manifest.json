@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-16T00:00:00Z",
+  "seasonId": "2026-s2",
+  "seasonFile": "season.json",
+  "carsFile": "cars.json",
+  "tracksFile": "tracks.json",
+  "revision": "mock-2026-s2-001"
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-16T00:00:00Z",
+  "cars": [
+    {
+      "sku": "mazda-mx5-cup",
+      "displayName": "Global Mazda MX-5 Cup",
+      "sourceCarId": 1,
+      "sourceSkuName": "Mazda MX-5 Cup",
+      "categories": [
+        "Sports Car",
+        "Road"
+      ],
+      "carClasses": [
+        "Global Mazda MX-5 Cup"
+      ],
+      "freeWithSubscription": true
+    },
+    {
+      "sku": "porsche-911-gt3-cup-992",
+      "displayName": "Porsche 911 GT3 Cup (992)",
+      "sourceCarId": 2,
+      "sourceSkuName": "Porsche 911 GT3 Cup",
+      "categories": [
+        "Sports Car",
+        "Road"
+      ],
+      "carClasses": [
+        "Porsche 911 GT3 Cup",
+        "GT3 Cup"
+      ],
+      "freeWithSubscription": false
+    },
+    {
+      "sku": "dallara-p217",
+      "displayName": "Dallara P217",
+      "sourceCarId": 3,
+      "categories": [
+        "Prototype",
+        "Sports Car"
+      ],
+      "carClasses": [
+        "LMP2"
+      ],
+      "freeWithSubscription": false
+    },
+    {
+      "sku": "formula-vee",
+      "displayName": "Formula Vee",
+      "sourceCarId": 4,
+      "categories": [
+        "Formula Car",
+        "Road"
+      ],
+      "carClasses": [
+        "Formula Vee"
+      ],
+      "freeWithSubscription": true
+    }
+  ]
+}
