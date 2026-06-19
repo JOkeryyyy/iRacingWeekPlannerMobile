@@ -2,7 +2,6 @@ package com.iracingweekplanner.mobile.domain
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
@@ -108,24 +107,31 @@ class PlannerDomainModelsTest {
     }
 
     @Test
-    fun modelValueObjectsRejectInvalidPlannerData() {
-        assertFailsWith<IllegalArgumentException> { RaceWeekNumber(0) }
-        assertFailsWith<IllegalArgumentException> {
-            TimeWindow(
-                startsAt = Instant.parse("2026-06-23T00:00:00Z"),
-                endsAt = Instant.parse("2026-06-16T00:00:00Z"),
-            )
-        }
-        assertFailsWith<IllegalArgumentException> { RaceLength() }
-        assertFailsWith<IllegalArgumentException> { RainChance(101.0) }
-        assertFailsWith<IllegalArgumentException> {
-            RaceSessionSchedule.Recurring(
-                firstSessionOffset = 60.minutes,
-                repeatEvery = (-1).minutes,
-            )
-        }
-        assertFailsWith<IllegalArgumentException> {
-            RaceSessionSchedule.SetTimes(offsetsFromRaceStart = emptyList())
-        }
+    fun plannerModelsKeepImperfectSourceDataRepresentable() {
+        val window = TimeWindow(
+            startsAt = Instant.parse("2026-06-23T00:00:00Z"),
+            endsAt = Instant.parse("2026-06-16T00:00:00Z"),
+        )
+        val raceLength = RaceLength()
+        val rainChance = RainChance(101.0)
+        val recurring = RaceSessionSchedule.Recurring(
+            firstSessionOffset = 60.minutes,
+            repeatEvery = (-1).minutes,
+        )
+        val setTimes = RaceSessionSchedule.SetTimes(offsetsFromRaceStart = emptyList())
+        val car = PlannerCar(
+            id = CarId(""),
+            displayName = "",
+            sourceCarId = -1,
+        )
+
+        assertEquals(0, RaceWeekNumber(0).value)
+        assertEquals(Instant.parse("2026-06-23T00:00:00Z"), window.startsAt)
+        assertEquals(null, raceLength.lapCount)
+        assertEquals(101.0, rainChance.percentage)
+        assertEquals((-1).minutes, recurring.repeatEvery)
+        assertEquals(emptyList(), setTimes.offsetsFromRaceStart)
+        assertEquals("", car.id.value)
+        assertEquals("", car.displayName)
     }
 }

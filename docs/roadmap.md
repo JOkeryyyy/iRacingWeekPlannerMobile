@@ -38,6 +38,7 @@ Outcomes:
 - Cache storage exists.
 - Repository returns cached data when refresh fails.
 - Refresh states are represented in presentation-friendly models.
+- Invalid required source data is represented as an error state, not silently coerced or dropped.
 
 ## Sprint 3: Planner UI MVP
 
@@ -48,6 +49,7 @@ Outcomes:
 - Race list screen exists.
 - Week/date selector exists.
 - Loading, empty, error, and cached states are handled.
+- Invalid required data is shown as a UI error instead of being hidden silently.
 - Planner screen reads from shared state/use cases.
 - Android and iOS basic planner flows can be run.
 

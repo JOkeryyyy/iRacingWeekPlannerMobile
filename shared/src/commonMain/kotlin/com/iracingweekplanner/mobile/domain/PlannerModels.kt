@@ -5,62 +5,30 @@ import kotlin.time.Duration
 import kotlin.time.Instant
 
 @JvmInline
-value class SeasonId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "SeasonId must not be blank." }
-    }
-}
+value class SeasonId(val value: String)
 
 @JvmInline
-value class RaceId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "RaceId must not be blank." }
-    }
-}
+value class RaceId(val value: String)
 
 @JvmInline
-value class SeriesId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "SeriesId must not be blank." }
-    }
-}
+value class SeriesId(val value: String)
 
 @JvmInline
-value class CarId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "CarId must not be blank." }
-    }
-}
+value class CarId(val value: String)
 
 @JvmInline
-value class TrackId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "TrackId must not be blank." }
-    }
-}
+value class TrackId(val value: String)
 
 @JvmInline
-value class RaceWeekNumber(val value: Int) {
-    init {
-        require(value > 0) { "RaceWeekNumber must be positive." }
-    }
-}
+value class RaceWeekNumber(val value: Int)
 
 @JvmInline
-value class SeriesCategory(val displayName: String) {
-    init {
-        require(displayName.isNotBlank()) { "SeriesCategory displayName must not be blank." }
-    }
-}
+value class SeriesCategory(val displayName: String)
 
 data class TimeWindow(
     val startsAt: Instant,
     val endsAt: Instant,
-) {
-    init {
-        require(endsAt > startsAt) { "TimeWindow endsAt must be after startsAt." }
-    }
-}
+)
 
 data class PlannerSeason(
     val id: SeasonId,
@@ -70,11 +38,7 @@ data class PlannerSeason(
     val weeks: List<RaceWeek>,
     val series: List<PlannerSeries>,
     val races: List<PlannerRace>,
-) {
-    init {
-        require(name.isNotBlank()) { "PlannerSeason name must not be blank." }
-    }
-}
+)
 
 data class RaceWeek(
     val number: RaceWeekNumber,
@@ -88,23 +52,12 @@ data class PlannerSeries(
     val license: LicenseRequirement,
     val setup: RaceSetup,
     val isOfficial: Boolean,
-) {
-    init {
-        require(name.isNotBlank()) { "PlannerSeries name must not be blank." }
-    }
-}
+)
 
 data class LicenseRequirement(
     val className: String,
     val safetyRatingLevel: Int? = null,
-) {
-    init {
-        require(className.isNotBlank()) { "LicenseRequirement className must not be blank." }
-        require(safetyRatingLevel == null || safetyRatingLevel >= 0) {
-            "LicenseRequirement safetyRatingLevel must be non-negative."
-        }
-    }
-}
+)
 
 enum class RaceSetup {
     FIXED,
@@ -122,75 +75,31 @@ data class PlannerRace(
     val sessions: List<RaceSessionSchedule>,
     val length: RaceLength? = null,
     val rainChance: RainChance? = null,
-) {
-    init {
-        require(carIds.isNotEmpty()) { "PlannerRace carIds must not be empty." }
-        require(sessions.isNotEmpty()) { "PlannerRace sessions must not be empty." }
-    }
-}
+)
 
 data class RaceTrackRef(
     val id: TrackId,
     val name: String,
     val configurationName: String? = null,
-) {
-    init {
-        require(name.isNotBlank()) { "RaceTrackRef name must not be blank." }
-        require(configurationName == null || configurationName.isNotBlank()) {
-            "RaceTrackRef configurationName must not be blank when present."
-        }
-    }
-}
+)
 
 data class RaceLength(
     val lapCount: Int? = null,
     val timeLimitMinutes: Int? = null,
-) {
-    init {
-        require(lapCount != null || timeLimitMinutes != null) {
-            "RaceLength must include lapCount or timeLimitMinutes."
-        }
-        require(lapCount == null || lapCount > 0) { "RaceLength lapCount must be positive." }
-        require(timeLimitMinutes == null || timeLimitMinutes > 0) {
-            "RaceLength timeLimitMinutes must be positive."
-        }
-    }
-}
+)
 
 @JvmInline
-value class RainChance(val percentage: Double) {
-    init {
-        require(percentage >= 0.0 && percentage <= 100.0) {
-            "RainChance percentage must be between 0.0 and 100.0."
-        }
-    }
-}
+value class RainChance(val percentage: Double)
 
 sealed interface RaceSessionSchedule {
     data class Recurring(
         val firstSessionOffset: Duration,
         val repeatEvery: Duration,
-    ) : RaceSessionSchedule {
-        init {
-            require(firstSessionOffset >= Duration.ZERO) {
-                "Recurring firstSessionOffset must be non-negative."
-            }
-            require(repeatEvery > Duration.ZERO) { "Recurring repeatEvery must be positive." }
-        }
-    }
+    ) : RaceSessionSchedule
 
     data class SetTimes(
         val offsetsFromRaceStart: List<Duration>,
-    ) : RaceSessionSchedule {
-        init {
-            require(offsetsFromRaceStart.isNotEmpty()) {
-                "SetTimes offsetsFromRaceStart must not be empty."
-            }
-            require(offsetsFromRaceStart.all { it >= Duration.ZERO }) {
-                "SetTimes offsetsFromRaceStart must be non-negative."
-            }
-        }
-    }
+    ) : RaceSessionSchedule
 }
 
 data class PlannerCar(
@@ -202,12 +111,7 @@ data class PlannerCar(
     val carClasses: Set<String> = emptySet(),
     val isFreeWithSubscription: Boolean? = null,
     val imageUrl: String? = null,
-) {
-    init {
-        require(displayName.isNotBlank()) { "PlannerCar displayName must not be blank." }
-        require(sourceCarId == null || sourceCarId > 0) { "PlannerCar sourceCarId must be positive." }
-    }
-}
+)
 
 data class PlannerTrack(
     val id: TrackId,
@@ -218,12 +122,7 @@ data class PlannerTrack(
     val isDefaultContent: Boolean? = null,
     val mapUrl: String? = null,
     val imageUrl: String? = null,
-) {
-    init {
-        require(displayName.isNotBlank()) { "PlannerTrack displayName must not be blank." }
-        require(sourceTrackIds.all { it > 0 }) { "PlannerTrack sourceTrackIds must be positive." }
-    }
-}
+)
 
 enum class TrackType {
     ROAD,

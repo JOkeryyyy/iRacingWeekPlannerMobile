@@ -131,7 +131,7 @@ Good default test targets:
 
 - Domain use cases with fake repositories.
 - DTO parsing against local mock JSON.
-- Mapper conversion from DTOs to domain models.
+- Mapper conversion from DTOs to domain models, including imperfect source-data cases that should map without broad domain `require` checks.
 - Repository refresh/cache behavior with fake data sources.
 - State-holder/ViewModel loading, loaded, empty, and error states.
 
