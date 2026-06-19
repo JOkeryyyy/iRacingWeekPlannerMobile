@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-16T00:00:00Z",
+  "seasonId": "2026-s2",
+  "seasonName": "2026 Season 2",
+  "seasonStart": "2026-03-17T00:00:00Z",
+  "seasonEnd": "2026-06-09T00:00:00Z",
+  "weekSeasonStart": "2026-03-17T00:00:00Z",
+  "weeks": [
+    {
+      "weekNumber": 1,
+      "startsAt": "2026-03-17T00:00:00Z",
+      "endsAt": "2026-03-24T00:00:00Z"
+    },
+    {
+      "weekNumber": 2,
+      "startsAt": "2026-03-24T00:00:00Z",
+      "endsAt": "2026-03-31T00:00:00Z"
+    }
+  ],
+  "series": [
+    {
+      "seriesId": "series-global-mazda-mx5",
+      "name": "Global Mazda MX-5 Cup",
+      "category": "Sports Car",
+      "license": {
+        "className": "Rookie",
+        "level": 1
+      },
+      "isOfficial": true,
+      "isFixedSetup": true
+    },
+    {
+      "seriesId": "series-porsche-cup",
+      "name": "Porsche Cup",
+      "category": "Sports Car",
+      "license": {
+        "className": "C",
+        "level": 3
+      },
+      "isOfficial": true,
+      "isFixedSetup": true
+    },
+    {
+      "seriesId": "series-imsa-prototype-challenge",
+      "name": "IMSA Prototype Challenge",
+      "category": "Sports Car",
+      "license": {
+        "className": "B",
+        "level": 4
+      },
+      "isOfficial": true,
+      "isFixedSetup": false
+    },
+    {
+      "seriesId": "series-formula-vee",
+      "name": "Formula Vee",
+      "category": "Formula Car",
+      "license": {
+        "className": "Rookie",
+        "level": 1
+      },
+      "isOfficial": true,
+      "isFixedSetup": true
+    }
+  ],
+  "races": [
+    {
+      "raceId": "2026-s2-series-global-mazda-mx5-w1-okayama-international-circuit-2026-03-17T00:00:00Z",
+      "seriesId": "series-global-mazda-mx5",
+      "weekNumber": 1,
+      "startsAt": "2026-03-17T00:00:00Z",
+      "endsAt": "2026-03-24T00:00:00Z",
+      "trackPackageId": "okayama-international-circuit",
+      "trackName": "Okayama International Circuit",
+      "trackConfigName": "Full Course",
+      "carSkus": [
+        "mazda-mx5-cup"
+      ],
+      "carClasses": [
+        "Global Mazda MX-5 Cup"
+      ],
+      "raceLength": {
+        "laps": 10
+      },
+      "precipChance": 0,
+      "sessions": [
+        {
+          "type": "recurring",
+          "firstSessionOffsetMinutes": 60,
+          "repeatEveryMinutes": 120
+        }
+      ]
+    },
+    {
+      "raceId": "2026-s2-series-porsche-cup-w1-virginia-international-raceway-2026-03-17T00:00:00Z",
+      "seriesId": "series-porsche-cup",
+      "weekNumber": 1,
+      "startsAt": "2026-03-17T00:00:00Z",
+      "endsAt": "2026-03-24T00:00:00Z",
+      "trackPackageId": "virginia-international-raceway",
+      "trackName": "Virginia International Raceway",
+      "trackConfigName": "Full Course",
+      "carSkus": [
+        "porsche-911-gt3-cup-992"
+      ],
+      "carClasses": [
+        "Porsche 911 GT3 Cup"
+      ],
+      "raceLength": {
+        "minutes": 30
+      },
+      "precipChance": 15,
+      "sessions": [
+        {
+          "type": "setTimes",
+          "offsetMinutes": [
+            120,
+            480,
+            840
+          ]
+        }
+      ]
+    },
+    {
+      "raceId": "2026-s2-series-imsa-prototype-challenge-w2-daytona-international-speedway-2026-03-24T00:00:00Z",
+      "seriesId": "series-imsa-prototype-challenge",
+      "weekNumber": 2,
+      "startsAt": "2026-03-24T00:00:00Z",
+      "endsAt": "2026-03-31T00:00:00Z",
+      "trackPackageId": "daytona-international-speedway",
+      "trackName": "Daytona International Speedway",
+      "trackConfigName": "Road Course",
+      "carSkus": [
+        "dallara-p217",
+        "porsche-911-gt3-cup-992"
+      ],
+      "carClasses": [
+        "LMP2",
+        "GT3 Cup"
+      ],
+      "raceLength": {
+        "minutes": 45
+      },
+      "precipChance": 35,
+      "sessions": [
+        {
+          "type": "recurring",
+          "firstSessionOffsetMinutes": 90,
+          "repeatEveryMinutes": 180
+        }
+      ]
+    },
+    {
+      "raceId": "2026-s2-series-formula-vee-w2-charlotte-motor-speedway-2026-03-24T00:00:00Z",
+      "seriesId": "series-formula-vee",
+      "weekNumber": 2,
+      "startsAt": "2026-03-24T00:00:00Z",
+      "endsAt": "2026-03-31T00:00:00Z",
+      "trackPackageId": "charlotte-motor-speedway",
+      "trackName": "Charlotte Motor Speedway",
+      "trackConfigName": "Roval",
+      "carSkus": [
+        "formula-vee"
+      ],
+      "carClasses": [
+        "Formula Vee"
+      ],
+      "raceLength": {
+        "laps": 12
+      },
+      "sessions": [
+        {
+          "type": "setTimes",
+          "offsetMinutes": [
+            180,
+            540,
+            900
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-16T00:00:00Z",
+  "tracks": [
+    {
+      "packageId": "okayama-international-circuit",
+      "displayName": "Okayama International Circuit",
+      "sourceTrackIds": [
+        1001,
+        1002
+      ],
+      "type": "road",
+      "supportedTypes": [
+        "road"
+      ],
+      "isDefaultContent": true
+    },
+    {
+      "packageId": "virginia-international-raceway",
+      "displayName": "Virginia International Raceway",
+      "sourceTrackIds": [
+        1101,
+        1102,
+        1103
+      ],
+      "type": "road",
+      "supportedTypes": [
+        "road"
+      ],
+      "isDefaultContent": false
+    },
+    {
+      "packageId": "daytona-international-speedway",
+      "displayName": "Daytona International Speedway",
+      "sourceTrackIds": [
+        1201,
+        1202
+      ],
+      "type": "road",
+      "supportedTypes": [
+        "road",
+        "oval"
+      ],
+      "isDefaultContent": false
+    },
+    {
+      "packageId": "charlotte-motor-speedway",
+      "displayName": "Charlotte Motor Speedway",
+      "sourceTrackIds": [
+        1301,
+        1302
+      ],
+      "type": "road",
+      "supportedTypes": [
+        "road",
+        "oval"
+      ],
+      "isDefaultContent": true
+    }
+  ]
+}

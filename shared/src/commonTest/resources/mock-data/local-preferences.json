@@ -1,0 +1,16 @@
+{
+  "ownedCarSkus": [
+    "mazda-mx5-cup",
+    "formula-vee"
+  ],
+  "favoriteCarSkus": [
+    "porsche-911-gt3-cup-992"
+  ],
+  "ownedTrackPackageIds": [
+    "okayama-international-circuit",
+    "charlotte-motor-speedway"
+  ],
+  "favoriteTrackPackageIds": [
+    "virginia-international-raceway"
+  ]
+}
