@@ -58,6 +58,11 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.koin.test)
         }
+        named("androidHostTest") {
+            dependencies {
+                implementation(libs.robolectric)
+            }
+        }
     }
 }
 
