@@ -14,11 +14,14 @@ class PlannerDataUseCasesTest {
     @Test
     fun loadRaceWeeksReturnsRaceWeeksFromRepository() = runSuspending {
         val expectedWeeks = listOf(sampleRaceWeek(number = 1), sampleRaceWeek(number = 2))
-        val repository = FakePlannerScheduleRepository(raceWeeks = expectedWeeks)
+        val repository = FakePlannerScheduleRepository(
+            raceWeeks = PlannerDataResult.Loaded(expectedWeeks),
+        )
 
-        val actualWeeks = LoadRaceWeeksUseCase(repository)()
+        val actualWeeks = LoadRaceWeeksUseCase(repository)() as PlannerDataResult.Loaded
 
-        assertEquals(expectedWeeks, actualWeeks)
+        assertEquals(expectedWeeks, actualWeeks.data)
+        assertEquals(PlannerDataFreshness.FRESH, actualWeeks.freshness)
         assertEquals(1, repository.raceWeeksLoadCount)
         assertEquals(0, repository.racesLoadCount)
     }
@@ -26,12 +29,31 @@ class PlannerDataUseCasesTest {
     @Test
     fun loadPlannerRacesReturnsPlannerRacesFromRepository() = runSuspending {
         val expectedRaces = listOf(samplePlannerRace(id = "race-1"), samplePlannerRace(id = "race-2"))
-        val repository = FakePlannerScheduleRepository(races = expectedRaces)
+        val repository = FakePlannerScheduleRepository(
+            races = PlannerDataResult.Loaded(expectedRaces),
+        )
+
+        val actualRaces = LoadPlannerRacesUseCase(repository)() as PlannerDataResult.Loaded
+
+        assertEquals(expectedRaces, actualRaces.data)
+        assertEquals(PlannerDataFreshness.FRESH, actualRaces.freshness)
+        assertEquals(0, repository.raceWeeksLoadCount)
+        assertEquals(1, repository.racesLoadCount)
+    }
+
+    @Test
+    fun loadPlannerRacesReturnsRepositoryFailure() = runSuspending {
+        val expectedError = PlannerDataError.InvalidSourceData(
+            path = "season.races[0].startsAt",
+            detail = "Invalid timestamp",
+        )
+        val repository = FakePlannerScheduleRepository(
+            races = PlannerDataResult.Failure(expectedError),
+        )
 
         val actualRaces = LoadPlannerRacesUseCase(repository)()
 
-        assertEquals(expectedRaces, actualRaces)
-        assertEquals(0, repository.raceWeeksLoadCount)
+        assertEquals(PlannerDataResult.Failure(expectedError), actualRaces)
         assertEquals(1, repository.racesLoadCount)
     }
 
@@ -49,11 +71,14 @@ class PlannerDataUseCasesTest {
                 sourceCarId = 170,
             ),
         )
-        val repository = FakePlannerCarRepository(cars = expectedCars)
+        val repository = FakePlannerCarRepository(
+            cars = PlannerDataResult.Loaded(expectedCars),
+        )
 
-        val actualCars = LoadPlannerCarsUseCase(repository)()
+        val actualCars = LoadPlannerCarsUseCase(repository)() as PlannerDataResult.Loaded
 
-        assertEquals(expectedCars, actualCars)
+        assertEquals(expectedCars, actualCars.data)
+        assertEquals(PlannerDataFreshness.FRESH, actualCars.freshness)
         assertEquals(1, repository.loadCount)
     }
 
@@ -73,53 +98,56 @@ class PlannerDataUseCasesTest {
                 primaryType = TrackType.OVAL,
             ),
         )
-        val repository = FakePlannerTrackRepository(tracks = expectedTracks)
+        val repository = FakePlannerTrackRepository(
+            tracks = PlannerDataResult.Loaded(expectedTracks),
+        )
 
-        val actualTracks = LoadPlannerTracksUseCase(repository)()
+        val actualTracks = LoadPlannerTracksUseCase(repository)() as PlannerDataResult.Loaded
 
-        assertEquals(expectedTracks, actualTracks)
+        assertEquals(expectedTracks, actualTracks.data)
+        assertEquals(PlannerDataFreshness.FRESH, actualTracks.freshness)
         assertEquals(1, repository.loadCount)
     }
 
     private class FakePlannerScheduleRepository(
-        private val raceWeeks: List<RaceWeek> = emptyList(),
-        private val races: List<PlannerRace> = emptyList(),
+        private val raceWeeks: PlannerDataResult<List<RaceWeek>> = PlannerDataResult.Loaded(emptyList()),
+        private val races: PlannerDataResult<List<PlannerRace>> = PlannerDataResult.Loaded(emptyList()),
     ) : PlannerScheduleRepository {
         var raceWeeksLoadCount = 0
             private set
         var racesLoadCount = 0
             private set
 
-        override suspend fun loadRaceWeeks(): List<RaceWeek> {
+        override suspend fun loadRaceWeeks(): PlannerDataResult<List<RaceWeek>> {
             raceWeeksLoadCount += 1
             return raceWeeks
         }
 
-        override suspend fun loadPlannerRaces(): List<PlannerRace> {
+        override suspend fun loadPlannerRaces(): PlannerDataResult<List<PlannerRace>> {
             racesLoadCount += 1
             return races
         }
     }
 
     private class FakePlannerCarRepository(
-        private val cars: List<PlannerCar>,
+        private val cars: PlannerDataResult<List<PlannerCar>>,
     ) : PlannerCarRepository {
         var loadCount = 0
             private set
 
-        override suspend fun loadPlannerCars(): List<PlannerCar> {
+        override suspend fun loadPlannerCars(): PlannerDataResult<List<PlannerCar>> {
             loadCount += 1
             return cars
         }
     }
 
     private class FakePlannerTrackRepository(
-        private val tracks: List<PlannerTrack>,
+        private val tracks: PlannerDataResult<List<PlannerTrack>>,
     ) : PlannerTrackRepository {
         var loadCount = 0
             private set
 
-        override suspend fun loadPlannerTracks(): List<PlannerTrack> {
+        override suspend fun loadPlannerTracks(): PlannerDataResult<List<PlannerTrack>> {
             loadCount += 1
             return tracks
         }

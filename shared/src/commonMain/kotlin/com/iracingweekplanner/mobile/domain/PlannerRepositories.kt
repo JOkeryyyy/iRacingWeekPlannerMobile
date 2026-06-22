@@ -1,14 +1,14 @@
 package com.iracingweekplanner.mobile.domain
 
 interface PlannerScheduleRepository {
-    suspend fun loadRaceWeeks(): List<RaceWeek>
-    suspend fun loadPlannerRaces(): List<PlannerRace>
+    suspend fun loadRaceWeeks(): PlannerDataResult<List<RaceWeek>>
+    suspend fun loadPlannerRaces(): PlannerDataResult<List<PlannerRace>>
 }
 
 interface PlannerCarRepository {
-    suspend fun loadPlannerCars(): List<PlannerCar>
+    suspend fun loadPlannerCars(): PlannerDataResult<List<PlannerCar>>
 }
 
 interface PlannerTrackRepository {
-    suspend fun loadPlannerTracks(): List<PlannerTrack>
+    suspend fun loadPlannerTracks(): PlannerDataResult<List<PlannerTrack>>
 }
