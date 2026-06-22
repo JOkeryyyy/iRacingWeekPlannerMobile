@@ -12,6 +12,9 @@ import com.iracingweekplanner.mobile.data.dto.SeriesDto
 import com.iracingweekplanner.mobile.data.dto.TrackDto
 import com.iracingweekplanner.mobile.data.dto.TracksCatalogDto
 import com.iracingweekplanner.mobile.domain.CarId
+import com.iracingweekplanner.mobile.domain.PlannerDataError
+import com.iracingweekplanner.mobile.domain.PlannerDataFreshness
+import com.iracingweekplanner.mobile.domain.PlannerDataResult
 import com.iracingweekplanner.mobile.domain.RaceId
 import com.iracingweekplanner.mobile.domain.RaceSessionSchedule
 import com.iracingweekplanner.mobile.domain.RaceSetup
@@ -32,7 +35,7 @@ class PlannerDataMappersTest {
 
     @Test
     fun mapsSeasonDtoIntoPlannerDomainModel() {
-        val season = sampleSeasonDto().toDomain()
+        val season = assertLoaded(sampleSeasonDto().toDomain())
 
         assertEquals(SeasonId("2026-s2"), season.id)
         assertEquals("2026 Season 2", season.name)
@@ -74,38 +77,42 @@ class PlannerDataMappersTest {
 
     @Test
     fun mapsCatalogDtosIntoPlannerDomainModels() {
-        val cars = CarsCatalogDto(
-            schemaVersion = 1,
-            generatedAt = "2026-06-16T00:00:00Z",
-            cars = listOf(
-                CarDto(
-                    sku = "mazda-mx5-cup",
-                    displayName = "Global Mazda MX-5 Cup",
-                    sourceCarId = 1,
-                    sourceSkuName = "Mazda MX-5 Cup",
-                    categories = listOf("Sports Car", "Road"),
-                    carClasses = listOf("Global Mazda MX-5 Cup"),
-                    freeWithSubscription = true,
-                    imageUrl = "https://example.test/mx5.png",
+        val cars = assertLoaded(
+            CarsCatalogDto(
+                schemaVersion = 1,
+                generatedAt = "2026-06-16T00:00:00Z",
+                cars = listOf(
+                    CarDto(
+                        sku = "mazda-mx5-cup",
+                        displayName = "Global Mazda MX-5 Cup",
+                        sourceCarId = 1,
+                        sourceSkuName = "Mazda MX-5 Cup",
+                        categories = listOf("Sports Car", "Road"),
+                        carClasses = listOf("Global Mazda MX-5 Cup"),
+                        freeWithSubscription = true,
+                        imageUrl = "https://example.test/mx5.png",
+                    ),
                 ),
-            ),
-        ).toDomain()
-        val tracks = TracksCatalogDto(
-            schemaVersion = 1,
-            generatedAt = "2026-06-16T00:00:00Z",
-            tracks = listOf(
-                TrackDto(
-                    packageId = "daytona-international-speedway",
-                    displayName = "Daytona International Speedway",
-                    sourceTrackIds = listOf(1201, 1202),
-                    type = "road",
-                    supportedTypes = listOf("road", "oval"),
-                    isDefaultContent = false,
-                    mapUrl = "https://example.test/daytona-map.png",
-                    imageUrl = "https://example.test/daytona.png",
+            ).toDomain(),
+        )
+        val tracks = assertLoaded(
+            TracksCatalogDto(
+                schemaVersion = 1,
+                generatedAt = "2026-06-16T00:00:00Z",
+                tracks = listOf(
+                    TrackDto(
+                        packageId = "daytona-international-speedway",
+                        displayName = "Daytona International Speedway",
+                        sourceTrackIds = listOf(1201, 1202),
+                        type = "road",
+                        supportedTypes = listOf("road", "oval"),
+                        isDefaultContent = false,
+                        mapUrl = "https://example.test/daytona-map.png",
+                        imageUrl = "https://example.test/daytona.png",
+                    ),
                 ),
-            ),
-        ).toDomain()
+            ).toDomain(),
+        )
 
         val car = cars.single()
         assertEquals(CarId("mazda-mx5-cup"), car.id)
@@ -135,29 +142,33 @@ class PlannerDataMappersTest {
             raceLength = null,
             precipChance = null,
         )
-        val season = sampleSeasonDto(races = listOf(race)).toDomain()
+        val season = assertLoaded(sampleSeasonDto(races = listOf(race)).toDomain())
         val mappedRace = season.races.single()
-        val cars = CarsCatalogDto(
-            schemaVersion = 1,
-            generatedAt = "2026-06-16T00:00:00Z",
-            cars = listOf(
-                CarDto(
-                    sku = "formula-vee",
-                    displayName = "Formula Vee",
+        val cars = assertLoaded(
+            CarsCatalogDto(
+                schemaVersion = 1,
+                generatedAt = "2026-06-16T00:00:00Z",
+                cars = listOf(
+                    CarDto(
+                        sku = "formula-vee",
+                        displayName = "Formula Vee",
+                    ),
                 ),
-            ),
-        ).toDomain()
-        val tracks = TracksCatalogDto(
-            schemaVersion = 1,
-            generatedAt = "2026-06-16T00:00:00Z",
-            tracks = listOf(
-                TrackDto(
-                    packageId = "charlotte-motor-speedway",
-                    displayName = "Charlotte Motor Speedway",
-                    sourceTrackIds = listOf(1301),
+            ).toDomain(),
+        )
+        val tracks = assertLoaded(
+            TracksCatalogDto(
+                schemaVersion = 1,
+                generatedAt = "2026-06-16T00:00:00Z",
+                tracks = listOf(
+                    TrackDto(
+                        packageId = "charlotte-motor-speedway",
+                        displayName = "Charlotte Motor Speedway",
+                        sourceTrackIds = listOf(1301),
+                    ),
                 ),
-            ),
-        ).toDomain()
+            ).toDomain(),
+        )
 
         assertNull(mappedRace.track.configurationName)
         assertNull(mappedRace.length)
@@ -170,16 +181,34 @@ class PlannerDataMappersTest {
     }
 
     @Test
-    fun imperfectSourceDataMapsWithoutExtraResultWrapper() {
-        val season = sampleSeasonDto(
-            seasonId = "",
+    fun invalidRequiredTimestampReturnsPlannerDataFailure() {
+        val result = sampleSeasonDto(
             seasonStart = "not-a-timestamp",
+        ).toDomain()
+
+        val error = assertInvalidSourceData(result)
+        assertEquals("seasonStart", error.path)
+    }
+
+    @Test
+    fun unknownRequiredSessionTypeReturnsPlannerDataFailure() {
+        val result = sampleSeasonDto(
             races = listOf(
                 sampleRaceDto(
                     sessions = listOf(RaceSessionDto(type = "practiceOnly")),
                 ),
+            ),
+        ).toDomain()
+
+        val error = assertInvalidSourceData(result)
+        assertEquals("races[race-recurring].sessions[0].type", error.path)
+    }
+
+    @Test
+    fun missingRequiredRecurringSessionFieldsReturnPlannerDataFailure() {
+        val result = sampleSeasonDto(
+            races = listOf(
                 sampleRaceDto(
-                    raceId = "race-missing-recurring-data",
                     sessions = listOf(
                         RaceSessionDto(
                             type = "recurring",
@@ -190,30 +219,40 @@ class PlannerDataMappersTest {
             ),
         ).toDomain()
 
-        assertEquals(SeasonId(""), season.id)
-        assertEquals(Instant.fromEpochMilliseconds(0), season.window.startsAt)
-        assertEquals(emptyList(), season.races.first().sessions)
+        val error = assertInvalidSourceData(result)
+        assertEquals("races[race-recurring].sessions[0].repeatEveryMinutes", error.path)
+    }
 
-        val recurring = season.races.last().sessions.single() as RaceSessionSchedule.Recurring
-        assertEquals(60.minutes, recurring.firstSessionOffset)
-        assertEquals(0.minutes, recurring.repeatEvery)
-
-        val track = TracksCatalogDto(
-            schemaVersion = 1,
-            generatedAt = "2026-06-16T00:00:00Z",
-            tracks = listOf(
-                TrackDto(
-                    packageId = "test-track",
-                    displayName = "Test Track",
-                    sourceTrackIds = listOf(1),
-                    type = "drag",
-                    supportedTypes = listOf("road", "drag"),
+    @Test
+    fun unknownOptionalTrackTypesStillMapToNullOrSupportedKnownValues() {
+        val track = assertLoaded(
+            TracksCatalogDto(
+                schemaVersion = 1,
+                generatedAt = "2026-06-16T00:00:00Z",
+                tracks = listOf(
+                    TrackDto(
+                        packageId = "test-track",
+                        displayName = "Test Track",
+                        sourceTrackIds = listOf(1),
+                        type = "drag",
+                        supportedTypes = listOf("road", "drag"),
+                    ),
                 ),
-            ),
-        ).toDomain().single()
+            ).toDomain(),
+        ).single()
+
         assertNull(track.primaryType)
         assertEquals(setOf(TrackType.ROAD), track.supportedTypes)
     }
+
+    private fun <T> assertLoaded(result: PlannerDataResult<T>): T {
+        val loaded = result as PlannerDataResult.Loaded
+        assertEquals(PlannerDataFreshness.FRESH, loaded.freshness)
+        return loaded.data
+    }
+
+    private fun assertInvalidSourceData(result: PlannerDataResult<*>): PlannerDataError.InvalidSourceData =
+        (result as PlannerDataResult.Failure).error as PlannerDataError.InvalidSourceData
 
     private fun sampleSeasonDto(
         seasonId: String = "2026-s2",

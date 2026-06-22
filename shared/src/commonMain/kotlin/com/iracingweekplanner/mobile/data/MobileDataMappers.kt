@@ -14,6 +14,8 @@ import com.iracingweekplanner.mobile.data.dto.TracksCatalogDto
 import com.iracingweekplanner.mobile.domain.CarId
 import com.iracingweekplanner.mobile.domain.LicenseRequirement
 import com.iracingweekplanner.mobile.domain.PlannerCar
+import com.iracingweekplanner.mobile.domain.PlannerDataError
+import com.iracingweekplanner.mobile.domain.PlannerDataResult
 import com.iracingweekplanner.mobile.domain.PlannerRace
 import com.iracingweekplanner.mobile.domain.PlannerSeason
 import com.iracingweekplanner.mobile.domain.PlannerSeries
@@ -35,34 +37,55 @@ import com.iracingweekplanner.mobile.domain.TrackType
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
-fun SeasonDto.toDomain(): PlannerSeason =
-    PlannerSeason(
-        id = SeasonId(seasonId),
-        name = seasonName,
-        window = TimeWindow(
-            startsAt = seasonStart.toInstantOrEpoch(),
-            endsAt = seasonEnd.toInstantOrEpoch(),
+fun SeasonDto.toDomain(): PlannerDataResult<PlannerSeason> {
+    val seasonStartsAt = seasonStart.toInstantResult(path = "seasonStart").dataOrReturn { return it }
+    val seasonEndsAt = seasonEnd.toInstantResult(path = "seasonEnd").dataOrReturn { return it }
+    val weekCalculationStartsAt = weekSeasonStart
+        .toInstantResult(path = "weekSeasonStart")
+        .dataOrReturn { return it }
+    val mappedWeeks = weeks.mapIndexedResult { index, week ->
+        week.toDomain(path = "weeks[$index]")
+    }.dataOrReturn { return it }
+    val mappedRaces = races.mapIndexedResult { _, race ->
+        race.toDomain(path = "races[${race.raceId}]")
+    }.dataOrReturn { return it }
+
+    return PlannerDataResult.Loaded(
+        PlannerSeason(
+            id = SeasonId(seasonId),
+            name = seasonName,
+            window = TimeWindow(
+                startsAt = seasonStartsAt,
+                endsAt = seasonEndsAt,
+            ),
+            weekCalculationStartsAt = weekCalculationStartsAt,
+            weeks = mappedWeeks,
+            series = series.map { it.toDomain() },
+            races = mappedRaces,
         ),
-        weekCalculationStartsAt = weekSeasonStart.toInstantOrEpoch(),
-        weeks = weeks.map { it.toDomain() },
-        series = series.map { it.toDomain() },
-        races = races.map { it.toDomain() },
     )
+}
 
-fun CarsCatalogDto.toDomain(): List<PlannerCar> =
-    cars.map { it.toDomain() }
+fun CarsCatalogDto.toDomain(): PlannerDataResult<List<PlannerCar>> =
+    PlannerDataResult.Loaded(cars.map { it.toDomain() })
 
-fun TracksCatalogDto.toDomain(): List<PlannerTrack> =
-    tracks.map { it.toDomain() }
+fun TracksCatalogDto.toDomain(): PlannerDataResult<List<PlannerTrack>> =
+    PlannerDataResult.Loaded(tracks.map { it.toDomain() })
 
-private fun SeasonWeekDto.toDomain(): RaceWeek =
-    RaceWeek(
-        number = RaceWeekNumber(weekNumber),
-        window = TimeWindow(
-            startsAt = startsAt.toInstantOrEpoch(),
-            endsAt = endsAt.toInstantOrEpoch(),
+private fun SeasonWeekDto.toDomain(path: String): PlannerDataResult<RaceWeek> {
+    val startsAt = startsAt.toInstantResult(path = "$path.startsAt").dataOrReturn { return it }
+    val endsAt = endsAt.toInstantResult(path = "$path.endsAt").dataOrReturn { return it }
+
+    return PlannerDataResult.Loaded(
+        RaceWeek(
+            number = RaceWeekNumber(weekNumber),
+            window = TimeWindow(
+                startsAt = startsAt,
+                endsAt = endsAt,
+            ),
         ),
     )
+}
 
 private fun SeriesDto.toDomain(): PlannerSeries =
     PlannerSeries(
@@ -80,26 +103,35 @@ private fun LicenseDto.toDomain(): LicenseRequirement =
         safetyRatingLevel = level,
     )
 
-private fun RaceDto.toDomain(): PlannerRace =
-    PlannerRace(
-        id = RaceId(raceId),
-        seriesId = SeriesId(seriesId),
-        weekNumber = RaceWeekNumber(weekNumber),
-        window = TimeWindow(
-            startsAt = startsAt.toInstantOrEpoch(),
-            endsAt = endsAt.toInstantOrEpoch(),
+private fun RaceDto.toDomain(path: String): PlannerDataResult<PlannerRace> {
+    val startsAt = startsAt.toInstantResult(path = "$path.startsAt").dataOrReturn { return it }
+    val endsAt = endsAt.toInstantResult(path = "$path.endsAt").dataOrReturn { return it }
+    val mappedSessions = sessions.mapIndexedResult { index, session ->
+        session.toDomain(path = "$path.sessions[$index]")
+    }.dataOrReturn { return it }
+
+    return PlannerDataResult.Loaded(
+        PlannerRace(
+            id = RaceId(raceId),
+            seriesId = SeriesId(seriesId),
+            weekNumber = RaceWeekNumber(weekNumber),
+            window = TimeWindow(
+                startsAt = startsAt,
+                endsAt = endsAt,
+            ),
+            track = RaceTrackRef(
+                id = TrackId(trackPackageId),
+                name = trackName,
+                configurationName = trackConfigName,
+            ),
+            carIds = carSkus.map { CarId(it) },
+            carClasses = carClasses,
+            sessions = mappedSessions,
+            length = raceLength?.toDomain(),
+            rainChance = precipChance?.let { RainChance(it) },
         ),
-        track = RaceTrackRef(
-            id = TrackId(trackPackageId),
-            name = trackName,
-            configurationName = trackConfigName,
-        ),
-        carIds = carSkus.map { CarId(it) },
-        carClasses = carClasses,
-        sessions = sessions.mapNotNull { it.toDomain() },
-        length = raceLength?.toDomain(),
-        rainChance = precipChance?.let { RainChance(it) },
     )
+}
 
 private fun RaceLengthDto.toDomain(): RaceLength =
     RaceLength(
@@ -107,16 +139,41 @@ private fun RaceLengthDto.toDomain(): RaceLength =
         timeLimitMinutes = minutes,
     )
 
-private fun RaceSessionDto.toDomain(): RaceSessionSchedule? =
+private fun RaceSessionDto.toDomain(path: String): PlannerDataResult<RaceSessionSchedule> =
     when (type) {
-        "recurring" -> RaceSessionSchedule.Recurring(
-            firstSessionOffset = (firstSessionOffsetMinutes ?: 0).minutes,
-            repeatEvery = (repeatEveryMinutes ?: 0).minutes,
+        "recurring" -> {
+            val firstSessionOffsetMinutes = firstSessionOffsetMinutes
+                ?: return invalidSourceData(
+                    path = "$path.firstSessionOffsetMinutes",
+                    detail = "Missing required recurring session field",
+                )
+            val repeatEveryMinutes = repeatEveryMinutes
+                ?: return invalidSourceData(
+                    path = "$path.repeatEveryMinutes",
+                    detail = "Missing required recurring session field",
+                )
+            PlannerDataResult.Loaded(
+                RaceSessionSchedule.Recurring(
+                    firstSessionOffset = firstSessionOffsetMinutes.minutes,
+                    repeatEvery = repeatEveryMinutes.minutes,
+                ),
+            )
+        }
+        "setTimes" -> PlannerDataResult.Loaded(
+            RaceSessionSchedule.SetTimes(
+                offsetsFromRaceStart = (
+                    offsetMinutes
+                        ?: return invalidSourceData(
+                            path = "$path.offsetMinutes",
+                            detail = "Missing required set-times session field",
+                        )
+                    ).map { it.minutes },
+            ),
         )
-        "setTimes" -> RaceSessionSchedule.SetTimes(
-            offsetsFromRaceStart = offsetMinutes.orEmpty().map { it.minutes },
+        else -> invalidSourceData(
+            path = "$path.type",
+            detail = "Unknown session type: $type",
         )
-        else -> null
     }
 
 private fun CarDto.toDomain(): PlannerCar =
@@ -143,11 +200,14 @@ private fun TrackDto.toDomain(): PlannerTrack =
         imageUrl = imageUrl,
     )
 
-private fun String.toInstantOrEpoch(): Instant =
+private fun String.toInstantResult(path: String): PlannerDataResult<Instant> =
     try {
-        Instant.parse(this)
+        PlannerDataResult.Loaded(Instant.parse(this))
     } catch (_: IllegalArgumentException) {
-        Instant.fromEpochMilliseconds(0)
+        invalidSourceData(
+            path = path,
+            detail = "Invalid timestamp",
+        )
     }
 
 private fun String.toTrackTypeOrNull(): TrackType? =
@@ -158,3 +218,32 @@ private fun String.toTrackTypeOrNull(): TrackType? =
         "dirtRoad" -> TrackType.DIRT_ROAD
         else -> null
     }
+
+private fun <T, R> List<T>.mapIndexedResult(
+    transform: (index: Int, value: T) -> PlannerDataResult<R>,
+): PlannerDataResult<List<R>> {
+    val mapped = mutableListOf<R>()
+    forEachIndexed { index, value ->
+        when (val result = transform(index, value)) {
+            is PlannerDataResult.Loaded -> mapped += result.data
+            is PlannerDataResult.Failure -> return result
+        }
+    }
+    return PlannerDataResult.Loaded(mapped)
+}
+
+private inline fun <T> PlannerDataResult<T>.dataOrReturn(
+    onFailure: (PlannerDataResult.Failure) -> Nothing,
+): T =
+    when (this) {
+        is PlannerDataResult.Loaded -> data
+        is PlannerDataResult.Failure -> onFailure(this)
+    }
+
+private fun <T> invalidSourceData(path: String, detail: String): PlannerDataResult<T> =
+    PlannerDataResult.Failure(
+        PlannerDataError.InvalidSourceData(
+            path = path,
+            detail = detail,
+        ),
+    )
