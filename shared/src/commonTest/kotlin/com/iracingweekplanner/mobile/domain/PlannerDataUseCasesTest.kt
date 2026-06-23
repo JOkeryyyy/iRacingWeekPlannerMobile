@@ -109,6 +109,32 @@ class PlannerDataUseCasesTest {
         assertEquals(1, repository.loadCount)
     }
 
+    @Test
+    fun loadPlannerDataReturnsFullDatasetFromRepositoryInOneLoad() = runSuspending {
+        val expectedData = samplePlannerData()
+        val repository = FakePlannerDataRepository(
+            plannerData = PlannerDataResult.Loaded(expectedData, PlannerDataFreshness.CACHED),
+        )
+
+        val actualData = LoadPlannerDataUseCase(repository)() as PlannerDataResult.Loaded
+
+        assertEquals(expectedData, actualData.data)
+        assertEquals(PlannerDataFreshness.CACHED, actualData.freshness)
+        assertEquals(1, repository.loadCount)
+    }
+
+    private class FakePlannerDataRepository(
+        private val plannerData: PlannerDataResult<PlannerData>,
+    ) : PlannerDataRepository {
+        var loadCount = 0
+            private set
+
+        override suspend fun loadPlannerData(): PlannerDataResult<PlannerData> {
+            loadCount += 1
+            return plannerData
+        }
+    }
+
     private class FakePlannerScheduleRepository(
         private val raceWeeks: PlannerDataResult<List<RaceWeek>> = PlannerDataResult.Loaded(emptyList()),
         private val races: PlannerDataResult<List<PlannerRace>> = PlannerDataResult.Loaded(emptyList()),
@@ -203,4 +229,25 @@ class PlannerDataUseCasesTest {
         )
         failure?.let { throw it }
     }
+
+    private fun samplePlannerData(): PlannerData =
+        PlannerData(
+            raceWeeks = listOf(sampleRaceWeek(number = 1)),
+            plannerRaces = listOf(samplePlannerRace(id = "race-1")),
+            cars = listOf(
+                PlannerCar(
+                    id = CarId("mx-5-cup"),
+                    displayName = "Global Mazda MX-5 Cup",
+                    sourceCarId = 35,
+                ),
+            ),
+            tracks = listOf(
+                PlannerTrack(
+                    id = TrackId("lime-rock-park"),
+                    displayName = "Lime Rock Park",
+                    sourceTrackIds = setOf(123),
+                    primaryType = TrackType.ROAD,
+                ),
+            ),
+        )
 }

@@ -198,6 +198,23 @@ class RefreshCachePlannerDataCoordinatorTest {
         assertEquals(dataset.tracks, tracks.data)
     }
 
+    @Test
+    fun plannerDataRepositoryProjectsFullPlannerDatasetWithOneCoordinatorLoad() = runBlocking {
+        val dataset = sampleStoredPlannerData(revision = "cached")
+        val coordinator = FakePlannerDataRefreshCoordinator(
+            PlannerDataResult.Loaded(dataset, PlannerDataFreshness.CACHED),
+        )
+
+        val loaded = assertLoaded(RefreshCachePlannerDataRepository(coordinator).loadPlannerData())
+
+        assertEquals(PlannerDataFreshness.CACHED, loaded.freshness)
+        assertEquals(dataset.season.weeks, loaded.data.raceWeeks)
+        assertEquals(dataset.season.races, loaded.data.plannerRaces)
+        assertEquals(dataset.cars, loaded.data.cars)
+        assertEquals(dataset.tracks, loaded.data.tracks)
+        assertEquals(1, coordinator.loadCount)
+    }
+
     private class FakePlannerDataSource(
         private val result: PlannerDataSourceResult,
     ) : PlannerDataSource {
@@ -228,7 +245,13 @@ class RefreshCachePlannerDataCoordinatorTest {
     private class FakePlannerDataRefreshCoordinator(
         private val result: PlannerDataResult<PlannerStoredPlannerData>,
     ) : PlannerDataRefreshCoordinator {
-        override suspend fun loadPlannerData(): PlannerDataResult<PlannerStoredPlannerData> = result
+        var loadCount = 0
+            private set
+
+        override suspend fun loadPlannerData(): PlannerDataResult<PlannerStoredPlannerData> {
+            loadCount += 1
+            return result
+        }
     }
 
     private fun sourceFailure(
