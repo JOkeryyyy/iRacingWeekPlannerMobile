@@ -109,6 +109,9 @@ class KtorPlannerHostedDataSourceTest {
     fun returnsInvalidReferenceForUnsafeSeasonFilePaths() = runBlocking {
         val unsafeManifests = listOf(
             ManifestJson.replace("\"season.json\"", "\"https://evil.example/season.json\""),
+            ManifestJson.replace("\"season.json\"", "\"https:season.json\""),
+            ManifestJson.replace("\"season.json\"", "\"mailto:season.json\""),
+            ManifestJson.replace("\"season.json\"", "\"data:text/plain,season\""),
             ManifestJson.replace("\"season.json\"", "\"/data/mobile/v1/season.json\""),
             ManifestJson.replace("\"season.json\"", "\"../season.json\""),
             ManifestJson.replace("\"season.json\"", "\"\""),

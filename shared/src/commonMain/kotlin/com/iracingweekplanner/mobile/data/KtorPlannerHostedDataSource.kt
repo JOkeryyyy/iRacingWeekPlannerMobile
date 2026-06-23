@@ -117,7 +117,7 @@ class KtorPlannerHostedDataSource(
         if (path.isBlank()) return false
         if (path.startsWith("/")) return false
         if ("//" in path) return false
-        if (ProtocolReference.matches(path)) return false
+        if (ProtocolReference.containsMatchIn(path)) return false
 
         return path.split('/').none { segment ->
             segment == "." || segment == ".."
