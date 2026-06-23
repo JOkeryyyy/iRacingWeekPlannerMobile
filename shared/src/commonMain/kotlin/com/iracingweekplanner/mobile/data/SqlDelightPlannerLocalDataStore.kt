@@ -4,7 +4,6 @@ import com.iracingweekplanner.mobile.data.db.PlannerDatabase
 import com.iracingweekplanner.mobile.domain.CarId
 import com.iracingweekplanner.mobile.domain.LicenseRequirement
 import com.iracingweekplanner.mobile.domain.PlannerCar
-import com.iracingweekplanner.mobile.domain.PlannerDataResult
 import com.iracingweekplanner.mobile.domain.PlannerRace
 import com.iracingweekplanner.mobile.domain.PlannerSeason
 import com.iracingweekplanner.mobile.domain.PlannerSeries
@@ -33,60 +32,60 @@ class SqlDelightPlannerLocalDataStore(
 
     private val queries = database.plannerLocalDataQueries
 
-    override suspend fun read(): PlannerStoredPlannerData? =
+    override suspend fun read(): PlannerLocalDataReadResult =
         try {
             val metadataRow = queries.selectMetadata().executeAsOneOrNull()
-                ?: return null
             val seasonRow = queries.selectSeason().executeAsOneOrNull()
-                ?: return null
-
-            PlannerStoredPlannerData(
-                metadata = PlannerStoredDatasetMetadata(
-                    schemaVersion = metadataRow.schema_version.toInt(),
-                    generatedAt = metadataRow.generated_at,
-                    seasonId = metadataRow.season_id,
-                    seasonFile = metadataRow.season_file_path,
-                    carsFile = metadataRow.cars_file_path,
-                    tracksFile = metadataRow.tracks_file_path,
-                    revision = metadataRow.revision,
-                    checksums = queries.selectChecksums()
-                        .executeAsList()
-                        .associate { it.file_path to it.checksum },
-                ),
-                season = PlannerSeason(
-                    id = SeasonId(seasonRow.season_id),
-                    name = seasonRow.name,
-                    window = TimeWindow(
-                        startsAt = Instant.parse(seasonRow.starts_at),
-                        endsAt = Instant.parse(seasonRow.ends_at),
+            when {
+                metadataRow == null && seasonRow == null -> PlannerLocalDataReadResult.Miss
+                metadataRow == null || seasonRow == null -> PlannerLocalDataReadResult.Failure
+                else -> PlannerLocalDataReadResult.Hit(
+                    PlannerStoredPlannerData(
+                        metadata = PlannerStoredDatasetMetadata(
+                            schemaVersion = metadataRow.schema_version.toInt(),
+                            generatedAt = metadataRow.generated_at,
+                            seasonId = metadataRow.season_id,
+                            seasonFile = metadataRow.season_file_path,
+                            carsFile = metadataRow.cars_file_path,
+                            tracksFile = metadataRow.tracks_file_path,
+                            revision = metadataRow.revision,
+                            checksums = queries.selectChecksums()
+                                .executeAsList()
+                                .associate { it.file_path to it.checksum },
+                        ),
+                        season = PlannerSeason(
+                            id = SeasonId(seasonRow.season_id),
+                            name = seasonRow.name,
+                            window = TimeWindow(
+                                startsAt = Instant.parse(seasonRow.starts_at),
+                                endsAt = Instant.parse(seasonRow.ends_at),
+                            ),
+                            weekCalculationStartsAt = Instant.parse(seasonRow.week_calculation_starts_at),
+                            weeks = readWeeks(),
+                            series = readSeries(),
+                            races = readRaces(),
+                        ),
+                        cars = readCars(),
+                        tracks = readTracks(),
                     ),
-                    weekCalculationStartsAt = Instant.parse(seasonRow.week_calculation_starts_at),
-                    weeks = readWeeks(),
-                    series = readSeries(),
-                    races = readRaces(),
-                ),
-                cars = readCars(),
-                tracks = readTracks(),
-            )
+                )
+            }
         } catch (error: Exception) {
             if (error is CancellationException) throw error
-            null
+            PlannerLocalDataReadResult.Failure
         }
 
-    override suspend fun replaceIfValid(bundle: PlannerDataBundle): Boolean {
-        val dataset = bundle.toValidatedDataset() ?: return false
-
-        return try {
+    override suspend fun replace(dataset: PlannerStoredPlannerData): PlannerLocalDataWriteResult =
+        try {
             database.transaction {
                 clearPlannerDataset()
                 insertDataset(dataset)
             }
-            true
+            PlannerLocalDataWriteResult.Saved
         } catch (error: Exception) {
             if (error is CancellationException) throw error
-            false
+            PlannerLocalDataWriteResult.Failure
         }
-    }
 
     private fun readWeeks(): List<RaceWeek> =
         queries.selectWeeks().executeAsList().map { row ->
@@ -223,7 +222,7 @@ class SqlDelightPlannerLocalDataStore(
         queries.deleteMetadata()
     }
 
-    private fun insertDataset(dataset: ValidatedPlannerDataset) {
+    private fun insertDataset(dataset: PlannerStoredPlannerData) {
         queries.insertMetadata(
             schema_version = dataset.metadata.schemaVersion.toLong(),
             generated_at = dataset.metadata.generatedAt,
@@ -261,7 +260,7 @@ class SqlDelightPlannerLocalDataStore(
                 is_official = series.isOfficial.toLongValue(),
             )
         }
-        dataset.races.forEach { race ->
+        dataset.season.races.forEach { race ->
             queries.insertRace(
                 race_id = race.id.value,
                 series_id = race.seriesId.value,
@@ -361,34 +360,6 @@ class SqlDelightPlannerLocalDataStore(
             }
         }
     }
-
-    private fun PlannerDataBundle.toValidatedDataset(): ValidatedPlannerDataset? {
-        val season = season.toDomain().dataOrNull() ?: return null
-        val cars = cars.toDomain().dataOrNull() ?: return null
-        val tracks = tracks.toDomain().dataOrNull() ?: return null
-        return ValidatedPlannerDataset(
-            metadata = PlannerStoredDatasetMetadata(
-                schemaVersion = manifest.schemaVersion,
-                generatedAt = manifest.generatedAt,
-                seasonId = manifest.seasonId,
-                seasonFile = manifest.seasonFile,
-                carsFile = manifest.carsFile,
-                tracksFile = manifest.tracksFile,
-                revision = manifest.revision,
-                checksums = manifest.checksums.orEmpty(),
-            ),
-            season = season,
-            cars = cars,
-            tracks = tracks,
-            races = season.races,
-        )
-    }
-
-    private fun <T> PlannerDataResult<T>.dataOrNull(): T? =
-        when (this) {
-            is PlannerDataResult.Loaded -> data
-            is PlannerDataResult.Failure -> null
-        }
 
     private companion object {
         const val SESSION_TYPE_RECURRING = "recurring"

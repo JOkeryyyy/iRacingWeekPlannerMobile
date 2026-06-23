@@ -15,6 +15,7 @@ import com.iracingweekplanner.mobile.data.dto.SeriesDto
 import com.iracingweekplanner.mobile.data.dto.TrackDto
 import com.iracingweekplanner.mobile.data.dto.TracksCatalogDto
 import com.iracingweekplanner.mobile.domain.CarId
+import com.iracingweekplanner.mobile.domain.PlannerDataResult
 import com.iracingweekplanner.mobile.domain.RaceId
 import com.iracingweekplanner.mobile.domain.RaceSessionSchedule
 import com.iracingweekplanner.mobile.domain.RaceSetup
@@ -36,12 +37,12 @@ import kotlin.time.Instant
 class SqlDelightPlannerLocalDataStoreTest {
 
     @Test
-    fun replaceIfValidPersistsFullPlannerDatasetAndReadReturnsDomainModels() = runBlocking {
+    fun replacePersistsFullPlannerDatasetAndReadReturnsDomainModels() = runBlocking {
         val store = createStore()
 
-        assertEquals(true, store.replaceIfValid(sampleBundle(revision = "valid")))
+        assertEquals(PlannerLocalDataWriteResult.Saved, store.replace(sampleStoredPlannerData(revision = "valid")))
 
-        val dataset = store.read() ?: fail("Expected local planner dataset")
+        val dataset = assertHit(store.read())
         assertEquals("valid", dataset.metadata.revision)
         assertEquals(1, dataset.metadata.schemaVersion)
         assertEquals("2026-06-16T00:00:00Z", dataset.metadata.generatedAt)
@@ -99,27 +100,20 @@ class SqlDelightPlannerLocalDataStoreTest {
     }
 
     @Test
-    fun readReturnsNullWhenDatabaseIsEmpty() = runBlocking {
+    fun readReturnsMissWhenDatabaseIsEmpty() = runBlocking {
         val store = createStore()
 
-        assertNull(store.read())
+        assertEquals(PlannerLocalDataReadResult.Miss, store.read())
     }
 
     @Test
-    fun replaceIfValidDoesNotOverwriteExistingDatasetWhenSourceDataIsInvalid() = runBlocking {
+    fun replaceReplacesExistingDatasetWithNewValidDataset() = runBlocking {
         val store = createStore()
-        assertEquals(true, store.replaceIfValid(sampleBundle(revision = "valid")))
+        assertEquals(PlannerLocalDataWriteResult.Saved, store.replace(sampleStoredPlannerData(revision = "valid")))
 
-        assertEquals(
-            false,
-            store.replaceIfValid(
-                sampleBundle(
-                    revision = "invalid",
-                    seasonStart = "not-a-timestamp",
-                ),
-            ),
-        )
-        assertEquals("valid", store.read()?.metadata?.revision)
+        assertEquals(PlannerLocalDataWriteResult.Saved, store.replace(sampleStoredPlannerData(revision = "replacement")))
+
+        assertEquals("replacement", assertHit(store.read()).metadata.revision)
     }
 
     private fun createStore(): SqlDelightPlannerLocalDataStore {
@@ -127,6 +121,19 @@ class SqlDelightPlannerLocalDataStoreTest {
         PlannerDatabase.Schema.create(driver)
         return SqlDelightPlannerLocalDataStore(PlannerDatabase(driver))
     }
+
+    private fun assertHit(result: PlannerLocalDataReadResult): PlannerStoredPlannerData =
+        when (result) {
+            is PlannerLocalDataReadResult.Hit -> result.data
+            is PlannerLocalDataReadResult.Miss -> fail("Expected local planner dataset, got miss")
+            is PlannerLocalDataReadResult.Failure -> fail("Expected local planner dataset, got failure")
+        }
+
+    private fun sampleStoredPlannerData(revision: String): PlannerStoredPlannerData =
+        when (val result = sampleBundle(revision = revision).toStoredPlannerData()) {
+            is PlannerDataResult.Loaded -> result.data
+            is PlannerDataResult.Failure -> fail("Expected valid fixture, got ${result.error}")
+        }
 
     private fun sampleBundle(
         revision: String,

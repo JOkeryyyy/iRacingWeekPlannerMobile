@@ -73,39 +73,91 @@ Sprint 2 should still be implemented story-by-story. Do not combine all data sou
 
 **As a developer, I want repository implementations to return fresh data when available and cached data when refresh fails.**
 
+### Current Starting Point
+
+- Story 2.4 has introduced the source-agnostic `PlannerDataSource` contract with local mock and hosted JSON implementations.
+- Story 2.3 has introduced SQLDelight-backed local storage for the latest valid planner dataset.
+- Story 2.5 should connect those pieces through repository implementations only. It should not add presentation state, Koin app wiring, or planner screen UI.
+
 ### Acceptance Criteria
 
-- Schedule, car, and track repositories are backed by the shared refresh/cache provider.
-- Successful local mock load returns usable planner weeks, races, cars, and tracks and writes cache.
-- Source failure with valid cache returns cached data with refresh-warning metadata.
-- Source failure without cache returns an error result.
-- Invalid required source data produces an explicit invalid-data error or cached-with-warning result, never silent coercion.
-- Tests cover success, cache fallback, no-cache failure, invalid-data failure, and repository projection for weeks, races, cars, and tracks.
-- Use cases remain source-agnostic and do not know whether data came from local mock JSON, hosted JSON, or cache.
+- A shared data-layer refresh/cache coordinator loads from a configured `PlannerDataSource`, maps the source bundle to domain models, and uses `PlannerLocalDataStore` as the local source of truth.
+- Concrete data-layer implementations are added for `PlannerScheduleRepository`, `PlannerCarRepository`, and `PlannerTrackRepository`.
+- A successful source load that decodes, maps, and saves successfully returns `PlannerDataResult.Loaded` with `PlannerDataFreshness.FRESH`.
+- Repository projections return the correct domain slices from one loaded planner dataset:
+  - `loadRaceWeeks()` returns season weeks.
+  - `loadPlannerRaces()` returns planner races.
+  - `loadPlannerCars()` returns planner cars.
+  - `loadPlannerTracks()` returns planner tracks.
+- A source resource failure or decode failure with a valid stored dataset returns cached data with `PlannerDataFreshness.CACHED`.
+- A source resource failure or decode failure with no stored dataset returns a domain-safe error result.
+- Invalid required source data after decoding, including mapper validation failures, is never saved over valid stored data.
+- Invalid required source data with a valid stored dataset returns cached data with `PlannerDataFreshness.CACHED`.
+- Invalid required source data without a stored dataset returns an explicit invalid-source-data error result.
+- Local-store read and write failures are represented as explicit domain-safe failures or cached fallback outcomes; repository callers never receive raw SQLDelight, Ktor, serialization, Android, or iOS exceptions.
+- If the local-store contract still exposes nullable or Boolean-only outcomes, this story refines the data-layer boundary enough for repositories to distinguish local hit, miss, read failure, write success, and write failure.
+- Tests cover fresh success, cache write, cached fallback after source failure, no-cache source failure, invalid-data fallback, invalid-data no-cache failure, local-store failure, and all schedule/car/track repository projections.
+- Existing load use cases remain source-agnostic and do not know whether data came from local mock JSON, hosted JSON, or stored data.
+- Domain models and repository interfaces remain free of DTOs, Ktor, SQLDelight, Compose, Koin, Android, and iOS APIs.
 
 ## Story 2.6: Add Planner Data Presentation State
 
 **As a developer, I want presentation-friendly refresh states so the Sprint 3 planner UI can render loading, cached, empty, and error states cleanly.**
 
+### Current Starting Point
+
+- Story 2.5 is expected to provide source-agnostic repository/use-case results with freshness and domain-safe failures.
+- The app currently has only the app-info presentation state holder. Story 2.6 should add planner data presentation state without implementing the planner race-list screen.
+
 ### Acceptance Criteria
 
-- A shared state holder or use-case adapter exposes planner data UI state without exposing DTOs or cache internals.
-- UI state distinguishes loading, loaded fresh, loaded cached with warning, empty data, refresh error, and invalid source data.
-- Tests cover normal load, empty planner data, cached fallback, refresh failure without cache, and invalid required data.
-- No race-list screen is implemented in this story.
-- Presentation depends on domain use cases and presentation state, not raw network/cache DTOs.
+- A shared presentation state holder or use-case adapter exposes planner data state for Sprint 3 UI work without exposing DTOs, Ktor failures, SQLDelight details, cache rows, or source URLs.
+- The state holder uses the domain use cases or a domain-safe planner-data loading facade from Story 2.5; presentation code does not call data sources or local storage directly.
+- One UI load action represents one logical planner-data load. It must not trigger separate independent refreshes for weeks, races, cars, and tracks when a single repository/cache result can provide the dataset.
+- UI state distinguishes:
+  - initial idle or loading state,
+  - loaded fresh planner data,
+  - loaded cached planner data with a user-presentable refresh warning,
+  - empty planner data,
+  - refresh/source unavailable error with no cache,
+  - invalid required source data with no cache,
+  - local-store failure when the app cannot read or save usable data.
+- Empty planner data is defined as a successful fresh or cached load with no displayable race weeks or planner races. Missing required fields, malformed timestamps, unknown required session types, and broken relationships are invalid-data states, not empty states.
+- Loaded state includes the domain data Sprint 3 needs to build the first planner screen: race weeks, planner races, cars, tracks, freshness, and a concise presentation-safe message or flag when data is cached.
+- Error state exposes presentation-safe copy or message keys only. It does not expose raw exception messages as user-facing UI text.
+- Tests cover initial/loading transition, fresh loaded data, cached loaded data, empty data, source failure without cache, invalid required data without cache, local-store failure, and retry/reload behavior.
+- No planner race-list screen, filtering UI, sorting UI, race detail UI, navigation graph, Firebase sync, account login, or mobile scraping is implemented in this story.
+- Presentation depends on domain use cases and presentation state models, not raw network/cache DTOs.
 
 ## Story 2.7: Wire DI and Update Development Docs
 
 **As a developer, I want Sprint 2 dependencies wired through Koin and documented so Android/iOS entry points can use the same shared data stack.**
 
+### Current Starting Point
+
+- `commonAppModule` currently wires the app-info repository, app-info use case, and app-info state holder.
+- Story 2.7 should wire the completed Sprint 2 data stack after Stories 2.5 and 2.6 are implemented. It should not introduce new repository behavior or presentation states beyond wiring and documentation.
+
 ### Acceptance Criteria
 
-- `commonAppModule` registers data sources, cache storage, repositories, load/refresh use cases, and planner data state holder through interfaces where practical.
-- Platform-specific storage or HTTP configuration stays thin and outside domain.
-- DI tests verify repository, use-case, and state-holder resolution.
-- `docs/development.md` lists new Sprint 2 test files and verification commands.
-- Sprint 2 Definition of Done is documented in this file.
+- Koin modules register the completed Sprint 2 graph through interfaces where practical:
+  - shared JSON configuration,
+  - active MVP `PlannerDataSource` backed by local mock resources,
+  - SQLDelight-backed `PlannerLocalDataStore`,
+  - refresh/cache coordinator,
+  - schedule, car, and track repository implementations,
+  - planner load/refresh use cases,
+  - planner data presentation state holder.
+- The active app graph remains local mock-first. Hosted JSON source construction stays available behind the data-layer interface, but no production hosted URL is required and no live network dependency is introduced for the default MVP path.
+- Platform-specific SQLDelight driver creation stays in platform source sets or thin platform modules. Domain and presentation code do not create database drivers.
+- Platform-specific HTTP client or hosted-source configuration, if wired at all, stays outside domain and is optional until a hosted manifest URL is selected.
+- Android and iOS entry points can create shared app dependencies that expose both the existing app-info state holder and the new planner data state holder.
+- DI tests verify repository, use-case, refresh/cache coordinator, local data store, and planner state-holder resolution using test-safe dependencies or in-memory drivers.
+- DI tests verify the default graph uses the local mock data source rather than the hosted source.
+- Existing app-info DI tests remain valid.
+- `docs/development.md` lists the new Story 2.5, 2.6, and 2.7 test files, focused test commands, and common Sprint 2 verification commands.
+- `docs/development.md` records the Sprint 2 Definition of Done and any local tooling caveats needed for Android host tests, Android debug assembly, or iOS simulator tests.
+- No Firebase, account login, cloud sync, mobile scraping, planner race-list screen, filter UI, sorting UI, or race detail UI is introduced by this wiring story.
 
 ## Sprint 2 Definition of Done
 

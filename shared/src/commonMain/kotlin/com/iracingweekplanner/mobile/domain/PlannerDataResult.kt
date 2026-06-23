@@ -17,8 +17,27 @@ sealed interface PlannerDataResult<out T> {
 }
 
 sealed interface PlannerDataError {
+    enum class LocalStoreOperation {
+        READ,
+        WRITE,
+    }
+
     data class InvalidSourceData(
         val path: String,
         val detail: String,
+    ) : PlannerDataError
+
+    data class SourceUnavailable(
+        val path: String,
+        val detail: String,
+    ) : PlannerDataError
+
+    data class SourceDecodeFailed(
+        val path: String,
+        val detail: String,
+    ) : PlannerDataError
+
+    data class LocalStoreFailure(
+        val operation: LocalStoreOperation,
     ) : PlannerDataError
 }
