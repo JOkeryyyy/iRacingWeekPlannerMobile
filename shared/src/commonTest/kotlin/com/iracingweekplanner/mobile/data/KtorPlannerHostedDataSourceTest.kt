@@ -37,14 +37,15 @@ class KtorPlannerHostedDataSourceTest {
 
         val bundle = assertLoaded(source.loadPlannerData())
 
+        assertEquals("$BaseUrl/manifest.json", requestedUrls.first())
+        assertEquals(3, requestedUrls.drop(1).size)
         assertEquals(
-            listOf(
-                "$BaseUrl/manifest.json",
+            setOf(
                 "$BaseUrl/season.json",
                 "$BaseUrl/catalog/cars.json",
                 "$BaseUrl/catalog/tracks.json",
             ),
-            requestedUrls,
+            requestedUrls.drop(1).toSet(),
         )
         assertEquals("2026-s2", bundle.manifest.seasonId)
         assertEquals("2026 Season 2", bundle.season.seasonName)
@@ -105,7 +106,7 @@ class KtorPlannerHostedDataSourceTest {
     }
 
     @Test
-    fun returnsInvalidReferenceForUnsafeManifestPaths() = runBlocking {
+    fun returnsInvalidReferenceForUnsafeSeasonFilePaths() = runBlocking {
         val unsafeManifests = listOf(
             ManifestJson.replace("\"season.json\"", "\"https://evil.example/season.json\""),
             ManifestJson.replace("\"season.json\"", "\"/data/mobile/v1/season.json\""),
