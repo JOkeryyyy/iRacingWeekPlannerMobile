@@ -30,9 +30,10 @@ data class PlannerDataSourceFailure(
     enum class Reason {
         RESOURCE_UNAVAILABLE,
         DECODE_FAILED,
+        INVALID_REFERENCE,
     }
 }
 
-interface PlannerLocalDataSource {
+interface PlannerDataSource {
     suspend fun loadPlannerData(): PlannerDataSourceResult
 }
