@@ -4,7 +4,7 @@
 
 Implement the data-source, cache, repository, refresh-result, and presentation-state foundations needed before the planner UI MVP.
 
-Sprint 2 stays below the full race-list UI. It should make planner data loadable from local mock JSON, shaped for future hosted JSON, cacheable after a successful load, and representable as presentation-friendly loading, cached, empty, and error states.
+Sprint 2 stays below the full race-list UI. It should make planner data loadable from local mock JSON, shaped for future hosted JSON, persistable to a local source of truth after a successful load, and representable as presentation-friendly loading, cached, empty, and error states.
 
 Sprint 2 should still be implemented story-by-story. Do not combine all data source, cache, repository, refresh, presentation, and DI work into one implementation diff unless explicitly approved.
 
@@ -42,17 +42,20 @@ Sprint 2 should still be implemented story-by-story. Do not combine all data sou
 - Tests verify all four fixture files load and decode through the data-source API.
 - The implementation works from shared code and is suitable for Android and iOS callers.
 
-## Story 2.3: Add Cache Storage for Last Successful Data
+## Story 2.3: Add SQLDelight Storage for Last Successful Data
 
-**As a developer, I want cache storage so the app can keep the latest valid planner data after a successful load or refresh.**
+**As a developer, I want SQLDelight-backed local storage so the app can keep the latest valid planner data after a successful load or refresh.**
 
 ### Acceptance Criteria
 
-- Cache stores the raw JSON bundle for manifest, season, cars, and tracks after all files decode and map successfully.
-- Cache reads return a typed cache hit, cache miss, or corrupt-cache failure.
-- Invalid source data is not written over a valid cache.
-- Tests cover save/load, empty cache, corrupted cache, and "do not overwrite cache on invalid refresh."
-- Cache behavior remains in the data layer and does not leak storage details into domain models.
+- SQLDelight is used as the shared Kotlin Multiplatform local source of truth for planner data.
+- The local schema stores a normalized planner dataset for manifest metadata, season, weeks, series, races, race sessions, cars, tracks, and required relationship rows.
+- Local storage is written only after the source manifest, season, cars, and tracks decode and map successfully.
+- A successful write replaces the planner dataset in one database transaction.
+- Invalid source data is not written over a valid local dataset.
+- Local reads return a typed data hit, data miss, or local-store failure.
+- Tests cover save/load, empty local storage, and "do not overwrite local data on invalid refresh."
+- Storage behavior remains in the data layer and does not leak SQLDelight or storage details into domain models.
 
 ## Story 2.4: Add Hosted JSON Source Shape
 
@@ -108,7 +111,7 @@ Sprint 2 should still be implemented story-by-story. Do not combine all data sou
 
 - Local mock JSON can be loaded through a shared data-source API.
 - Hosted JSON loading is represented by a tested source shape without requiring a production endpoint.
-- Last successful planner JSON can be cached and read back.
+- Last successful planner data can be persisted to SQLDelight and read back from the local source of truth.
 - Repository implementations return fresh data when available and cached data when refresh fails.
 - Invalid required source data is represented as an explicit error state, not silently coerced or dropped.
 - Presentation-friendly planner data states exist for Sprint 3 UI work.
@@ -118,7 +121,7 @@ Sprint 2 should still be implemented story-by-story. Do not combine all data sou
 
 ## Verification Plan
 
-Run story-focused tests first, especially mapper/result tests, data-source tests, cache tests, repository fallback tests, and presentation-state tests.
+Run story-focused tests first, especially mapper/result tests, data-source tests, SQLDelight data-store tests, repository fallback tests, and presentation-state tests.
 
 Common Sprint 2 verification commands:
 

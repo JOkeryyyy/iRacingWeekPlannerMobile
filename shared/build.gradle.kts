@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -52,7 +53,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
-            implementation(libs.multiplatform.settings)
+            implementation(libs.sqldelight.runtime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -62,7 +63,16 @@ kotlin {
         named("androidHostTest") {
             dependencies {
                 implementation(libs.robolectric)
+                implementation(libs.sqldelight.sqlite.driver)
             }
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("PlannerDatabase") {
+            packageName.set("com.iracingweekplanner.mobile.data.db")
         }
     }
 }

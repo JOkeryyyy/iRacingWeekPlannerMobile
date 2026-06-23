@@ -58,7 +58,7 @@ class ComposeResourcePlannerLocalDataSource(
         }
 
         return try {
-            DecodeResult.Success(json.decodeFromString(text))
+            DecodeResult.Success(data = json.decodeFromString(text))
         } catch (error: SerializationException) {
             DecodeResult.Failure(
                 PlannerDataSourceFailure(
