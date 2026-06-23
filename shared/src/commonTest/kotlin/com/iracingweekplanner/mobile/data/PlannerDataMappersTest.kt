@@ -224,6 +224,25 @@ class PlannerDataMappersTest {
     }
 
     @Test
+    fun emptySetTimesSessionOffsetsReturnPlannerDataFailure() {
+        val result = sampleSeasonDto(
+            races = listOf(
+                sampleRaceDto(
+                    sessions = listOf(
+                        RaceSessionDto(
+                            type = "setTimes",
+                            offsetMinutes = emptyList(),
+                        ),
+                    ),
+                ),
+            ),
+        ).toDomain()
+
+        val error = assertInvalidSourceData(result)
+        assertEquals("races[race-recurring].sessions[0].offsetMinutes", error.path)
+    }
+
+    @Test
     fun unknownOptionalTrackTypesStillMapToNullOrSupportedKnownValues() {
         val track = assertLoaded(
             TracksCatalogDto(

@@ -1,0 +1,132 @@
+erDiagram
+    planner_metadata {
+        INTEGER id PK
+        INTEGER schema_version
+        TEXT generated_at
+        TEXT season_id
+        TEXT season_file_path
+        TEXT cars_file_path
+        TEXT tracks_file_path
+        TEXT revision
+    }
+
+    manifest_file_checksums {
+        TEXT file_path PK
+        TEXT checksum
+    }
+
+    seasons {
+        TEXT season_id PK
+        TEXT name
+        TEXT starts_at
+        TEXT ends_at
+        TEXT week_calculation_starts_at
+    }
+
+    race_weeks {
+        INTEGER week_number PK
+        TEXT starts_at
+        TEXT ends_at
+    }
+
+    series {
+        TEXT series_id PK
+        TEXT name
+        TEXT category
+        TEXT license_class_name
+        INTEGER license_safety_rating_level
+        TEXT setup
+        INTEGER is_official
+    }
+
+    races {
+        TEXT race_id PK
+        TEXT series_id
+        INTEGER week_number
+        TEXT starts_at
+        TEXT ends_at
+        TEXT track_package_id
+        TEXT track_name
+        TEXT track_config_name
+        INTEGER lap_count
+        INTEGER time_limit_minutes
+        REAL rain_chance_percentage
+    }
+
+    race_car_skus {
+        TEXT race_id PK
+        INTEGER position PK
+        TEXT car_sku
+    }
+
+    race_car_classes {
+        TEXT race_id PK
+        INTEGER position PK
+        TEXT car_class
+    }
+
+    race_sessions {
+        TEXT race_id PK
+        INTEGER position PK
+        TEXT type
+        INTEGER first_session_offset_minutes
+        INTEGER repeat_every_minutes
+        INTEGER offset_minutes PK
+    }
+
+    cars {
+        TEXT sku PK
+        TEXT display_name
+        INTEGER source_car_id
+        TEXT source_sku_name
+        INTEGER is_free_with_subscription
+        TEXT image_url
+    }
+
+    car_categories {
+        TEXT sku PK
+        INTEGER position PK
+        TEXT category
+    }
+
+    car_classes {
+        TEXT sku PK
+        INTEGER position PK
+        TEXT car_class
+    }
+
+    tracks {
+        TEXT package_id PK
+        TEXT display_name
+        TEXT primary_type
+        INTEGER is_default_content
+        TEXT map_url
+        TEXT image_url
+    }
+
+    track_source_ids {
+        TEXT package_id PK
+        INTEGER position PK
+        INTEGER source_track_id
+    }
+
+    track_supported_types {
+        TEXT package_id PK
+        INTEGER position PK
+        TEXT supported_type
+    }
+
+    seasons ||--o{ race_weeks : contains
+    seasons ||--o{ series : contains
+    seasons ||--o{ races : contains
+    series ||--o{ races : referenced_by
+    race_weeks ||--o{ races : referenced_by
+
+    races ||--o{ race_car_skus : has
+    races ||--o{ race_car_classes : has
+    races ||--o{ race_sessions : has
+
+    cars ||--o{ car_categories : has
+    cars ||--o{ car_classes : has
+    tracks ||--o{ track_source_ids : has
+    tracks ||--o{ track_supported_types : has
