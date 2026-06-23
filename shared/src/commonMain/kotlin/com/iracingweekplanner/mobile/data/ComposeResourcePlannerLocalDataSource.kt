@@ -14,7 +14,7 @@ class ComposeResourcePlannerLocalDataSource(
         ignoreUnknownKeys = false
     },
     private val readText: suspend (String) -> String = ::readMockResourceText,
-) : PlannerLocalDataSource {
+) : PlannerDataSource {
 
     override suspend fun loadPlannerData(): PlannerDataSourceResult {
         val manifest = loadDto<MobileDataManifestDto>("manifest.json")
