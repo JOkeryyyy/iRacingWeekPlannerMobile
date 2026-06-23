@@ -159,17 +159,24 @@ private fun RaceSessionDto.toDomain(path: String): PlannerDataResult<RaceSession
                 ),
             )
         }
-        "setTimes" -> PlannerDataResult.Loaded(
-            RaceSessionSchedule.SetTimes(
-                offsetsFromRaceStart = (
-                    offsetMinutes
-                        ?: return invalidSourceData(
-                            path = "$path.offsetMinutes",
-                            detail = "Missing required set-times session field",
-                        )
-                    ).map { it.minutes },
-            ),
-        )
+        "setTimes" -> {
+            val offsets = offsetMinutes
+                ?: return invalidSourceData(
+                    path = "$path.offsetMinutes",
+                    detail = "Missing required set-times session field",
+                )
+            if (offsets.isEmpty()) {
+                return invalidSourceData(
+                    path = "$path.offsetMinutes",
+                    detail = "Set-times session must include at least one offset",
+                )
+            }
+            PlannerDataResult.Loaded(
+                RaceSessionSchedule.SetTimes(
+                    offsetsFromRaceStart = offsets.map { it.minutes },
+                ),
+            )
+        }
         else -> invalidSourceData(
             path = "$path.type",
             detail = "Unknown session type: $type",
