@@ -116,7 +116,7 @@ Rules:
 - Platform entry points are responsible for starting Koin and combining common modules with platform modules.
 - Tests should use Koin test modules or simple fakes to replace repositories, data sources, and state-holder dependencies.
 
-Until the Koin module is added, `platform` owns the small manual composition root that wires the static data repository into domain use cases and presentation state holders.
+`platform` owns the shared app dependency entry point and combines common Koin modules with thin platform modules such as SQLDelight driver creation.
 
 ## Package Direction
 
@@ -125,12 +125,21 @@ Current package organization in shared common code:
 ```text
 shared/src/commonMain/kotlin/com/iracingweekplanner/mobile/
   domain/
+    model/        pure business models and domain-safe result/error types
+    repository/   domain repository interfaces
+    usecase/      domain use cases
   data/
+    datasource/   local mock and hosted JSON data sources
+    dto/          serializable JSON contract DTOs
+    local/        SQLDelight local source of truth
+    mapper/       DTO/local-to-domain mapping helpers
+    repository/   refresh/cache coordinator and repository implementations
+  di/
   presentation/
   platform/
 ```
 
-Tests should mirror the layer being tested.
+Tests should mirror the layer and role package being tested. The Android-host architecture test guards against adding new direct Kotlin files under `domain/` or `data/` root folders.
 
 ## Testing Strategy
 

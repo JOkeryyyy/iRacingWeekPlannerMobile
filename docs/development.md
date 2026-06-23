@@ -81,12 +81,14 @@ Run shared iOS simulator tests:
 The shared module currently has smoke coverage in common, Android host, and iOS source sets:
 
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/SharedCommonTest.kt` verifies the shared app info smoke path.
-- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/GetAppInfoUseCaseTest.kt` verifies the initial domain use case.
-- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/PlannerDataUseCasesTest.kt` verifies the planner repository/use-case contracts with fake repositories.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/usecase/GetAppInfoUseCaseTest.kt` verifies the initial domain use case.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/usecase/PlannerDataUseCasesTest.kt` verifies the planner repository/use-case contracts with fake repositories.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/AppInfoStateHolderTest.kt` verifies the presentation state holder.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/PlannerDataStateHolderTest.kt` verifies planner data presentation states for loading, loaded, cached, empty, error, and retry outcomes.
-- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt` verifies Koin wiring and platform-owned dependencies.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt` verifies app-info Koin wiring.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/SharedLogicAndroidHostTest.kt` verifies the shared smoke path from the Android host test target.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SharedPackageStructureAndroidHostTest.kt` verifies that shared domain/data files stay grouped by role packages.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/di/CommonPlannerDataModuleAndroidHostTest.kt` verifies Sprint 2 planner Koin wiring with an in-memory SQLDelight driver.
 - `shared/src/iosTest/kotlin/com/iracingweekplanner/mobile/SharedLogicIOSTest.kt` verifies the shared smoke path from the iOS test source set.
 
 Default local shared verification:
@@ -118,6 +120,70 @@ The iOS target hosts shared Compose UI through `iosApp/iosApp/ContentView.swift`
 Signing metadata lives in `iosApp/Configuration/Config.xcconfig`. Simulator builds can usually leave `TEAM_ID` empty; device builds require an Apple development team ID.
 
 Opening Xcode may require user approval or manual action depending on the environment. Command-line iOS builds require full Xcode, not only Command Line Tools.
+
+## Sprint 2 Story-Focused Tests
+
+Story 2.5 repository refresh/cache fallback coverage:
+
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/data/repository/RefreshCachePlannerDataCoordinatorTest.kt`
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/usecase/PlannerDataUseCasesTest.kt`
+
+Focused commands:
+
+```bash
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.data.repository.RefreshCachePlannerDataCoordinatorTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.domain.usecase.PlannerDataUseCasesTest
+```
+
+Story 2.6 planner presentation-state coverage:
+
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/PlannerDataStateHolderTest.kt`
+
+Focused command:
+
+```bash
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.PlannerDataStateHolderTest
+```
+
+Story 2.7 DI wiring coverage:
+
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt`
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/di/CommonPlannerDataModuleAndroidHostTest.kt`
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SharedPackageStructureAndroidHostTest.kt`
+
+Focused commands:
+
+```bash
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.di.CommonAppModuleTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.di.CommonPlannerDataModuleAndroidHostTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.SharedPackageStructureAndroidHostTest
+```
+
+Common Sprint 2 verification commands:
+
+```bash
+./gradlew :shared:testAndroidHostTest
+./gradlew :androidApp:assembleDebug
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :shared:iosSimulatorArm64Test
+```
+
+Sprint 2 Definition of Done:
+
+- Local mock JSON can be loaded through a shared data-source API.
+- Hosted JSON loading is represented by a tested source shape without requiring a production endpoint.
+- Last successful planner data can be persisted to SQLDelight and read back from the local source of truth.
+- Repository implementations return fresh data when available and cached data when refresh fails.
+- Invalid required source data is represented as an explicit error state, not silently coerced or dropped.
+- Presentation-friendly planner data states exist for Sprint 3 UI work.
+- Koin wiring resolves the Sprint 2 data/repository/use-case/state-holder graph.
+- Story-focused tests pass.
+- Baseline verification passes or has a documented local tooling blocker.
+
+Sprint 2 tooling caveats:
+
+- Android-host DI tests use an in-memory SQLDelight JDBC driver and assert that the default `PlannerDataSource` is local-resource backed. Do not make these tests perform default Compose resource reads; resource loading is covered by the dedicated local-source fixture tests.
+- Android app dependency creation now needs an Android `Context` so the platform source set can create the SQLDelight Android driver.
+- iOS simulator tests require full Xcode. If the global developer directory points at Command Line Tools, run iOS Gradle verification with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
 
 ## TDD Workflow
 
@@ -204,7 +270,7 @@ Recorded on 2026-06-16 from branch `main`.
 | iOS install and launch | `simctl install ... iRacingWeekPlannerMobile.app` and `simctl launch ... com.iracingweekplanner.mobile` | PASS: launch returned process id `56565`. |
 | iOS placeholder UI | Computer Use on Simulator before and after one button click | PASS: initial UI contained `iRacing Week Planner Mobile` and `Click me!`; expanded UI contained `Source: shared` and `iRacing Week Planner Mobile shared module is ready`. |
 | iOS screenshots | `simctl io ... screenshot ...` | PASS: evidence saved in `docs/qa/sprint-0-evidence/ios-initial.png` and `docs/qa/sprint-0-evidence/ios-expanded.png`. |
-| Clean Architecture package boundaries | `find shared/src/commonMain/kotlin/com/iracingweekplanner/mobile -maxdepth 2 -type d -print` | PASS: `domain`, `data`, `presentation`, and `platform` package directories exist. |
+| Clean Architecture package boundaries | `find shared/src/commonMain/kotlin/com/iracingweekplanner/mobile -maxdepth 3 -type d -print` | PASS: `domain/model`, `domain/repository`, `domain/usecase`, `data/datasource`, `data/dto`, `data/local`, `data/mapper`, `data/repository`, `presentation`, and `platform` package directories exist. |
 | Domain dependency boundary | `rg -n "import .*compose|import .*ktor|import .*koin|import .*platform|import .*android|import .*UIKit|import .*Settings|import .*serialization" shared/src/commonMain/kotlin/com/iracingweekplanner/mobile/domain` | PASS: no disallowed domain imports found. |
 | Local setup docs | `README.md` and this file | PASS: required tools, Gradle commands, Android build/test commands, iOS open/build commands, troubleshooting, and web-repo separation are documented. |
 | QA evidence index | `docs/qa/sprint-0-evidence/README.md` | PASS: product-review screenshots and command evidence are indexed for Sprint 0 closeout. |

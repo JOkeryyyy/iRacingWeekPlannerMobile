@@ -1,12 +1,10 @@
 package com.iracingweekplanner.mobile.di
 
-import com.iracingweekplanner.mobile.domain.PlannerAppInfoRepository
-import com.iracingweekplanner.mobile.platform.createAppDependencies
+import com.iracingweekplanner.mobile.domain.repository.PlannerAppInfoRepository
 import com.iracingweekplanner.mobile.presentation.AppInfoStateHolder
 import com.iracingweekplanner.mobile.presentation.AppInfoUiState
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertSame
 import org.koin.dsl.koinApplication
 
 class CommonAppModuleTest {
@@ -29,26 +27,5 @@ class CommonAppModuleTest {
             ),
             stateHolder.uiState,
         )
-    }
-
-    @Test
-    fun publicDependenciesOwnerReusesStateHolderUntilClosed() {
-        val dependencies = createAppDependencies()
-
-        try {
-            val stateHolder = dependencies.appInfoStateHolder
-
-            assertSame(stateHolder, dependencies.appInfoStateHolder)
-            assertEquals(
-                AppInfoUiState(
-                    appName = "iRacing Week Planner Mobile",
-                    sourceSet = "shared",
-                    statusMessage = "iRacing Week Planner Mobile shared module is ready",
-                ),
-                stateHolder.uiState,
-            )
-        } finally {
-            dependencies.close()
-        }
     }
 }

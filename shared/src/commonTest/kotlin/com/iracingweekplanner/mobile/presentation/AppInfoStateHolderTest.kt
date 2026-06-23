@@ -1,8 +1,8 @@
 package com.iracingweekplanner.mobile.presentation
 
-import com.iracingweekplanner.mobile.domain.GetAppInfoUseCase
-import com.iracingweekplanner.mobile.domain.PlannerAppInfo
-import com.iracingweekplanner.mobile.domain.PlannerAppInfoRepository
+import com.iracingweekplanner.mobile.domain.usecase.GetAppInfoUseCase
+import com.iracingweekplanner.mobile.domain.model.PlannerAppInfo
+import com.iracingweekplanner.mobile.domain.repository.PlannerAppInfoRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
