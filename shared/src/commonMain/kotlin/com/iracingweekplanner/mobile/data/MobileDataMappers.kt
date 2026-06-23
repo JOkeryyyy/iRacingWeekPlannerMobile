@@ -72,6 +72,30 @@ fun CarsCatalogDto.toDomain(): PlannerDataResult<List<PlannerCar>> =
 fun TracksCatalogDto.toDomain(): PlannerDataResult<List<PlannerTrack>> =
     PlannerDataResult.Loaded(tracks.map { it.toDomain() })
 
+fun PlannerDataBundle.toStoredPlannerData(): PlannerDataResult<PlannerStoredPlannerData> {
+    val season = season.toDomain().dataOrReturn { return it }
+    val cars = cars.toDomain().dataOrReturn { return it }
+    val tracks = tracks.toDomain().dataOrReturn { return it }
+
+    return PlannerDataResult.Loaded(
+        PlannerStoredPlannerData(
+            metadata = PlannerStoredDatasetMetadata(
+                schemaVersion = manifest.schemaVersion,
+                generatedAt = manifest.generatedAt,
+                seasonId = manifest.seasonId,
+                seasonFile = manifest.seasonFile,
+                carsFile = manifest.carsFile,
+                tracksFile = manifest.tracksFile,
+                revision = manifest.revision,
+                checksums = manifest.checksums.orEmpty(),
+            ),
+            season = season,
+            cars = cars,
+            tracks = tracks,
+        ),
+    )
+}
+
 private fun SeasonWeekDto.toDomain(path: String): PlannerDataResult<RaceWeek> {
     val startsAt = startsAt.toInstantResult(path = "$path.startsAt").dataOrReturn { return it }
     val endsAt = endsAt.toInstantResult(path = "$path.endsAt").dataOrReturn { return it }
