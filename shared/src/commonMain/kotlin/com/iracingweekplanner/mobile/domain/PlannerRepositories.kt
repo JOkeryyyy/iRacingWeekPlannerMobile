@@ -5,6 +5,10 @@ interface PlannerScheduleRepository {
     suspend fun loadPlannerRaces(): PlannerDataResult<List<PlannerRace>>
 }
 
+interface PlannerDataRepository {
+    suspend fun loadPlannerData(): PlannerDataResult<PlannerData>
+}
+
 interface PlannerCarRepository {
     suspend fun loadPlannerCars(): PlannerDataResult<List<PlannerCar>>
 }

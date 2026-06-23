@@ -82,8 +82,9 @@ The shared module currently has smoke coverage in common, Android host, and iOS 
 
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/SharedCommonTest.kt` verifies the shared app info smoke path.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/GetAppInfoUseCaseTest.kt` verifies the initial domain use case.
-- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/PlannerDataUseCasesTest.kt` verifies the initial planner repository/use-case contracts with fake repositories.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/PlannerDataUseCasesTest.kt` verifies the planner repository/use-case contracts with fake repositories.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/AppInfoStateHolderTest.kt` verifies the presentation state holder.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/PlannerDataStateHolderTest.kt` verifies planner data presentation states for loading, loaded, cached, empty, error, and retry outcomes.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt` verifies Koin wiring and platform-owned dependencies.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/SharedLogicAndroidHostTest.kt` verifies the shared smoke path from the Android host test target.
 - `shared/src/iosTest/kotlin/com/iracingweekplanner/mobile/SharedLogicIOSTest.kt` verifies the shared smoke path from the iOS test source set.
