@@ -1,0 +1,314 @@
+CREATE TABLE planner_metadata (
+  id INTEGER NOT NULL PRIMARY KEY CHECK (id = 1),
+  schema_version INTEGER NOT NULL,
+  generated_at TEXT NOT NULL,
+  season_id TEXT NOT NULL,
+  season_file_path TEXT NOT NULL,
+  cars_file_path TEXT NOT NULL,
+  tracks_file_path TEXT NOT NULL,
+  revision TEXT
+);
+
+CREATE TABLE manifest_file_checksums (
+  file_path TEXT NOT NULL PRIMARY KEY,
+  checksum TEXT NOT NULL
+);
+
+CREATE TABLE seasons (
+  season_id TEXT NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  starts_at TEXT NOT NULL,
+  ends_at TEXT NOT NULL,
+  week_calculation_starts_at TEXT NOT NULL
+);
+
+CREATE TABLE race_weeks (
+  week_number INTEGER NOT NULL PRIMARY KEY,
+  starts_at TEXT NOT NULL,
+  ends_at TEXT NOT NULL
+);
+
+CREATE TABLE series (
+  series_id TEXT NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  license_class_name TEXT NOT NULL,
+  license_safety_rating_level INTEGER,
+  setup TEXT NOT NULL,
+  is_official INTEGER NOT NULL
+);
+
+CREATE TABLE races (
+  race_id TEXT NOT NULL PRIMARY KEY,
+  series_id TEXT NOT NULL,
+  week_number INTEGER NOT NULL,
+  starts_at TEXT NOT NULL,
+  ends_at TEXT NOT NULL,
+  track_package_id TEXT NOT NULL,
+  track_name TEXT NOT NULL,
+  track_config_name TEXT,
+  lap_count INTEGER,
+  time_limit_minutes INTEGER,
+  rain_chance_percentage REAL
+);
+
+CREATE TABLE race_car_skus (
+  race_id TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  car_sku TEXT NOT NULL,
+  PRIMARY KEY (race_id, position)
+);
+
+CREATE TABLE race_car_classes (
+  race_id TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  car_class TEXT NOT NULL,
+  PRIMARY KEY (race_id, position)
+);
+
+CREATE TABLE race_sessions (
+  race_id TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  type TEXT NOT NULL,
+  first_session_offset_minutes INTEGER,
+  repeat_every_minutes INTEGER,
+  offset_minutes INTEGER,
+  PRIMARY KEY (race_id, position, offset_minutes)
+);
+
+CREATE TABLE cars (
+  sku TEXT NOT NULL PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  source_car_id INTEGER,
+  source_sku_name TEXT,
+  is_free_with_subscription INTEGER,
+  image_url TEXT
+);
+
+CREATE TABLE car_categories (
+  sku TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  category TEXT NOT NULL,
+  PRIMARY KEY (sku, position)
+);
+
+CREATE TABLE car_classes (
+  sku TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  car_class TEXT NOT NULL,
+  PRIMARY KEY (sku, position)
+);
+
+CREATE TABLE tracks (
+  package_id TEXT NOT NULL PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  primary_type TEXT,
+  is_default_content INTEGER,
+  map_url TEXT,
+  image_url TEXT
+);
+
+CREATE TABLE track_source_ids (
+  package_id TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  source_track_id INTEGER NOT NULL,
+  PRIMARY KEY (package_id, position)
+);
+
+CREATE TABLE track_supported_types (
+  package_id TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  supported_type TEXT NOT NULL,
+  PRIMARY KEY (package_id, position)
+);
+
+selectMetadata:
+SELECT * FROM planner_metadata WHERE id = 1;
+
+selectChecksums:
+SELECT * FROM manifest_file_checksums ORDER BY file_path;
+
+selectSeason:
+SELECT * FROM seasons LIMIT 1;
+
+selectWeeks:
+SELECT * FROM race_weeks ORDER BY week_number;
+
+selectSeries:
+SELECT * FROM series ORDER BY series_id;
+
+selectRaces:
+SELECT * FROM races ORDER BY week_number, race_id;
+
+selectRaceCarSkus:
+SELECT car_sku FROM race_car_skus WHERE race_id = ? ORDER BY position;
+
+selectRaceCarClasses:
+SELECT car_class FROM race_car_classes WHERE race_id = ? ORDER BY position;
+
+selectRaceSessions:
+SELECT * FROM race_sessions WHERE race_id = ? ORDER BY position, offset_minutes;
+
+selectCars:
+SELECT * FROM cars ORDER BY sku;
+
+selectCarCategories:
+SELECT category FROM car_categories WHERE sku = ? ORDER BY position;
+
+selectCarClasses:
+SELECT car_class FROM car_classes WHERE sku = ? ORDER BY position;
+
+selectTracks:
+SELECT * FROM tracks ORDER BY package_id;
+
+selectTrackSourceIds:
+SELECT source_track_id FROM track_source_ids WHERE package_id = ? ORDER BY position;
+
+selectTrackSupportedTypes:
+SELECT supported_type FROM track_supported_types WHERE package_id = ? ORDER BY position;
+
+deleteManifestChecksums:
+DELETE FROM manifest_file_checksums;
+
+deleteTrackSupportedTypes:
+DELETE FROM track_supported_types;
+
+deleteTrackSourceIds:
+DELETE FROM track_source_ids;
+
+deleteTracks:
+DELETE FROM tracks;
+
+deleteCarClasses:
+DELETE FROM car_classes;
+
+deleteCarCategories:
+DELETE FROM car_categories;
+
+deleteCars:
+DELETE FROM cars;
+
+deleteRaceSessions:
+DELETE FROM race_sessions;
+
+deleteRaceCarClasses:
+DELETE FROM race_car_classes;
+
+deleteRaceCarSkus:
+DELETE FROM race_car_skus;
+
+deleteRaces:
+DELETE FROM races;
+
+deleteSeries:
+DELETE FROM series;
+
+deleteRaceWeeks:
+DELETE FROM race_weeks;
+
+deleteSeasons:
+DELETE FROM seasons;
+
+deleteMetadata:
+DELETE FROM planner_metadata;
+
+insertMetadata:
+INSERT INTO planner_metadata(
+  id,
+  schema_version,
+  generated_at,
+  season_id,
+  season_file_path,
+  cars_file_path,
+  tracks_file_path,
+  revision
+) VALUES (1, ?, ?, ?, ?, ?, ?, ?);
+
+insertChecksum:
+INSERT INTO manifest_file_checksums(file_path, checksum) VALUES (?, ?);
+
+insertSeason:
+INSERT INTO seasons(
+  season_id,
+  name,
+  starts_at,
+  ends_at,
+  week_calculation_starts_at
+) VALUES (?, ?, ?, ?, ?);
+
+insertRaceWeek:
+INSERT INTO race_weeks(week_number, starts_at, ends_at) VALUES (?, ?, ?);
+
+insertSeries:
+INSERT INTO series(
+  series_id,
+  name,
+  category,
+  license_class_name,
+  license_safety_rating_level,
+  setup,
+  is_official
+) VALUES (?, ?, ?, ?, ?, ?, ?);
+
+insertRace:
+INSERT INTO races(
+  race_id,
+  series_id,
+  week_number,
+  starts_at,
+  ends_at,
+  track_package_id,
+  track_name,
+  track_config_name,
+  lap_count,
+  time_limit_minutes,
+  rain_chance_percentage
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+insertRaceCarSku:
+INSERT INTO race_car_skus(race_id, position, car_sku) VALUES (?, ?, ?);
+
+insertRaceCarClass:
+INSERT INTO race_car_classes(race_id, position, car_class) VALUES (?, ?, ?);
+
+insertRaceSession:
+INSERT INTO race_sessions(
+  race_id,
+  position,
+  type,
+  first_session_offset_minutes,
+  repeat_every_minutes,
+  offset_minutes
+) VALUES (?, ?, ?, ?, ?, ?);
+
+insertCar:
+INSERT INTO cars(
+  sku,
+  display_name,
+  source_car_id,
+  source_sku_name,
+  is_free_with_subscription,
+  image_url
+) VALUES (?, ?, ?, ?, ?, ?);
+
+insertCarCategory:
+INSERT INTO car_categories(sku, position, category) VALUES (?, ?, ?);
+
+insertCarClass:
+INSERT INTO car_classes(sku, position, car_class) VALUES (?, ?, ?);
+
+insertTrack:
+INSERT INTO tracks(
+  package_id,
+  display_name,
+  primary_type,
+  is_default_content,
+  map_url,
+  image_url
+) VALUES (?, ?, ?, ?, ?, ?);
+
+insertTrackSourceId:
+INSERT INTO track_source_ids(package_id, position, source_track_id) VALUES (?, ?, ?);
+
+insertTrackSupportedType:
+INSERT INTO track_supported_types(package_id, position, supported_type) VALUES (?, ?, ?);
