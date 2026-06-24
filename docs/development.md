@@ -87,6 +87,7 @@ The shared module currently has smoke coverage in common, Android host, and iOS 
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/PlannerDataStateHolderTest.kt` verifies planner data presentation states for loading, loaded, cached, empty, error, and retry outcomes.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt` verifies app-info Koin wiring.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/SharedLogicAndroidHostTest.kt` verifies the shared smoke path from the Android host test target.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/AndroidEntryPointArchitectureAndroidHostTest.kt` verifies that Android app dependencies are owned by the `Application` class rather than `MainActivity`.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SharedPackageStructureAndroidHostTest.kt` verifies that shared domain/data files stay grouped by role packages and that each domain repository interface has its own matching file.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/di/CommonPlannerDataModuleAndroidHostTest.kt` verifies Sprint 2 planner Koin wiring with an in-memory SQLDelight driver.
 - `shared/src/iosTest/kotlin/com/iracingweekplanner/mobile/SharedLogicIOSTest.kt` verifies the shared smoke path from the iOS test source set.
@@ -182,7 +183,7 @@ Sprint 2 Definition of Done:
 Sprint 2 tooling caveats:
 
 - Android-host DI tests use an in-memory SQLDelight JDBC driver and assert that the default `PlannerDataSource` is local-resource backed. Do not make these tests perform default Compose resource reads; resource loading is covered by the dedicated local-source fixture tests.
-- Android app dependency creation now needs an Android `Context` so the platform source set can create the SQLDelight Android driver.
+- Android app dependency creation now needs an Android `Context` so the platform source set can create the SQLDelight Android driver. The Android `Application` owns these dependencies for the app lifetime; Activities should consume the application-owned dependencies rather than creating or closing their own graph.
 - iOS simulator tests require full Xcode. If the global developer directory points at Command Line Tools, run iOS Gradle verification with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
 
 ## TDD Workflow

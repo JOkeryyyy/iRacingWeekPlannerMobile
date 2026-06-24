@@ -114,6 +114,8 @@ Rules:
 - Register dependencies through interfaces where practical.
 - Domain models, repository interfaces, and use cases should not import or call Koin APIs directly.
 - Platform entry points are responsible for starting Koin and combining common modules with platform modules.
+- Android owns shared app dependencies from the `Application` class. Activities consume application-owned dependencies and do not close the app graph during Activity recreation.
+- iOS owns shared app dependencies from the Compose controller lifecycle and disposes them with that controller.
 - Tests should use Koin test modules or simple fakes to replace repositories, data sources, and state-holder dependencies.
 
 `platform` owns the shared app dependency entry point and combines common Koin modules with thin platform modules such as SQLDelight driver creation.
