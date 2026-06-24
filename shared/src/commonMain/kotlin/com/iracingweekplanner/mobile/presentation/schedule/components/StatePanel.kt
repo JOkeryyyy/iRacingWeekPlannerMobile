@@ -1,25 +1,16 @@
 package com.iracingweekplanner.mobile.presentation.schedule.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
@@ -34,17 +25,13 @@ fun StatePanel(
     onRetryClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ScheduleUiTokens.CardRadius),
-        border = BorderStroke(
-            width = ScheduleUiTokens.RaceCardBorderWidth,
-            color = MaterialTheme.colorScheme.outlineVariant,
-        ),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+    ScheduleCard(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        contentPadding = PaddingValues(ScheduleUiTokens.SectionGap),
     ) {
         Column(
-            modifier = Modifier.padding(ScheduleUiTokens.SectionGap),
             verticalArrangement = Arrangement.spacedBy(ScheduleUiTokens.DefaultGap),
             horizontalAlignment = Alignment.Start,
         ) {
@@ -67,17 +54,11 @@ fun StatePanel(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             content.retryLabel?.let { retryLabel ->
-                Button(
+                ScheduleButton(
+                    label = retryLabel,
                     onClick = onRetryClick,
-                    modifier = Modifier
-                        .heightIn(min = ScheduleUiTokens.MinimumIconTouchTarget)
-                        .semantics {
-                            role = Role.Button
-                            contentDescription = retryLabel
-                        },
-                ) {
-                    Text(retryLabel)
-                }
+                    style = ScheduleButtonStyle.Filled,
+                )
             }
         }
     }

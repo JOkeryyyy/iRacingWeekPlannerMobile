@@ -1,14 +1,10 @@
 package com.iracingweekplanner.mobile.presentation.schedule.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,17 +20,8 @@ fun RaceCard(
     content: ScheduleRaceCardContent,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ScheduleUiTokens.CardRadius),
-        border = BorderStroke(
-            width = ScheduleUiTokens.RaceCardBorderWidth,
-            color = MaterialTheme.colorScheme.outlineVariant,
-        ),
-        color = MaterialTheme.colorScheme.surface,
-    ) {
+    ScheduleCard(modifier = modifier) {
         Column(
-            modifier = Modifier.padding(ScheduleUiTokens.RaceCardPadding),
             verticalArrangement = Arrangement.spacedBy(ScheduleUiTokens.RaceCardInternalGap),
         ) {
             Text(

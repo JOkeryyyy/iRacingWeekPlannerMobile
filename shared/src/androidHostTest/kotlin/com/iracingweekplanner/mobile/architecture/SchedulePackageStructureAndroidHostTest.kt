@@ -18,6 +18,8 @@ class SchedulePackageStructureAndroidHostTest {
             "DateWeekSelector.kt",
             "RaceCard.kt",
             "ScheduleBottomNavigation.kt",
+            "ScheduleButton.kt",
+            "ScheduleCard.kt",
             "ScheduleChip.kt",
             "ScheduleHeader.kt",
             "StatePanel.kt",
@@ -58,6 +60,76 @@ class SchedulePackageStructureAndroidHostTest {
                 message = "$fileName should declare a ${componentName}Preview function.",
             )
         }
+    }
+
+    @Test
+    fun scheduleButtonsUseSharedScheduleButtonComponent() {
+        val componentsRoot = commonMainPackageRoot().resolve("presentation/schedule/components")
+        val scheduleButtonSource = readText(componentsRoot.resolve("ScheduleButton.kt"))
+
+        assertTrue(
+            actual = scheduleButtonSource.contains("fun ScheduleButton("),
+            message = "ScheduleButton should be the shared button component for Schedule actions.",
+        )
+        assertTrue(
+            actual = scheduleButtonSource.contains("enum class ScheduleButtonStyle"),
+            message = "ScheduleButton should expose explicit visual styles for action use cases.",
+        )
+
+        listOf("ScheduleHeader.kt", "DateWeekSelector.kt", "StatePanel.kt").forEach { fileName ->
+            val source = readText(componentsRoot.resolve(fileName))
+
+            assertTrue(
+                actual = source.contains("ScheduleButton("),
+                message = "$fileName should use ScheduleButton for action controls.",
+            )
+            assertFalse(
+                actual = source.contains("import androidx.compose.material3.Button"),
+                message = "$fileName should not import raw Material Button.",
+            )
+            assertFalse(
+                actual = source.contains("import androidx.compose.material3.TextButton"),
+                message = "$fileName should not import raw Material TextButton.",
+            )
+            assertFalse(
+                actual = source.contains("TextButton("),
+                message = "$fileName should not instantiate raw Material TextButton.",
+            )
+        }
+    }
+
+    @Test
+    fun cardLikeScheduleComponentsUseSharedScheduleCardContainer() {
+        val componentsRoot = commonMainPackageRoot().resolve("presentation/schedule/components")
+        val scheduleCardSource = readText(componentsRoot.resolve("ScheduleCard.kt"))
+
+        assertTrue(
+            actual = scheduleCardSource.contains("fun ScheduleCard("),
+            message = "ScheduleCard should be the shared card-like container for Schedule components.",
+        )
+        assertTrue(
+            actual = scheduleCardSource.contains("Card("),
+            message = "ScheduleCard should delegate to Material Card styling instead of duplicating Surface roots.",
+        )
+
+        listOf("DateWeekSelector.kt", "RaceCard.kt", "StatePanel.kt").forEach { fileName ->
+            val source = readText(componentsRoot.resolve(fileName))
+
+            assertTrue(
+                actual = source.contains("ScheduleCard("),
+                message = "$fileName should use ScheduleCard for card-like container styling.",
+            )
+            assertFalse(
+                actual = source.contains("Surface("),
+                message = "$fileName should not duplicate a root Surface container.",
+            )
+        }
+
+        val chipSource = readText(componentsRoot.resolve("ScheduleChip.kt"))
+        assertFalse(
+            actual = chipSource.contains("ScheduleCard("),
+            message = "ScheduleChip is a chip control, not a schedule card container.",
+        )
     }
 
     @Test
