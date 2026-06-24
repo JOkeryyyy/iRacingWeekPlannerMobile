@@ -12,9 +12,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
-import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 
 enum class ScheduleButtonStyle {
     Text,
@@ -60,9 +60,9 @@ fun ScheduleButton(
 }
 
 @Composable
-@Preview
+@ScheduleComponentPreview
 private fun ScheduleButtonPreview() {
-    IwpAppTheme {
+    ScheduleComponentPreviewTheme {
         Row(modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal)) {
             ScheduleButton(
                 label = "Refresh",

@@ -14,11 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
-import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 
 @Composable
 fun ScheduleCard(
@@ -51,9 +51,9 @@ fun ScheduleCard(
 }
 
 @Composable
-@Preview
+@ScheduleComponentPreview
 private fun ScheduleCardPreview() {
-    IwpAppTheme {
+    ScheduleComponentPreviewTheme {
         ScheduleCard(
             modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal),
         ) {

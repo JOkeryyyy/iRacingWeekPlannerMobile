@@ -12,11 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.DateWeekSelectorContent
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
-import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 
 @Composable
 fun DateWeekSelector(
@@ -71,9 +71,9 @@ fun DateWeekSelector(
 }
 
 @Composable
-@Preview
+@ScheduleComponentPreview
 private fun DateWeekSelectorPreview() {
-    IwpAppTheme {
+    ScheduleComponentPreviewTheme {
         DateWeekSelector(
             content = ScheduleUiPreviewData.foundationSample().selector,
             onPreviousClick = {},

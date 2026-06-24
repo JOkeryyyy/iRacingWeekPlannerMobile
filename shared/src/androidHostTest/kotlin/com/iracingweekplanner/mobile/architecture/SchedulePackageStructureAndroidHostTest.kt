@@ -52,8 +52,8 @@ class SchedulePackageStructureAndroidHostTest {
                 message = "$fileName should declare the $componentName composable.",
             )
             assertTrue(
-                actual = source.contains("@Preview"),
-                message = "$fileName should include a meaningful Compose preview.",
+                actual = source.contains("@ScheduleComponentPreview"),
+                message = "$fileName should include the shared Schedule component preview variants.",
             )
             assertTrue(
                 actual = source.contains("fun ${componentName}Preview()"),
@@ -170,12 +170,69 @@ class SchedulePackageStructureAndroidHostTest {
         previewFiles.forEach { file ->
             val source = readText(file)
             assertTrue(
-                actual = source.contains("IwpAppTheme {"),
-                message = "${file.fileName} previews should use the shared app theme.",
+                actual = source.contains("IwpAppTheme {") ||
+                    source.contains("ScheduleComponentPreviewTheme"),
+                message = "${file.fileName} previews should use the shared app theme directly or through ScheduleComponentPreviewTheme.",
             )
             assertFalse(
                 actual = source.contains("MaterialTheme {"),
                 message = "${file.fileName} previews should not create raw MaterialTheme wrappers.",
+            )
+        }
+    }
+
+    @Test
+    fun scheduleComponentPreviewsUseSharedPreviewVariants() {
+        val componentsRoot = commonMainPackageRoot().resolve("presentation/schedule/components")
+        val previewSupportSource = readText(
+            commonMainPackageRoot()
+                .resolve("presentation/schedule/preview/ScheduleComponentPreview.kt"),
+        )
+
+        assertTrue(
+            actual = previewSupportSource.contains("annotation class ScheduleComponentPreview"),
+            message = "Schedule components should share one preview annotation for component preview variants.",
+        )
+        assertTrue(
+            actual = previewSupportSource.contains("name = \"Dark\""),
+            message = "Schedule component previews should include a dark mode variant.",
+        )
+        assertTrue(
+            actual = previewSupportSource.contains("uiMode = UI_MODE_NIGHT_YES"),
+            message = "Schedule component previews should set the dark mode preview uiMode.",
+        )
+        assertTrue(
+            actual = previewSupportSource.contains("fontScale = 1.5f"),
+            message = "Schedule component previews should include a large font size variant.",
+        )
+        assertTrue(
+            actual = previewSupportSource.contains("fun ScheduleComponentPreviewTheme("),
+            message = "Schedule component previews should share theme setup.",
+        )
+
+        listOf(
+            "DateWeekSelector.kt",
+            "RaceCard.kt",
+            "ScheduleBottomNavigation.kt",
+            "ScheduleButton.kt",
+            "ScheduleCard.kt",
+            "ScheduleChip.kt",
+            "ScheduleHeader.kt",
+            "StatePanel.kt",
+        ).forEach { fileName ->
+            val source = readText(componentsRoot.resolve(fileName))
+
+            assertTrue(
+                actual = source.contains("@ScheduleComponentPreview"),
+                message = "$fileName should use the shared Schedule component preview variants.",
+            )
+            assertTrue(
+                actual = source.contains("ScheduleComponentPreviewTheme"),
+                message = "$fileName preview should use the shared Schedule component preview theme wrapper.",
+            )
+            assertFalse(
+                actual = source.contains("@Preview"),
+                message = "$fileName should not define one-off raw Preview annotations.",
             )
         }
     }

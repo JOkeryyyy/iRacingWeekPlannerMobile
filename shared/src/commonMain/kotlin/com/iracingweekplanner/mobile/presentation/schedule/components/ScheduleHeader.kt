@@ -11,11 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleHeaderContent
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
-import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 
 @Composable
 fun ScheduleHeader(
@@ -54,9 +54,9 @@ fun ScheduleHeader(
 }
 
 @Composable
-@Preview
+@ScheduleComponentPreview
 private fun ScheduleHeaderPreview() {
-    IwpAppTheme {
+    ScheduleComponentPreviewTheme {
         ScheduleHeader(
             content = ScheduleUiPreviewData.foundationSample().header,
             onRefreshClick = {},

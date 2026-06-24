@@ -12,12 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelContent
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelVariant
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
-import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 
 @Composable
 fun StatePanel(
@@ -65,9 +65,9 @@ fun StatePanel(
 }
 
 @Composable
-@Preview
+@ScheduleComponentPreview
 private fun StatePanelLoadingPreview() {
-    IwpAppTheme {
+    ScheduleComponentPreviewTheme {
         StatePanel(
             content = ScheduleUiPreviewData.loadingPanelSample(),
             onRetryClick = {},
@@ -77,9 +77,9 @@ private fun StatePanelLoadingPreview() {
 }
 
 @Composable
-@Preview
+@ScheduleComponentPreview
 private fun StatePanelEmptyPreview() {
-    IwpAppTheme {
+    ScheduleComponentPreviewTheme {
         StatePanel(
             content = ScheduleUiPreviewData.emptyPanelSample(),
             onRetryClick = {},
@@ -89,9 +89,9 @@ private fun StatePanelEmptyPreview() {
 }
 
 @Composable
-@Preview
+@ScheduleComponentPreview
 private fun StatePanelPreview() {
-    IwpAppTheme {
+    ScheduleComponentPreviewTheme {
         StatePanel(
             content = ScheduleUiPreviewData.errorPanelSample(),
             onRetryClick = {},
