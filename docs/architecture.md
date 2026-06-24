@@ -126,7 +126,7 @@ Current package organization in shared common code:
 shared/src/commonMain/kotlin/com/iracingweekplanner/mobile/
   domain/
     model/        pure business models and domain-safe result/error types
-    repository/   domain repository interfaces
+    repository/   domain repository interfaces, one interface per file
     usecase/      domain use cases
   data/
     datasource/   local mock and hosted JSON data sources
@@ -139,7 +139,7 @@ shared/src/commonMain/kotlin/com/iracingweekplanner/mobile/
   platform/
 ```
 
-Tests should mirror the layer and role package being tested. The Android-host architecture test guards against adding new direct Kotlin files under `domain/` or `data/` root folders.
+Tests should mirror the layer and role package being tested. The Android-host architecture test guards against adding new direct Kotlin files under `domain/` or `data/` root folders, and against grouping multiple domain repository interfaces in one file.
 
 ## Testing Strategy
 

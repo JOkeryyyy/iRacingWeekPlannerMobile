@@ -30,6 +30,32 @@ class SharedPackageStructureAndroidHostTest {
         assertNoDirectKotlinFiles(dataRoot)
     }
 
+    @Test
+    fun domainRepositoryInterfacesUseOneFilePerInterface() {
+        val repositoryRoot = commonMainPackageRoot().resolve("domain/repository")
+        val violations = Files.newDirectoryStream(repositoryRoot, "*.kt").use { stream ->
+            stream
+                .mapNotNull { file ->
+                    val interfaceNames = repositoryInterfaceNames(file)
+                    when {
+                        interfaceNames.size != 1 ->
+                            "${file.fileName} should declare exactly one repository interface. Found: $interfaceNames"
+
+                        file.fileName.toString() != "${interfaceNames.single()}.kt" ->
+                            "${file.fileName} should be named ${interfaceNames.single()}.kt"
+
+                        else -> null
+                    }
+                }
+                .sorted()
+        }
+
+        assertTrue(
+            actual = violations.isEmpty(),
+            message = "Expected one domain repository interface per file. Violations: $violations",
+        )
+    }
+
     private fun commonMainPackageRoot(): Path =
         sharedProjectRoot()
             .resolve("src/commonMain/kotlin/com/iracingweekplanner/mobile")
@@ -61,5 +87,14 @@ class SharedPackageStructureAndroidHostTest {
             actual = directFiles.isEmpty(),
             message = "Expected Kotlin files under $root to live in role-specific subpackages. Found: $directFiles",
         )
+    }
+
+    private fun repositoryInterfaceNames(file: Path): List<String> =
+        repositoryInterfacePattern.findAll(Files.readAllLines(file).joinToString(separator = "\n"))
+            .map { match -> match.groupValues[1] }
+            .toList()
+
+    private companion object {
+        val repositoryInterfacePattern = Regex("""(?m)^\s*interface\s+(\w+Repository)\b""")
     }
 }
