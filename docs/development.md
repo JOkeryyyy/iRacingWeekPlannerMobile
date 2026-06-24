@@ -85,10 +85,13 @@ The shared module currently has smoke coverage in common, Android host, and iOS 
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/usecase/PlannerDataUseCasesTest.kt` verifies the planner repository/use-case contracts with fake repositories.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/AppInfoStateHolderTest.kt` verifies the presentation state holder.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/PlannerDataStateHolderTest.kt` verifies planner data presentation states for loading, loaded, cached, empty, error, and retry outcomes.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleUiFoundationTest.kt` verifies the Sprint 3 reusable Schedule UI foundation contract.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/theme/IwpAppThemeTest.kt` verifies the shared app theme color contract.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt` verifies app-info Koin wiring.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/SharedLogicAndroidHostTest.kt` verifies the shared smoke path from the Android host test target.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/AndroidEntryPointArchitectureAndroidHostTest.kt` verifies that Android app dependencies are owned by the `Application` class rather than `MainActivity`.
-- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SharedPackageStructureAndroidHostTest.kt` verifies that shared domain/data files stay grouped by role packages and that each domain repository interface has its own matching file.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SharedPackageStructureAndroidHostTest.kt` verifies that shared domain/data files stay grouped by role packages, each domain repository interface has its own matching file, and the app uses `presentation/theme/IwpAppTheme.kt`.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SchedulePackageStructureAndroidHostTest.kt` verifies that Sprint 3 Schedule components live in a dedicated package with one file and app-themed preview per component.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/di/CommonPlannerDataModuleAndroidHostTest.kt` verifies Sprint 2 planner Koin wiring with an in-memory SQLDelight driver.
 - `shared/src/iosTest/kotlin/com/iracingweekplanner/mobile/SharedLogicIOSTest.kt` verifies the shared smoke path from the iOS test source set.
 
@@ -121,6 +124,24 @@ The iOS target hosts shared Compose UI through `iosApp/iosApp/ContentView.swift`
 Signing metadata lives in `iosApp/Configuration/Config.xcconfig`. Simulator builds can usually leave `TEAM_ID` empty; device builds require an Apple development team ID.
 
 Opening Xcode may require user approval or manual action depending on the environment. Command-line iOS builds require full Xcode, not only Command Line Tools.
+
+## Sprint 3 Story-Focused Tests
+
+Story 3.1 reusable Schedule UI foundation coverage:
+
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleUiFoundationTest.kt`
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/theme/IwpAppThemeTest.kt`
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SchedulePackageStructureAndroidHostTest.kt`
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SharedPackageStructureAndroidHostTest.kt`
+
+Focused commands:
+
+```bash
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.schedule.ScheduleUiFoundationTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.theme.IwpAppThemeTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.SchedulePackageStructureAndroidHostTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.SharedPackageStructureAndroidHostTest
+```
 
 ## Sprint 2 Story-Focused Tests
 
