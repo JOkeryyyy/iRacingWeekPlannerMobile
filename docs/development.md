@@ -150,6 +150,7 @@ Story 2.7 DI wiring coverage:
 
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt`
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/di/CommonPlannerDataModuleAndroidHostTest.kt`
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/AndroidEntryPointArchitectureAndroidHostTest.kt`
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/SharedPackageStructureAndroidHostTest.kt`
 
 Focused commands:
@@ -157,6 +158,7 @@ Focused commands:
 ```bash
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.di.CommonAppModuleTest
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.di.CommonPlannerDataModuleAndroidHostTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.AndroidEntryPointArchitectureAndroidHostTest
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.SharedPackageStructureAndroidHostTest
 ```
 
