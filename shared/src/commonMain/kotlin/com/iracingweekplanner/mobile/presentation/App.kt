@@ -14,9 +14,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.iracingweekplanner.mobile.domain.GetAppInfoUseCase
-import com.iracingweekplanner.mobile.domain.PlannerAppInfo
-import com.iracingweekplanner.mobile.domain.PlannerAppInfoRepository
+import com.iracingweekplanner.mobile.domain.usecase.GetAppInfoUseCase
+import com.iracingweekplanner.mobile.domain.model.PlannerAppInfo
+import com.iracingweekplanner.mobile.domain.repository.PlannerAppInfoRepository
 import org.jetbrains.compose.resources.painterResource
 
 import iracingweekplannermobile.shared.generated.resources.Res

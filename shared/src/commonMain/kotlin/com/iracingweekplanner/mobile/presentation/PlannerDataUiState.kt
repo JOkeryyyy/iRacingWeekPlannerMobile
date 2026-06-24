@@ -1,10 +1,10 @@
 package com.iracingweekplanner.mobile.presentation
 
-import com.iracingweekplanner.mobile.domain.PlannerCar
-import com.iracingweekplanner.mobile.domain.PlannerDataFreshness
-import com.iracingweekplanner.mobile.domain.PlannerRace
-import com.iracingweekplanner.mobile.domain.PlannerTrack
-import com.iracingweekplanner.mobile.domain.RaceWeek
+import com.iracingweekplanner.mobile.domain.model.PlannerCar
+import com.iracingweekplanner.mobile.domain.model.PlannerDataFreshness
+import com.iracingweekplanner.mobile.domain.model.PlannerRace
+import com.iracingweekplanner.mobile.domain.model.PlannerTrack
+import com.iracingweekplanner.mobile.domain.model.RaceWeek
 
 sealed interface PlannerDataAction {
     data object Load : PlannerDataAction

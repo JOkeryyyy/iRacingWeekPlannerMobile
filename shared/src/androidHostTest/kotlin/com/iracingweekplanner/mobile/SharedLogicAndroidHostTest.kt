@@ -1,6 +1,6 @@
 package com.iracingweekplanner.mobile
 
-import com.iracingweekplanner.mobile.data.StaticPlannerAppInfoRepository
+import com.iracingweekplanner.mobile.data.repository.StaticPlannerAppInfoRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

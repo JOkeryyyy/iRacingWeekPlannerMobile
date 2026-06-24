@@ -151,7 +151,9 @@ Sprint 2 should still be implemented story-by-story. Do not combine all data sou
 - The active app graph remains local mock-first. Hosted JSON source construction stays available behind the data-layer interface, but no production hosted URL is required and no live network dependency is introduced for the default MVP path.
 - Platform-specific SQLDelight driver creation stays in platform source sets or thin platform modules. Domain and presentation code do not create database drivers.
 - Platform-specific HTTP client or hosted-source configuration, if wired at all, stays outside domain and is optional until a hosted manifest URL is selected.
-- Android and iOS entry points can create shared app dependencies that expose both the existing app-info state holder and the new planner data state holder.
+- Android and iOS entry points can access shared app dependencies that expose both the existing app-info state holder and the new planner data state holder.
+- Android owns shared app dependencies at the application level so Activity recreation does not recreate or close the Koin graph; `MainActivity` only consumes the application-owned dependencies.
+- iOS may continue to own shared app dependencies at the Compose controller lifecycle because the SwiftUI host creates and disposes that controller explicitly.
 - DI tests verify repository, use-case, refresh/cache coordinator, local data store, and planner state-holder resolution using test-safe dependencies or in-memory drivers.
 - DI tests verify the default graph uses the local mock data source rather than the hosted source.
 - Existing app-info DI tests remain valid.

@@ -1,10 +1,10 @@
 package com.iracingweekplanner.mobile.presentation
 
-import com.iracingweekplanner.mobile.domain.LoadPlannerDataUseCase
-import com.iracingweekplanner.mobile.domain.PlannerData
-import com.iracingweekplanner.mobile.domain.PlannerDataError
-import com.iracingweekplanner.mobile.domain.PlannerDataFreshness
-import com.iracingweekplanner.mobile.domain.PlannerDataResult
+import com.iracingweekplanner.mobile.domain.usecase.LoadPlannerDataUseCase
+import com.iracingweekplanner.mobile.domain.model.PlannerData
+import com.iracingweekplanner.mobile.domain.model.PlannerDataError
+import com.iracingweekplanner.mobile.domain.model.PlannerDataFreshness
+import com.iracingweekplanner.mobile.domain.model.PlannerDataResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
