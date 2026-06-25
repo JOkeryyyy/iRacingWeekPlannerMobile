@@ -6,6 +6,11 @@ import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleChipCon
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleHeaderContent
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleShellContent
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelContent
+import iracingweekplannermobile.shared.generated.resources.Res
+import iracingweekplannermobile.shared.generated.resources.ic_favorites_tab
+import iracingweekplannermobile.shared.generated.resources.ic_filters_tab
+import iracingweekplannermobile.shared.generated.resources.ic_schedule_tab
+import iracingweekplannermobile.shared.generated.resources.ic_settings_tab
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -43,10 +48,30 @@ class ScheduleShellContentTest {
                 message = "Preparing race week data.",
             ),
             bottomTabs = listOf(
-                ScheduleBottomTab(label = "Schedule", selected = true, enabled = true),
-                ScheduleBottomTab(label = "Filters", selected = false, enabled = false),
-                ScheduleBottomTab(label = "Favorites", selected = false, enabled = false),
-                ScheduleBottomTab(label = "Settings", selected = false, enabled = false),
+                ScheduleBottomTab(
+                    label = "Schedule",
+                    icon = Res.drawable.ic_schedule_tab,
+                    selected = true,
+                    enabled = true,
+                ),
+                ScheduleBottomTab(
+                    label = "Filters",
+                    icon = Res.drawable.ic_filters_tab,
+                    selected = false,
+                    enabled = false,
+                ),
+                ScheduleBottomTab(
+                    label = "Favorites",
+                    icon = Res.drawable.ic_favorites_tab,
+                    selected = false,
+                    enabled = false,
+                ),
+                ScheduleBottomTab(
+                    label = "Settings",
+                    icon = Res.drawable.ic_settings_tab,
+                    selected = false,
+                    enabled = false,
+                ),
             ),
         )
 

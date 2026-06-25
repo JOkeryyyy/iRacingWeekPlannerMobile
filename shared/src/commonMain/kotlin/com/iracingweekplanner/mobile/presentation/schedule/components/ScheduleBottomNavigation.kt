@@ -3,21 +3,21 @@ package com.iracingweekplanner.mobile.presentation.schedule.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ScheduleBottomNavigation(
@@ -29,24 +29,18 @@ fun ScheduleBottomNavigation(
         modifier = modifier
             .fillMaxWidth(),
     ) {
-//        HorizontalDivider(
-//            modifier = Modifier.fillMaxWidth(),
-//            color = MaterialTheme.colorScheme.outlineVariant,
-//        )
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.outlineVariant,
+        )
         NavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(
                     min = ScheduleUiTokens.BottomNavigationMinHeight,
                     max = ScheduleUiTokens.BottomNavigationMaxHeight,
-                )
-                .clip(
-                    RoundedCornerShape(
-                        topStart = ScheduleUiTokens.BottomNavigationRadius,
-                        topEnd = ScheduleUiTokens.BottomNavigationRadius,
-                    ),
                 ),
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.background,
             tonalElevation = 0.dp,
         ) {
             tabs.forEach { tab ->
@@ -54,7 +48,12 @@ fun ScheduleBottomNavigation(
                     selected = tab.selected,
                     enabled = tab.enabled,
                     onClick = { onTabClick(tab) },
-                    icon = { Text(tab.iconLabel) },
+                    icon = {
+                        Icon(
+                            painter = painterResource(tab.icon),
+                            contentDescription = tab.label,
+                        )
+                    },
                     label = { Text(tab.label) },
                 )
             }
