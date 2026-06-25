@@ -55,9 +55,10 @@ fun StatePanel(
             )
             content.retryLabel?.let { retryLabel ->
                 ScheduleButton(
-                    label = retryLabel,
+                    icon = ScheduleButtonIcons.Retry,
+                    contentDescription = retryLabel,
                     onClick = onRetryClick,
-                    style = ScheduleButtonStyle.Filled,
+                    emphasis = ScheduleButtonEmphasis.Filled,
                 )
             }
         }

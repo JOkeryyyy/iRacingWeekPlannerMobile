@@ -72,8 +72,36 @@ class SchedulePackageStructureAndroidHostTest {
             message = "ScheduleButton should be the shared button component for Schedule actions.",
         )
         assertTrue(
+            actual = scheduleButtonSource.contains("icon: ImageVector"),
+            message = "ScheduleButton should be icon-first for Schedule actions.",
+        )
+        assertTrue(
+            actual = scheduleButtonSource.contains("Icon("),
+            message = "ScheduleButton should render an icon instead of visible action text.",
+        )
+        assertTrue(
+            actual = scheduleButtonSource.contains("IconButton("),
+            message = "ScheduleButton should delegate to Material icon buttons.",
+        )
+        assertTrue(
+            actual = scheduleButtonSource.contains("FilledIconButton("),
+            message = "ScheduleButton should keep a filled icon variant for primary/retry actions.",
+        )
+        assertFalse(
+            actual = scheduleButtonSource.contains("label: String"),
+            message = "ScheduleButton should not expose text-button labels until a text-button use case exists.",
+        )
+        assertFalse(
             actual = scheduleButtonSource.contains("enum class ScheduleButtonStyle"),
-            message = "ScheduleButton should expose explicit visual styles for action use cases.",
+            message = "ScheduleButton should not keep the old text/filled text-button style API.",
+        )
+        assertFalse(
+            actual = scheduleButtonSource.contains("TextButton("),
+            message = "ScheduleButton should not instantiate text buttons.",
+        )
+        assertFalse(
+            actual = scheduleButtonSource.contains("Text("),
+            message = "ScheduleButton should not render visible button text.",
         )
 
         listOf("ScheduleHeader.kt", "DateWeekSelector.kt", "StatePanel.kt").forEach { fileName ->
@@ -129,6 +157,18 @@ class SchedulePackageStructureAndroidHostTest {
         assertFalse(
             actual = chipSource.contains("ScheduleCard("),
             message = "ScheduleChip is a chip control, not a schedule card container.",
+        )
+        assertTrue(
+            actual = chipSource.contains("RoundedCornerShape(ScheduleUiTokens.ControlRadius)"),
+            message = "ScheduleChip should use compact label corners instead of button-like pill corners.",
+        )
+        assertFalse(
+            actual = chipSource.contains("RoundedCornerShape(percent = 50)"),
+            message = "ScheduleChip should not use pill styling that reads like a button.",
+        )
+        assertFalse(
+            actual = chipSource.contains("BorderStroke("),
+            message = "ScheduleChip should avoid bordered button-like styling.",
         )
     }
 

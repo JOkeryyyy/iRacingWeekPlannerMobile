@@ -46,9 +46,10 @@ fun ScheduleHeader(
             }
         }
         ScheduleButton(
-            label = content.refreshLabel,
-            onClick = onRefreshClick,
+            icon = ScheduleButtonIcons.Refresh,
             contentDescription = content.refreshContentDescription,
+            onClick = onRefreshClick,
+            emphasis = ScheduleButtonEmphasis.Filled,
         )
     }
 }

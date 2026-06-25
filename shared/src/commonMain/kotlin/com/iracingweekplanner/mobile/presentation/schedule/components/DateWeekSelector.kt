@@ -38,10 +38,10 @@ fun DateWeekSelector(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ScheduleButton(
-                label = content.previousLabel,
+                icon = ScheduleButtonIcons.Previous,
+                contentDescription = content.previousContentDescription,
                 onClick = onPreviousClick,
                 enabled = content.previousEnabled,
-                contentDescription = content.previousContentDescription,
             )
             Column(
                 modifier = Modifier.weight(1f),
@@ -59,14 +59,15 @@ fun DateWeekSelector(
                 )
             }
             ScheduleButton(
-                label = content.todayLabel,
+                icon = ScheduleButtonIcons.Today,
+                contentDescription = content.todayLabel,
                 onClick = onTodayClick,
             )
             ScheduleButton(
-                label = content.nextLabel,
+                icon = ScheduleButtonIcons.Next,
+                contentDescription = content.nextContentDescription,
                 onClick = onNextClick,
                 enabled = content.nextEnabled,
-                contentDescription = content.nextContentDescription,
             )
         }
     }

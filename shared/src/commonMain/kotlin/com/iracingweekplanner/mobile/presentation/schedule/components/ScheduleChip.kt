@@ -1,6 +1,5 @@
 package com.iracingweekplanner.mobile.presentation.schedule.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
@@ -24,24 +23,20 @@ fun ScheduleChip(
     modifier: Modifier = Modifier,
 ) {
     val containerColor =
-        if (content.selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+        if (content.selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
     val contentColor =
         if (content.selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
 
     Surface(
         modifier = modifier.heightIn(min = ScheduleUiTokens.MinimumChipHeight),
-        shape = RoundedCornerShape(percent = 50),
+        shape = RoundedCornerShape(ScheduleUiTokens.ControlRadius),
         color = containerColor,
         contentColor = contentColor,
-        border = BorderStroke(
-            width = ScheduleUiTokens.RaceCardBorderWidth,
-            color = MaterialTheme.colorScheme.outlineVariant,
-        ),
     ) {
         Text(
             text = content.label,
             modifier = Modifier.padding(
-                horizontal = ScheduleUiTokens.DefaultGap,
+                horizontal = ScheduleUiTokens.RaceCardInternalGap,
                 vertical = ScheduleUiTokens.CompactGap,
             ),
             fontSize = ScheduleUiTokens.ChipTextSize,

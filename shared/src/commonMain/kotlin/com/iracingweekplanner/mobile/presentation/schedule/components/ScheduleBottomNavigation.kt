@@ -1,8 +1,10 @@
 package com.iracingweekplanner.mobile.presentation.schedule.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,30 +25,39 @@ fun ScheduleBottomNavigation(
     onTabClick: (ScheduleBottomTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    NavigationBar(
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .heightIn(
-                min = ScheduleUiTokens.BottomNavigationMinHeight,
-                max = ScheduleUiTokens.BottomNavigationMaxHeight,
-            )
-            .clip(
-                RoundedCornerShape(
-                    topStart = ScheduleUiTokens.BottomNavigationRadius,
-                    topEnd = ScheduleUiTokens.BottomNavigationRadius,
-                ),
-            ),
-        containerColor = MaterialTheme.colorScheme.background,
-        tonalElevation = 0.dp,
+            .fillMaxWidth(),
     ) {
-        tabs.forEach { tab ->
-            NavigationBarItem(
-                selected = tab.selected,
-                enabled = tab.enabled,
-                onClick = { onTabClick(tab) },
-                icon = { Text(tab.iconLabel) },
-                label = { Text(tab.label) },
-            )
+//        HorizontalDivider(
+//            modifier = Modifier.fillMaxWidth(),
+//            color = MaterialTheme.colorScheme.outlineVariant,
+//        )
+        NavigationBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(
+                    min = ScheduleUiTokens.BottomNavigationMinHeight,
+                    max = ScheduleUiTokens.BottomNavigationMaxHeight,
+                )
+                .clip(
+                    RoundedCornerShape(
+                        topStart = ScheduleUiTokens.BottomNavigationRadius,
+                        topEnd = ScheduleUiTokens.BottomNavigationRadius,
+                    ),
+                ),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            tonalElevation = 0.dp,
+        ) {
+            tabs.forEach { tab ->
+                NavigationBarItem(
+                    selected = tab.selected,
+                    enabled = tab.enabled,
+                    onClick = { onTabClick(tab) },
+                    icon = { Text(tab.iconLabel) },
+                    label = { Text(tab.label) },
+                )
+            }
         }
     }
 }
