@@ -4,6 +4,6 @@ data class ScheduleRaceCardContent(
     val title: String,
     val track: String,
     val carSummary: String,
-    val metadata: List<String> = emptyList(),
+    val metadataText: String? = null,
     val chips: List<ScheduleChipContent> = emptyList(),
 )

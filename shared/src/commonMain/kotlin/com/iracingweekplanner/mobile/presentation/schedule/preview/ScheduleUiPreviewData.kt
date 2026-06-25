@@ -30,12 +30,7 @@ object ScheduleUiPreviewData {
                 title = "GT Sprint Series",
                 track = "Watkins Glen - Boot",
                 carSummary = "GT3 Cars",
-                metadata = listOf(
-                    "45 min",
-                    "Rain 35%",
-                    "Next 8:15 PM",
-                    ScheduleTextResources.raceCount(12),
-                ),
+                metadataText = "45 min | Rain 35% | Next 8:15 PM | 12 races",
                 chips = listOf(
                     ScheduleChipContent(label = "Road", selected = true),
                     ScheduleChipContent(label = "B License"),
