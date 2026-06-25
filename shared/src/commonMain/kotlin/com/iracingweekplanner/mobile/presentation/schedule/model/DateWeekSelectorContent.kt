@@ -5,4 +5,9 @@ data class DateWeekSelectorContent(
     val dateContext: String,
     val previousEnabled: Boolean,
     val nextEnabled: Boolean,
+    val previousLabel: String,
+    val previousContentDescription: String,
+    val todayLabel: String,
+    val nextLabel: String,
+    val nextContentDescription: String,
 )

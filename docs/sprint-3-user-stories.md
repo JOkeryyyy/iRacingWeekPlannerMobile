@@ -6,7 +6,7 @@ Build the first usable shared Compose schedule screen for Android and iOS.
 
 Sprint 3 should turn the Sprint 2 planner data state into a mobile Schedule tab that can load planner data, show the selected week, render ordered race cards, and handle loading, cached, empty, and error states. The implementation should follow a lightweight shared MVI shape so later Sprint 4 filtering and Sprint 5 race-detail work can extend the screen without rewriting the presentation boundary.
 
-Sprint 3 should still be implemented story-by-story. Do not combine all UI foundation, state wiring, date controls, race list, and platform verification work into one implementation diff unless explicitly approved.
+Sprint 3 should still be implemented story-by-story. Do not combine all UI foundation, localization readiness, state wiring, date controls, race list, and platform verification work into one implementation diff unless explicitly approved.
 
 ## Scope Defaults
 
@@ -14,6 +14,7 @@ Sprint 3 should still be implemented story-by-story. Do not combine all UI found
 - The Schedule header uses a week-specific title such as `Week 13 Schedule` and a last-updated line such as `Last updated 10:42 AM`.
 - Race display order is deterministic by selected week, then stable source order or a simple stable display key. Sprint 3 does not expose user-controlled sorting.
 - Sprint 3 uses existing Sprint 2 local mock-first planner data and presentation state.
+- Sprint 3 ships English-only, but user-facing Schedule strings should use Compose Multiplatform string/plural resources or resource-backed parameters so later localization work can add languages without rewriting screen components.
 - Sprint 3 may show inactive future affordances only when they do not imply completed behavior. Filters, preferences, sorting controls, owned/favorite settings, and race details stay out of scope.
 - No Firebase, account login, cloud sync, mobile scraping, production hosted URL, or iRacing credential handling is part of this sprint.
 
@@ -72,7 +73,38 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Verify the state panel can render loading, empty, and retryable error variants without layout overlap.
 - Verify component parameters can be driven by fake state without constructing the real repository graph.
 
-## Story 3.2: Replace the Starter App With the Schedule Shell
+## Story 3.2: Add Schedule Localization Readiness
+
+**As a developer, I want Schedule screen text to be centralized and parameterized so the English-only MVP can support future localization without reworking reusable UI components.**
+
+### Current Starting Point
+
+- The starter UI and early Sprint 3 wireframes use direct English labels such as `Schedule`, `Week 13 Schedule`, and `Last updated 10:42 AM`.
+- Sprint 3 reusable components should not hardcode display copy internally because Sprint 4 filters and Sprint 5 details will add more user-facing text.
+- The app does not need non-English resources in Sprint 3, but Schedule text should be stored behind Compose Multiplatform resources so language-specific resource files can be added later.
+
+### Acceptance Criteria
+
+- A Schedule UI string boundary exists in shared presentation code for Sprint 3 user-facing labels, messages, and formatted text.
+- Sprint 3 remains English-only; no non-English translations are required for this story, but English Schedule copy lives in Compose Multiplatform resources.
+- Reusable components receive already prepared display text or string-provider output through state/parameters instead of constructing user-facing copy internally.
+- Dynamic text uses whole-message string/plural resource templates, not fragile concatenation of localized fragments. Examples include `Week {number} Schedule`, `Last updated {time}`, and `{count} races`.
+- Loading, empty, cached, source-error, invalid-data, local-store-error, refresh, retry, week navigation, and bottom-navigation labels are covered by the string boundary.
+- Date and time display uses an injectable or testable formatter boundary where practical so tests can verify stable output without depending on the device clock or locale.
+- Error copy remains user-presentable and does not expose raw exception messages, source URLs, SQLDelight details, Ktor errors, DTO field names, or local file paths.
+- The localization boundary stays in presentation/shared code and uses Compose Multiplatform resources, not Android-only or iOS-only resource dependencies.
+
+### QA Test Cases
+
+- Verify the selected bottom tab label still reads `Schedule`.
+- Verify a fake week 13 state produces `Week 13 Schedule`.
+- Verify a fake last-updated timestamp produces deterministic display text such as `Last updated 10:42 AM`.
+- Verify race counts are formatted through the Compose Multiplatform plural resource boundary for both singular and plural cases.
+- Verify loading, empty, cached, source-error, invalid-data, and local-store-error states all render user-facing copy from the shared boundary.
+- Verify reusable components can be rendered with alternate fake strings without changing component internals.
+- Verify no raw internal exception, source URL, SQLDelight detail, Ktor detail, DTO field name, or local file path appears in user-facing error text.
+
+## Story 3.3: Replace the Starter App With the Schedule Shell
 
 **As a user, I want the app to open on a Schedule screen so I immediately understand that the app is for browsing iRacing race weeks.**
 
@@ -105,7 +137,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Verify the screen remains readable at the reference `390 x 844` frame and does not overlap the bottom navigation.
 - Verify future tabs do not crash or navigate to blank screens if tapped; disabled/no-op behavior is acceptable for Sprint 3.
 
-## Story 3.3: Add Schedule MVI State Wiring
+## Story 3.4: Add Schedule MVI State Wiring
 
 **As a developer, I want a small shared MVI boundary for the Schedule screen so UI behavior is testable and future filtering/detail work has a stable extension point.**
 
@@ -140,7 +172,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Trigger refresh/retry and verify one planner load action is sent.
 - Trigger previous/next/today actions and verify selected-week state changes without reloading source data unnecessarily.
 
-## Story 3.4: Implement Date and Week Selector Behavior
+## Story 3.5: Implement Date and Week Selector Behavior
 
 **As a user, I want to move between race weeks so I can browse the schedule for the week I care about.**
 
@@ -170,7 +202,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Given a fake current date outside the season, tapping today selects the nearest available week and keeps the UI stable.
 - Verify the selector labels remain readable on a narrow mobile width.
 
-## Story 3.5: Render the Selected-Week Race Card List
+## Story 3.6: Render the Selected-Week Race Card List
 
 **As a user, I want to scan races for the selected week so I can quickly see series, track, car class, session timing, duration, and rain context.**
 
@@ -207,7 +239,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Verify no sort controls are present.
 - Verify tapping a race card does not navigate to an unimplemented detail screen or crash.
 
-## Story 3.6: Complete Schedule UI States and Platform Verification
+## Story 3.7: Complete Schedule UI States and Platform Verification
 
 **As a user, I want loading, cached, empty, and error states to be understandable so I know whether schedule data is ready, stale, unavailable, or invalid.**
 
@@ -250,6 +282,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - The selected week’s races render as deterministic race cards.
 - Loading, cached, empty, invalid-data, source-error, and local-store-error states are visible and testable.
 - UI components follow the Sprint 3 design constraints and are reusable for Sprint 4/5.
+- User-facing Schedule strings use Compose Multiplatform string/plural resources or resource-backed parameters for localization readiness; Sprint 3 remains English-only.
 - Presentation follows a lightweight MVI boundary with stateless screen components.
 - UI does not consume DTOs, SQLDelight rows, Ktor errors, source URLs, or local-storage details.
 - Story-focused tests pass.
@@ -258,7 +291,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 
 ## Verification Plan
 
-Run story-focused tests first, especially Schedule state/action tests and component rendering tests.
+Run story-focused tests first, especially Schedule string-boundary tests, Schedule state/action tests, and component rendering tests.
 
 Common Sprint 3 verification commands:
 

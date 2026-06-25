@@ -39,9 +39,9 @@ fun RaceCard(
                 fontSize = ScheduleUiTokens.CaptionTextSize,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (content.metadata.isNotEmpty()) {
+            content.metadataText?.takeIf { it.isNotBlank() }?.let { metadataText ->
                 Text(
-                    text = content.metadata.joinToString(separator = " | "),
+                    text = metadataText,
                     fontSize = ScheduleUiTokens.MetadataTextSize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -65,7 +65,7 @@ fun RaceCard(
 private fun RaceCardPreview() {
     ScheduleComponentPreviewTheme {
         RaceCard(
-            content = ScheduleUiPreviewData.foundationSample().raceCard,
+            content = ScheduleUiPreviewData.foundationResourceSample().raceCard,
             modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal),
         )
     }

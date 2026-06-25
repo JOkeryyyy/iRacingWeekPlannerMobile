@@ -46,9 +46,9 @@ fun ScheduleHeader(
             }
         }
         ScheduleButton(
-            label = "Refresh",
+            label = content.refreshLabel,
             onClick = onRefreshClick,
-            contentDescription = "Refresh schedule",
+            contentDescription = content.refreshContentDescription,
         )
     }
 }
@@ -58,7 +58,7 @@ fun ScheduleHeader(
 private fun ScheduleHeaderPreview() {
     ScheduleComponentPreviewTheme {
         ScheduleHeader(
-            content = ScheduleUiPreviewData.foundationSample().header,
+            content = ScheduleUiPreviewData.foundationResourceSample().header,
             onRefreshClick = {},
             modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal),
         )

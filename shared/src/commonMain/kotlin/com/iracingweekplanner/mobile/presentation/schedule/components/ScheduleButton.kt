@@ -15,6 +15,10 @@ import androidx.compose.ui.semantics.semantics
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
+import iracingweekplannermobile.shared.generated.resources.Res
+import iracingweekplannermobile.shared.generated.resources.schedule_refresh_label
+import iracingweekplannermobile.shared.generated.resources.schedule_retry_label
+import org.jetbrains.compose.resources.stringResource
 
 enum class ScheduleButtonStyle {
     Text,
@@ -65,11 +69,11 @@ private fun ScheduleButtonPreview() {
     ScheduleComponentPreviewTheme {
         Row(modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal)) {
             ScheduleButton(
-                label = "Refresh",
+                label = stringResource(Res.string.schedule_refresh_label),
                 onClick = {},
             )
             ScheduleButton(
-                label = "Retry",
+                label = stringResource(Res.string.schedule_retry_label),
                 onClick = {},
                 style = ScheduleButtonStyle.Filled,
             )

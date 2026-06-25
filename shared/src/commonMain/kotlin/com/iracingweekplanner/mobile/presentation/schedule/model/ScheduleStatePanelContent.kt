@@ -16,8 +16,8 @@ data class ScheduleStatePanelContent(
 
     companion object {
         fun loading(
-            title: String = "Loading schedule",
-            message: String = "Preparing race week data.",
+            title: String,
+            message: String,
         ): ScheduleStatePanelContent =
             ScheduleStatePanelContent(
                 variant = ScheduleStatePanelVariant.Loading,

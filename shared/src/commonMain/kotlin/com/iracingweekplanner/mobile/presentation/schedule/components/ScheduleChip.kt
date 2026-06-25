@@ -58,7 +58,7 @@ private fun ScheduleChipPreview() {
             modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal),
             horizontalArrangement = Arrangement.spacedBy(ScheduleUiTokens.CompactGap),
         ) {
-            ScheduleUiPreviewData.foundationSample().chips.forEach { chip ->
+            ScheduleUiPreviewData.foundationResourceSample().chips.forEach { chip ->
                 ScheduleChip(content = chip)
             }
         }

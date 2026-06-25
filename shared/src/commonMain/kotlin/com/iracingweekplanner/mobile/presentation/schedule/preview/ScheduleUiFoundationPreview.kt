@@ -22,7 +22,7 @@ import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 @Composable
 @ScheduleComponentPreview
 fun ScheduleUiFoundationPreview() {
-    val sample = ScheduleUiPreviewData.foundationSample()
+    val sample = ScheduleUiPreviewData.foundationResourceSample()
 
     IwpAppTheme {
         Surface(

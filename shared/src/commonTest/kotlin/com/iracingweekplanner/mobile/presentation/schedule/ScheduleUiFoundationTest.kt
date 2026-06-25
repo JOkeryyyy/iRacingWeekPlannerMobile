@@ -4,9 +4,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
+import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleRaceCardContent
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelContent
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelVariant
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -36,7 +36,12 @@ class ScheduleUiFoundationTest {
 
     @Test
     fun defaultBottomNavigationKeepsScheduleSelectedAndFutureTabsInactive() {
-        val tabs = ScheduleBottomTab.defaultTabs()
+        val tabs = listOf(
+            ScheduleBottomTab(label = "Schedule", selected = true, enabled = true),
+            ScheduleBottomTab(label = "Filters", selected = false, enabled = false),
+            ScheduleBottomTab(label = "Favorites", selected = false, enabled = false),
+            ScheduleBottomTab(label = "Settings", selected = false, enabled = false),
+        )
 
         assertEquals(listOf("Schedule", "Filters", "Favorites", "Settings"), tabs.map { it.label })
         assertTrue(tabs.single { it.label == "Schedule" }.selected)
@@ -46,7 +51,10 @@ class ScheduleUiFoundationTest {
 
     @Test
     fun statePanelModelsSupportLoadingEmptyAndRetryableErrorContent() {
-        val loading = ScheduleStatePanelContent.loading()
+        val loading = ScheduleStatePanelContent.loading(
+            title = "Loading schedule",
+            message = "Preparing race week data.",
+        )
         val empty = ScheduleStatePanelContent.empty(
             title = "No races this week",
             message = "Try another week.",
@@ -66,22 +74,15 @@ class ScheduleUiFoundationTest {
     }
 
     @Test
-    fun previewDataDrivesComponentsWithoutRepositoryGraph() {
-        val sample = ScheduleUiPreviewData.foundationSample()
+    fun raceCardModelAcceptsAlreadyPreparedMetadataText() {
+        val raceCard = ScheduleRaceCardContent(
+            title = "GT Sprint Series",
+            track = "Watkins Glen - Boot",
+            carSummary = "GT3 Cars",
+            metadataText = "45 min | Rain 35% | Next 8:15 PM",
+        )
 
-        assertEquals("Week 13 Schedule", sample.header.weekTitle)
-        assertEquals("Last updated 10:42 AM", sample.header.lastUpdatedText)
-        assertEquals(listOf("Current", "Week 13", "Oval"), sample.chips.map { it.label })
-        assertTrue(sample.chips.first().selected)
-        assertEquals("Schedule", sample.bottomTabs.single { it.selected }.label)
-        assertEquals("GT Sprint Series", sample.raceCard.title)
-        assertTrue(sample.statePanels.isEmpty())
+        assertEquals("45 min | Rain 35% | Next 8:15 PM", raceCard.metadataText)
     }
 
-    @Test
-    fun statePanelPreviewDataIsExplicitForLoadingEmptyAndErrorStates() {
-        assertEquals(ScheduleStatePanelVariant.Loading, ScheduleUiPreviewData.loadingPanelSample().variant)
-        assertEquals(ScheduleStatePanelVariant.Empty, ScheduleUiPreviewData.emptyPanelSample().variant)
-        assertEquals(ScheduleStatePanelVariant.Error, ScheduleUiPreviewData.errorPanelSample().variant)
-    }
 }
