@@ -157,6 +157,17 @@ Focused commands:
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :shared:iosSimulatorArm64Test
 ```
 
+Story 3.3 Schedule shell coverage:
+
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleShellContentTest.kt`
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/AppScheduleShellAndroidHostTest.kt`
+
+Focused command:
+
+```bash
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.schedule.ScheduleShellContentTest --tests com.iracingweekplanner.mobile.architecture.AppScheduleShellAndroidHostTest
+```
+
 ## Sprint 2 Story-Focused Tests
 
 Story 2.5 repository refresh/cache fallback coverage:

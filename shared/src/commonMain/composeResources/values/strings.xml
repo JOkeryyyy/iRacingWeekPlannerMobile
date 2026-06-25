@@ -15,6 +15,7 @@
     <string name="schedule_cached_data_message">Showing cached schedule data</string>
     <string name="schedule_week_title">Week %1$d Schedule</string>
     <string name="schedule_week_label">Week %1$d</string>
+    <string name="schedule_week_dates_loading">Race dates loading</string>
     <string name="schedule_last_updated">Last updated %1$s</string>
     <string name="schedule_loading_title">Loading schedule</string>
     <string name="schedule_loading_message">Preparing race week data.</string>

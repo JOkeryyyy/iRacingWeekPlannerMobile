@@ -34,6 +34,7 @@ import iracingweekplannermobile.shared.generated.resources.schedule_source_error
 import iracingweekplannermobile.shared.generated.resources.schedule_source_error_title
 import iracingweekplannermobile.shared.generated.resources.schedule_tab_label
 import iracingweekplannermobile.shared.generated.resources.schedule_today_label
+import iracingweekplannermobile.shared.generated.resources.schedule_week_dates_loading
 import iracingweekplannermobile.shared.generated.resources.schedule_week_label
 import iracingweekplannermobile.shared.generated.resources.schedule_week_title
 import org.jetbrains.compose.resources.getPluralString
@@ -170,6 +171,10 @@ object ScheduleTextResources {
     @Composable
     fun raceCount(count: Int): String =
         pluralStringResource(Res.plurals.schedule_race_count, count, count)
+
+    @Composable
+    fun loadingDateContext(): String =
+        stringResource(Res.string.schedule_week_dates_loading)
 
     suspend fun loadWeekTitle(weekNumber: Int): String =
         getString(Res.string.schedule_week_title, weekNumber)
