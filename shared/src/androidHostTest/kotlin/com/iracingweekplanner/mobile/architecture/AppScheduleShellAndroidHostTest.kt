@@ -63,7 +63,7 @@ class AppScheduleShellAndroidHostTest {
 
     @Test
     fun appScaffoldOwnsRootSurfaceAndSafeAreaInsteadOfScheduleShell() {
-        val scaffoldFile = commonMainPackageRoot().resolve("presentation/scaffold/IwpAppScaffold.kt")
+        val scaffoldFile = commonMainPackageRoot().resolve("presentation/common/scaffold/IwpAppScaffold.kt")
         assertTrue(
             actual = Files.exists(scaffoldFile),
             message = "Expected a shared app scaffold so screens do not recreate the root Surface.",

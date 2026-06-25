@@ -10,19 +10,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.iracingweekplanner.mobile.presentation.scaffold.IwpAppScaffold
-import com.iracingweekplanner.mobile.presentation.schedule.components.DateWeekSelector
-import com.iracingweekplanner.mobile.presentation.schedule.components.RaceCard
-import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleBottomNavigation
-import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleChip
-import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleHeader
-import com.iracingweekplanner.mobile.presentation.schedule.components.StatePanel
-import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleChipContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleShellContent
-import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
-import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
+import com.iracingweekplanner.mobile.presentation.common.scaffold.IwpAppScaffold
+import com.iracingweekplanner.mobile.presentation.common.components.DateWeekSelector
+import com.iracingweekplanner.mobile.presentation.common.components.RaceCard
+import com.iracingweekplanner.mobile.presentation.common.components.ScheduleBottomNavigation
+import com.iracingweekplanner.mobile.presentation.common.components.ScheduleChip
+import com.iracingweekplanner.mobile.presentation.common.components.ScheduleHeader
+import com.iracingweekplanner.mobile.presentation.common.components.StatePanel
+import com.iracingweekplanner.mobile.presentation.common.design.ScheduleUiTokens
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleChipContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleShellContent
+import com.iracingweekplanner.mobile.presentation.common.preview.IWPPreview
+import com.iracingweekplanner.mobile.presentation.common.theme.IwpAppTheme
 
 @Composable
 fun ScheduleShell(

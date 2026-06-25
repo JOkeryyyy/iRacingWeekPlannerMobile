@@ -2,11 +2,11 @@ package com.iracingweekplanner.mobile.presentation.schedule
 
 import androidx.compose.runtime.Composable
 import com.iracingweekplanner.mobile.presentation.PlannerDataUiMessage
-import com.iracingweekplanner.mobile.presentation.schedule.model.DateWeekSelectorContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleHeaderContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelVariant
+import com.iracingweekplanner.mobile.presentation.common.model.DateWeekSelectorContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleHeaderContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelVariant
 import iracingweekplannermobile.shared.generated.resources.Res
 import iracingweekplannermobile.shared.generated.resources.ic_favorites_tab
 import iracingweekplannermobile.shared.generated.resources.ic_filters_tab

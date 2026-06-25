@@ -13,7 +13,7 @@ class IwpAppScaffoldAndroidHostTest {
     fun scaffoldAppliesOnlyVerticalSafeInsetsSoScreensOwnHorizontalPadding() {
         val source = readText(
             commonMainPackageRoot()
-                .resolve("presentation/scaffold/IwpAppScaffold.kt"),
+                .resolve("presentation/common/scaffold/IwpAppScaffold.kt"),
         )
 
         assertFalse(
@@ -30,7 +30,7 @@ class IwpAppScaffoldAndroidHostTest {
     fun bottomNavigationUsesAppBackgroundWithoutTonalOverlay() {
         val source = readText(
             commonMainPackageRoot()
-                .resolve("presentation/schedule/components/ScheduleBottomNavigation.kt"),
+                .resolve("presentation/common/components/ScheduleBottomNavigation.kt"),
         )
 
         assertTrue(
