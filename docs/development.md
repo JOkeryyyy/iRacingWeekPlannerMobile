@@ -143,6 +143,20 @@ Focused commands:
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.SharedPackageStructureAndroidHostTest
 ```
 
+Story 3.2 Schedule localization-readiness coverage:
+
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleComposeResourcesTest.kt`
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleUiFoundationTest.kt` verifies that race-card metadata is already prepared display text before reaching `RaceCard`.
+- `shared/src/iosSimulatorArm64Test/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleComposeResourceOutputTest.kt`
+
+Focused commands:
+
+```bash
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.schedule.ScheduleComposeResourcesTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.schedule.ScheduleUiFoundationTest
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :shared:iosSimulatorArm64Test
+```
+
 ## Sprint 2 Story-Focused Tests
 
 Story 2.5 repository refresh/cache fallback coverage:
