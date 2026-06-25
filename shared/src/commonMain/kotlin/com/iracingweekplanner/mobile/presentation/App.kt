@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.iracingweekplanner.mobile.domain.usecase.GetAppInfoUseCase
 import com.iracingweekplanner.mobile.domain.model.PlannerAppInfo
 import com.iracingweekplanner.mobile.domain.repository.PlannerAppInfoRepository
+import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 import org.jetbrains.compose.resources.painterResource
 
 import iracingweekplannermobile.shared.generated.resources.Res
@@ -24,12 +25,12 @@ import iracingweekplannermobile.shared.generated.resources.compose_multiplatform
 
 @Composable
 fun App(stateHolder: AppInfoStateHolder) {
-    MaterialTheme {
+    IwpAppTheme {
         var showContent by remember { mutableStateOf(false) }
         val appInfo = remember(stateHolder) { stateHolder.uiState }
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.background)
                 .safeContentPadding()
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,

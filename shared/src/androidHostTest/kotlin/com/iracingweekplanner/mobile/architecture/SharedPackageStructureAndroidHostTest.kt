@@ -56,6 +56,29 @@ class SharedPackageStructureAndroidHostTest {
         )
     }
 
+    @Test
+    fun appComposableUsesSharedAppThemePackage() {
+        val presentationRoot = commonMainPackageRoot().resolve("presentation")
+        val appSource = Files.readAllLines(presentationRoot.resolve("App.kt")).joinToString(separator = "\n")
+
+        assertTrue(
+            actual = Files.isDirectory(presentationRoot.resolve("theme")),
+            message = "Expected app theme to live under presentation/theme.",
+        )
+        assertTrue(
+            actual = Files.isRegularFile(presentationRoot.resolve("theme/IwpAppTheme.kt")),
+            message = "Expected IwpAppTheme.kt to define the shared app theme.",
+        )
+        assertTrue(
+            actual = appSource.contains("IwpAppTheme {"),
+            message = "App should use the shared app theme.",
+        )
+        assertTrue(
+            actual = !appSource.contains("MaterialTheme {"),
+            message = "App should not create raw MaterialTheme wrappers.",
+        )
+    }
+
     private fun commonMainPackageRoot(): Path =
         sharedProjectRoot()
             .resolve("src/commonMain/kotlin/com/iracingweekplanner/mobile")
