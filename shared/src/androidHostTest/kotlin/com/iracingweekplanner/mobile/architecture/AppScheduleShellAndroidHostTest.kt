@@ -40,7 +40,6 @@ class AppScheduleShellAndroidHostTest {
             "DateWeekSelector(",
             "ScheduleChip(",
             "StatePanel(",
-            "ScheduleBottomNavigation(",
         ).forEach { call ->
             assertTrue(
                 actual = shellSource.contains(call),
@@ -59,6 +58,61 @@ class AppScheduleShellAndroidHostTest {
         assertTrue(
             actual = shellSource.contains("ScheduleTextResources.bottomTabs()"),
             message = "Bottom navigation labels should come from the Schedule text resource boundary.",
+        )
+    }
+
+    @Test
+    fun appScaffoldOwnsRootSurfaceAndSafeAreaInsteadOfScheduleShell() {
+        val scaffoldFile = commonMainPackageRoot().resolve("presentation/scaffold/IwpAppScaffold.kt")
+        assertTrue(
+            actual = Files.exists(scaffoldFile),
+            message = "Expected a shared app scaffold so screens do not recreate the root Surface.",
+        )
+
+        val scaffoldSource = readText(scaffoldFile)
+        val shellSource = readText(commonMainPackageRoot().resolve("presentation/schedule/ScheduleShell.kt"))
+
+        assertTrue(
+            actual = scaffoldSource.contains("Surface("),
+            message = "IwpAppScaffold should own the app-level background Surface.",
+        )
+        assertTrue(
+            actual = scaffoldSource.contains("safeContentPadding()"),
+            message = "IwpAppScaffold should own app-level safe-area padding.",
+        )
+        assertFalse(
+            actual = scaffoldSource.contains("presentation.schedule"),
+            message = "The generic app scaffold should not depend on the Schedule feature package.",
+        )
+        assertFalse(
+            actual = shellSource.contains("Surface("),
+            message = "ScheduleShell should not recreate the app-level Surface.",
+        )
+        assertFalse(
+            actual = shellSource.contains("safeContentPadding()"),
+            message = "ScheduleShell should not own app-level safe-area padding.",
+        )
+    }
+
+    @Test
+    fun scheduleBottomNavigationIsPlacedInTheScaffoldBottomBarOutsideScreenPadding() {
+        val shellSource = readText(commonMainPackageRoot().resolve("presentation/schedule/ScheduleShell.kt"))
+
+        assertTrue(
+            actual = shellSource.contains("IwpAppScaffold("),
+            message = "ScheduleShell should use the shared app scaffold for bottom-bar placement.",
+        )
+        assertTrue(
+            actual = shellSource.contains("bottomBar = {"),
+            message = "Schedule bottom navigation should be passed through the scaffold bottomBar slot.",
+        )
+        assertTrue(
+            actual = shellSource.contains("ScheduleBottomNavigation("),
+            message = "Schedule bottom navigation should remain visible in the Schedule shell.",
+        )
+        assertTrue(
+            actual = shellSource.contains("modifier = Modifier.padding(contentPadding)"),
+            message = "Schedule content should receive screen padding separately from the bottom bar.",
         )
     }
 

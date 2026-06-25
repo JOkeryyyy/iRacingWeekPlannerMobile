@@ -6,14 +6,12 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.iracingweekplanner.mobile.presentation.scaffold.IwpAppScaffold
 import com.iracingweekplanner.mobile.presentation.schedule.components.DateWeekSelector
 import com.iracingweekplanner.mobile.presentation.schedule.components.RaceCard
 import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleBottomNavigation
@@ -24,6 +22,7 @@ import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiToke
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleChipContent
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleShellContent
+import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
 import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 
 @Composable
@@ -75,43 +74,63 @@ fun ScheduleShell(
     onTabClick: (ScheduleBottomTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .safeContentPadding()
-                .padding(
-                    start = ScheduleUiTokens.ScreenPaddingHorizontal,
-                    top = ScheduleUiTokens.ScreenPaddingTop,
-                    end = ScheduleUiTokens.ScreenPaddingHorizontal,
-                    bottom = ScheduleUiTokens.ScreenPaddingBottom,
-                ),
-            verticalArrangement = Arrangement.spacedBy(ScheduleUiTokens.SectionGap),
-        ) {
-            ScheduleHeader(
-                content = content.header,
-                onRefreshClick = onRefreshClick,
-            )
-            DateWeekSelector(
-                content = content.selector,
-                onPreviousClick = onPreviousWeekClick,
-                onTodayClick = onTodayClick,
-                onNextClick = onNextWeekClick,
-            )
-            ScheduleSummaryChips(chips = content.summaryChips)
-            ScheduleRaceList(
-                content = content,
-                onRetryClick = onRetryClick,
-                modifier = Modifier.weight(1f),
-            )
+    IwpAppScaffold(
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            start = ScheduleUiTokens.ScreenPaddingHorizontal,
+            top = ScheduleUiTokens.ScreenPaddingTop,
+            end = ScheduleUiTokens.ScreenPaddingHorizontal,
+            bottom = ScheduleUiTokens.ScreenPaddingBottom,
+        ),
+        bottomBar = {
             ScheduleBottomNavigation(
                 tabs = content.bottomTabs,
                 onTabClick = onTabClick,
             )
-        }
+        },
+    ) { contentPadding ->
+        ScheduleShellBody(
+            content = content,
+            onRefreshClick = onRefreshClick,
+            onPreviousWeekClick = onPreviousWeekClick,
+            onTodayClick = onTodayClick,
+            onNextWeekClick = onNextWeekClick,
+            onRetryClick = onRetryClick,
+            modifier = Modifier.padding(contentPadding),
+        )
+    }
+}
+
+@Composable
+private fun ScheduleShellBody(
+    content: ScheduleShellContent,
+    onRefreshClick: () -> Unit,
+    onPreviousWeekClick: () -> Unit,
+    onTodayClick: () -> Unit,
+    onNextWeekClick: () -> Unit,
+    onRetryClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(ScheduleUiTokens.SectionGap),
+    ) {
+        ScheduleHeader(
+            content = content.header,
+            onRefreshClick = onRefreshClick,
+        )
+        DateWeekSelector(
+            content = content.selector,
+            onPreviousClick = onPreviousWeekClick,
+            onTodayClick = onTodayClick,
+            onNextClick = onNextWeekClick,
+        )
+        ScheduleSummaryChips(chips = content.summaryChips)
+        ScheduleRaceList(
+            content = content,
+            onRetryClick = onRetryClick,
+            modifier = Modifier.weight(1f),
+        )
     }
 }
 
@@ -157,7 +176,7 @@ private fun ScheduleRaceList(
 }
 
 @Composable
-@Preview
+@ScheduleComponentPreview
 private fun ScheduleShellPreview() {
     IwpAppTheme {
         ScheduleShell()
