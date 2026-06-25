@@ -16,12 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleBottomNavigation
-import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleHeader
 import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
+import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 
 @Composable
 fun IwpAppScaffold(
@@ -56,22 +54,19 @@ fun IwpAppScaffold(
 @Composable
 @IWPPreview
 private fun IwpAppScaffoldPreview() {
-    ScheduleComponentPreviewTheme {
-        val sample = ScheduleUiPreviewData.foundationResourceSample()
-
+    IwpAppTheme {
         IwpAppScaffold(
             contentPadding = PaddingValues(16.dp),
             topBar = {
-                ScheduleHeader(
-                    content = sample.header,
-                    onRefreshClick = {},
+                Text(
+                    text = "Top bar",
                     modifier = Modifier.padding(16.dp),
                 )
             },
             bottomBar = {
-                ScheduleBottomNavigation(
-                    tabs = sample.bottomTabs,
-                    onTabClick = {},
+                Text(
+                    text = "Bottom bar",
+                    modifier = Modifier.padding(16.dp),
                 )
             },
         ) { padding ->

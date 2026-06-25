@@ -52,7 +52,7 @@ class SchedulePackageStructureAndroidHostTest {
                 message = "$fileName should declare the $componentName composable.",
             )
             assertTrue(
-                actual = source.contains("@ScheduleComponentPreview"),
+                actual = source.contains("@IWPPreview"),
                 message = "$fileName should include the shared Schedule component preview variants.",
             )
             assertTrue(
@@ -226,11 +226,11 @@ class SchedulePackageStructureAndroidHostTest {
         val componentsRoot = commonMainPackageRoot().resolve("presentation/schedule/components")
         val previewSupportSource = readText(
             commonMainPackageRoot()
-                .resolve("presentation/schedule/preview/ScheduleComponentPreview.kt"),
+                .resolve("presentation/schedule/preview/IWPPreview.kt"),
         )
 
         assertTrue(
-            actual = previewSupportSource.contains("annotation class ScheduleComponentPreview"),
+            actual = previewSupportSource.contains("annotation class IWPPreview"),
             message = "Schedule components should share one preview annotation for component preview variants.",
         )
         assertTrue(
@@ -263,7 +263,7 @@ class SchedulePackageStructureAndroidHostTest {
             val source = readText(componentsRoot.resolve(fileName))
 
             assertTrue(
-                actual = source.contains("@ScheduleComponentPreview"),
+                actual = source.contains("@IWPPreview"),
                 message = "$fileName should use the shared Schedule component preview variants.",
             )
             assertTrue(

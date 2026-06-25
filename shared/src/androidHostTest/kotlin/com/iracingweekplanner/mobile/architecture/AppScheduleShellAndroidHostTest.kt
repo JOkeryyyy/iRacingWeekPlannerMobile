@@ -77,8 +77,8 @@ class AppScheduleShellAndroidHostTest {
             message = "IwpAppScaffold should own the app-level background Surface.",
         )
         assertTrue(
-            actual = scaffoldSource.contains("safeContentPadding()"),
-            message = "IwpAppScaffold should own app-level safe-area padding.",
+            actual = scaffoldSource.contains("WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)"),
+            message = "IwpAppScaffold should own app-level vertical safe-area padding.",
         )
         assertFalse(
             actual = scaffoldSource.contains("presentation.schedule"),
