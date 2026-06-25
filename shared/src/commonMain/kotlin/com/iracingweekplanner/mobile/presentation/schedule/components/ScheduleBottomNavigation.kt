@@ -3,12 +3,14 @@ package com.iracingweekplanner.mobile.presentation.schedule.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
@@ -34,6 +36,8 @@ fun ScheduleBottomNavigation(
                     topEnd = ScheduleUiTokens.BottomNavigationRadius,
                 ),
             ),
+        containerColor = MaterialTheme.colorScheme.background,
+        tonalElevation = 0.dp,
     ) {
         tabs.forEach { tab ->
             NavigationBarItem(

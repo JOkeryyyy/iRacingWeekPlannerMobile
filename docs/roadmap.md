@@ -1,5 +1,11 @@
 # Roadmap
 
+## Cross-Sprint Design Runway
+
+Adaptive and responsive design should be considered in every UI story, even when the story remains phone-first. Sprint 3 and Sprint 4 should avoid choices that force a later large-scale refactor: screens should stay stateless where practical, interactions should flow through callbacks, display models should keep stable identifiers needed for future navigation, and app-level chrome should not be mixed into business state.
+
+Navigation 3 is not part of the Sprint 3 MVP. It should be introduced with the first real navigation feature, currently planned as the Schedule list to Race Detail flow in Sprint 5. Exact tablet, iPad, and breakpoint behavior remains a Sprint 5 design decision.
+
 ## Sprint 0: KMP/Compose Project Setup and Technical Spike
 
 Goal: Prove the mobile workspace can build for Android and iOS, establish Clean Architecture boundaries, add baseline dependencies, and document local setup.
@@ -52,6 +58,7 @@ Outcomes:
 - Invalid required data is shown as a UI error instead of being hidden silently.
 - Planner screen reads from shared state/use cases.
 - Android and iOS basic planner flows can be run.
+- Schedule components remain compatible with future adaptive Navigation 3 list-detail work.
 
 ## Sprint 4: Filters, Sorting, and Local Preferences
 
@@ -64,6 +71,7 @@ Outcomes:
 - Sorting controls exist.
 - Preferences persist locally.
 - Filter/sort logic is tested.
+- Filter, sorting, and preference controls remain reusable in compact and future expanded layouts.
 
 ## Sprint 5: Race Details and Internal Beta Polish
 
@@ -72,6 +80,8 @@ Goal: Complete the internal beta experience.
 Outcomes:
 
 - Race detail screen exists.
+- Navigation 3 compatibility is verified on Android and iOS before route/adaptive APIs become required.
+- Schedule list to Race Detail uses shared route state and is ready for adaptive list-detail rendering.
 - Data refresh and offline states are polished.
 - Empty/error messaging is usable.
 - Basic visual polish is complete.
