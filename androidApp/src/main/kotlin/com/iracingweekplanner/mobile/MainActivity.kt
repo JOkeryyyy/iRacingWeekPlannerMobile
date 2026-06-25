@@ -10,13 +10,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        val appDependencies = iracingWeekPlannerApplication.appDependencies
 
         setContent {
-            App(stateHolder = appDependencies.appInfoStateHolder)
+            App()
         }
     }
-
-    private val iracingWeekPlannerApplication: IRacingWeekPlannerApplication
-        get() = application as IRacingWeekPlannerApplication
 }

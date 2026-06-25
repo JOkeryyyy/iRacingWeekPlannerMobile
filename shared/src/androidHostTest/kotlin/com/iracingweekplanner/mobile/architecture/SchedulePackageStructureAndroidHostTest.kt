@@ -13,7 +13,8 @@ class SchedulePackageStructureAndroidHostTest {
     @Test
     fun scheduleComponentsUseDedicatedPackageOneFilePerComponentAndLocalPreview() {
         val scheduleRoot = commonMainPackageRoot().resolve("presentation/schedule")
-        val componentsRoot = scheduleRoot.resolve("components")
+        val commonRoot = commonMainPackageRoot().resolve("presentation/common")
+        val componentsRoot = commonRoot.resolve("components")
         val expectedComponentFiles = listOf(
             "DateWeekSelector.kt",
             "RaceCard.kt",
@@ -31,7 +32,7 @@ class SchedulePackageStructureAndroidHostTest {
         )
         assertTrue(
             actual = Files.isDirectory(componentsRoot),
-            message = "Expected Schedule components to live in presentation/schedule/components.",
+            message = "Expected reusable Schedule components to live in presentation/common/components.",
         )
 
         val actualComponentFiles = Files.newDirectoryStream(componentsRoot, "*.kt").use { stream ->
@@ -44,15 +45,15 @@ class SchedulePackageStructureAndroidHostTest {
             val source = readText(componentsRoot.resolve(fileName))
 
             assertTrue(
-                actual = source.startsWith("package com.iracingweekplanner.mobile.presentation.schedule.components"),
-                message = "$fileName should use the dedicated Schedule components package.",
+                actual = source.startsWith("package com.iracingweekplanner.mobile.presentation.common.components"),
+                message = "$fileName should use the dedicated common components package.",
             )
             assertTrue(
                 actual = source.contains("fun $componentName("),
                 message = "$fileName should declare the $componentName composable.",
             )
             assertTrue(
-                actual = source.contains("@ScheduleComponentPreview"),
+                actual = source.contains("@IWPPreview"),
                 message = "$fileName should include the shared Schedule component preview variants.",
             )
             assertTrue(
@@ -64,7 +65,7 @@ class SchedulePackageStructureAndroidHostTest {
 
     @Test
     fun scheduleButtonsUseSharedScheduleButtonComponent() {
-        val componentsRoot = commonMainPackageRoot().resolve("presentation/schedule/components")
+        val componentsRoot = commonMainPackageRoot().resolve("presentation/common/components")
         val scheduleButtonSource = readText(componentsRoot.resolve("ScheduleButton.kt"))
 
         assertTrue(
@@ -72,8 +73,36 @@ class SchedulePackageStructureAndroidHostTest {
             message = "ScheduleButton should be the shared button component for Schedule actions.",
         )
         assertTrue(
+            actual = scheduleButtonSource.contains("icon: ImageVector"),
+            message = "ScheduleButton should be icon-first for Schedule actions.",
+        )
+        assertTrue(
+            actual = scheduleButtonSource.contains("Icon("),
+            message = "ScheduleButton should render an icon instead of visible action text.",
+        )
+        assertTrue(
+            actual = scheduleButtonSource.contains("IconButton("),
+            message = "ScheduleButton should delegate to Material icon buttons.",
+        )
+        assertTrue(
+            actual = scheduleButtonSource.contains("FilledIconButton("),
+            message = "ScheduleButton should keep a filled icon variant for primary/retry actions.",
+        )
+        assertFalse(
+            actual = scheduleButtonSource.contains("label: String"),
+            message = "ScheduleButton should not expose text-button labels until a text-button use case exists.",
+        )
+        assertFalse(
             actual = scheduleButtonSource.contains("enum class ScheduleButtonStyle"),
-            message = "ScheduleButton should expose explicit visual styles for action use cases.",
+            message = "ScheduleButton should not keep the old text/filled text-button style API.",
+        )
+        assertFalse(
+            actual = scheduleButtonSource.contains("TextButton("),
+            message = "ScheduleButton should not instantiate text buttons.",
+        )
+        assertFalse(
+            actual = scheduleButtonSource.contains("Text("),
+            message = "ScheduleButton should not render visible button text.",
         )
 
         listOf("ScheduleHeader.kt", "DateWeekSelector.kt", "StatePanel.kt").forEach { fileName ->
@@ -100,7 +129,7 @@ class SchedulePackageStructureAndroidHostTest {
 
     @Test
     fun cardLikeScheduleComponentsUseSharedScheduleCardContainer() {
-        val componentsRoot = commonMainPackageRoot().resolve("presentation/schedule/components")
+        val componentsRoot = commonMainPackageRoot().resolve("presentation/common/components")
         val scheduleCardSource = readText(componentsRoot.resolve("ScheduleCard.kt"))
 
         assertTrue(
@@ -130,6 +159,18 @@ class SchedulePackageStructureAndroidHostTest {
             actual = chipSource.contains("ScheduleCard("),
             message = "ScheduleChip is a chip control, not a schedule card container.",
         )
+        assertTrue(
+            actual = chipSource.contains("RoundedCornerShape(ScheduleUiTokens.ControlRadius)"),
+            message = "ScheduleChip should use compact label corners instead of button-like pill corners.",
+        )
+        assertFalse(
+            actual = chipSource.contains("RoundedCornerShape(percent = 50)"),
+            message = "ScheduleChip should not use pill styling that reads like a button.",
+        )
+        assertFalse(
+            actual = chipSource.contains("BorderStroke("),
+            message = "ScheduleChip should avoid bordered button-like styling.",
+        )
     }
 
     @Test
@@ -155,8 +196,8 @@ class SchedulePackageStructureAndroidHostTest {
 
     @Test
     fun schedulePreviewsUseSharedAppTheme() {
-        val scheduleRoot = commonMainPackageRoot().resolve("presentation/schedule")
-        val previewFiles = Files.walk(scheduleRoot).use { paths ->
+        val presentationRoot = commonMainPackageRoot().resolve("presentation")
+        val previewFiles = Files.walk(presentationRoot).use { paths ->
             paths
                 .filter { path -> path.fileName.toString().endsWith(".kt") }
                 .filter { path -> readText(path).contains("@Preview") }
@@ -165,7 +206,7 @@ class SchedulePackageStructureAndroidHostTest {
 
         assertTrue(
             actual = previewFiles.isNotEmpty(),
-            message = "Expected Schedule preview files to exist.",
+            message = "Expected presentation preview files to exist.",
         )
         previewFiles.forEach { file ->
             val source = readText(file)
@@ -183,14 +224,14 @@ class SchedulePackageStructureAndroidHostTest {
 
     @Test
     fun scheduleComponentPreviewsUseSharedPreviewVariants() {
-        val componentsRoot = commonMainPackageRoot().resolve("presentation/schedule/components")
+        val componentsRoot = commonMainPackageRoot().resolve("presentation/common/components")
         val previewSupportSource = readText(
             commonMainPackageRoot()
-                .resolve("presentation/schedule/preview/ScheduleComponentPreview.kt"),
+                .resolve("presentation/common/preview/IWPPreview.kt"),
         )
 
         assertTrue(
-            actual = previewSupportSource.contains("annotation class ScheduleComponentPreview"),
+            actual = previewSupportSource.contains("annotation class IWPPreview"),
             message = "Schedule components should share one preview annotation for component preview variants.",
         )
         assertTrue(
@@ -223,7 +264,7 @@ class SchedulePackageStructureAndroidHostTest {
             val source = readText(componentsRoot.resolve(fileName))
 
             assertTrue(
-                actual = source.contains("@ScheduleComponentPreview"),
+                actual = source.contains("@IWPPreview"),
                 message = "$fileName should use the shared Schedule component preview variants.",
             )
             assertTrue(
@@ -241,7 +282,9 @@ class SchedulePackageStructureAndroidHostTest {
     fun scheduleFoundationPreviewUsesPopulatedSampleAndStatePanelPreviewsAreExplicit() {
         val scheduleRoot = commonMainPackageRoot().resolve("presentation/schedule")
         val foundationPreviewSource = readText(scheduleRoot.resolve("preview/ScheduleUiFoundationPreview.kt"))
-        val statePanelSource = readText(scheduleRoot.resolve("components/StatePanel.kt"))
+        val statePanelSource = readText(
+            commonMainPackageRoot().resolve("presentation/common/components/StatePanel.kt"),
+        )
 
         assertFalse(
             actual = foundationPreviewSource.contains("StatePanel("),

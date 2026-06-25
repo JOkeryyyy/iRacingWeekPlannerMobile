@@ -16,6 +16,10 @@ Sprint 3 should still be implemented story-by-story. Do not combine all UI found
 - Sprint 3 uses existing Sprint 2 local mock-first planner data and presentation state.
 - Sprint 3 ships English-only, but user-facing Schedule strings should use Compose Multiplatform string/plural resources or resource-backed parameters so later localization work can add languages without rewriting screen components.
 - Sprint 3 may show inactive future affordances only when they do not imply completed behavior. Filters, preferences, sorting controls, owned/favorite settings, and race details stay out of scope.
+- Sprint 3 does not introduce Navigation 3 or real route/back-stack ownership. Navigation 3 should arrive with the first real navigation feature, currently planned as Sprint 5 Race Detail.
+- Responsive design should still be considered in Sprint 3 components. Components should avoid phone-only assumptions that would block future compact/expanded layouts.
+- Data-backed race-card display models should keep stable race identifiers when introduced, so Sprint 5 can open Race Detail without remapping UI-only state.
+- App-level chrome and navigation state should remain outside Schedule business state. Schedule UI should stay stateless and callback-driven where practical.
 - No Firebase, account login, cloud sync, mobile scraping, production hosted URL, or iRacing credential handling is part of this sprint.
 
 ## Linked Knowledge and Design References
@@ -25,6 +29,7 @@ Sprint 3 should still be implemented story-by-story. Do not combine all UI found
 - Current development commands and Sprint 2 verification: [docs/development.md](development.md)
 - Mobile data contract for displayed fields: [docs/data-contract.md](data-contract.md)
 - Sprint 2 presentation-state starting point: [docs/sprint-2-user-stories.md](sprint-2-user-stories.md)
+- Adaptive and Navigation 3 readiness strategy: [docs/superpowers/specs/2026-06-25-adaptive-navigation3-readiness-design.md](superpowers/specs/2026-06-25-adaptive-navigation3-readiness-design.md)
 - Annotated Sprint 3/4/5 wireframe board: [docs/diagrams/sprint-3-wireframes.html](diagrams/sprint-3-wireframes.html)
 
 The wireframe HTML is a review artifact. The implementation-facing design constraints below should be treated as the stable Sprint 3 reference.
@@ -63,6 +68,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - `BottomNavigation` can render a selected `Schedule` tab and inactive future tabs without enabling out-of-scope flows.
 - Components remain shared Compose UI and do not depend on Android-only or iOS-only APIs.
 - Components receive display state and callbacks through parameters; they do not load repositories, parse data, or own business logic.
+- Navigation-like components remain app chrome primitives only. They do not own routes, back stacks, Navigation 3 APIs, or screen business state in Sprint 3.
 
 ### QA Test Cases
 
@@ -127,6 +133,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Inactive future tabs are visually present only if they do not navigate to unimplemented screens.
 - Layout follows Sprint 3 screen padding, spacing, and bottom-navigation constraints.
 - The app shell is shared between Android and iOS through Compose Multiplatform.
+- The shell does not introduce Navigation 3 yet, but keeps app chrome separate from Schedule screen state so a future app-level route host can replace or wrap it without rewriting Schedule content.
 
 ### QA Test Cases
 
@@ -159,6 +166,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
   - loading, empty, cached, and error rendering flags.
 - The root composable collects state and sends actions; stateless screen composables render state and callbacks.
 - MVI wiring uses the existing Sprint 2 planner data state holder or domain-safe use cases. UI code does not call data sources, local storage, DTOs, SQLDelight, Ktor, or repository implementations directly.
+- Schedule state models do not own route/back-stack state. Future navigation should be app-root state that calls into Schedule through callbacks.
 - Initial screen load happens once per root lifecycle entry and does not trigger independent duplicate loads for weeks, races, cars, and tracks.
 - Refresh/retry routes through the existing planner data load action.
 - Tests cover state derivation and action handling with fake planner data state.
@@ -224,6 +232,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
   - rain chance when available,
   - next session or session summary when available.
 - Display data is mapped into presentation UI models before rendering cards.
+- Data-backed race-card UI models include the stable race identifier needed for future Race Detail routing, even though Sprint 3 cards do not navigate.
 - Race cards use Sprint 3 design constraints: `12dp` radius, `1dp` border, `14dp` padding, `10dp` internal gap, `12dp` list gap.
 - Race order is deterministic for the selected week by stable source order or a stable display key. No user-controlled sort UI is exposed in Sprint 3.
 - Missing optional display fields do not crash the UI and do not create broken labels.
@@ -233,6 +242,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 
 - Given loaded data with races in multiple weeks, verify only the selected week’s races are rendered.
 - Given selected week 13 with twelve races, verify the count reads `12 races`.
+- Given data-backed race cards, verify each card display model preserves its source race identifier for future routing.
 - Given a race with rain chance and race length, verify both are visible on the card.
 - Given a race without optional rain chance, verify the card omits the rain label cleanly.
 - Given repeated renders of the same data, verify race order stays stable.
@@ -282,6 +292,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - The selected week’s races render as deterministic race cards.
 - Loading, cached, empty, invalid-data, source-error, and local-store-error states are visible and testable.
 - UI components follow the Sprint 3 design constraints and are reusable for Sprint 4/5.
+- Sprint 3 does not introduce Navigation 3, but keeps Schedule components, app chrome, and race-card display models compatible with future adaptive Navigation 3 list-detail work.
 - User-facing Schedule strings use Compose Multiplatform string/plural resources or resource-backed parameters for localization readiness; Sprint 3 remains English-only.
 - Presentation follows a lightweight MVI boundary with stateless screen components.
 - UI does not consume DTOs, SQLDelight rows, Ktor errors, source URLs, or local-storage details.

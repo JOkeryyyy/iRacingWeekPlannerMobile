@@ -62,11 +62,11 @@ class SharedPackageStructureAndroidHostTest {
         val appSource = Files.readAllLines(presentationRoot.resolve("App.kt")).joinToString(separator = "\n")
 
         assertTrue(
-            actual = Files.isDirectory(presentationRoot.resolve("theme")),
-            message = "Expected app theme to live under presentation/theme.",
+            actual = Files.isDirectory(presentationRoot.resolve("common/theme")),
+            message = "Expected app theme to live under presentation/common/theme.",
         )
         assertTrue(
-            actual = Files.isRegularFile(presentationRoot.resolve("theme/IwpAppTheme.kt")),
+            actual = Files.isRegularFile(presentationRoot.resolve("common/theme/IwpAppTheme.kt")),
             message = "Expected IwpAppTheme.kt to define the shared app theme.",
         )
         assertTrue(

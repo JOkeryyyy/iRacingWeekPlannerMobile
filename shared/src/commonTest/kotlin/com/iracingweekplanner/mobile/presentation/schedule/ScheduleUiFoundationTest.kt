@@ -2,11 +2,16 @@ package com.iracingweekplanner.mobile.presentation.schedule
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleRaceCardContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelVariant
+import com.iracingweekplanner.mobile.presentation.common.design.ScheduleUiTokens
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelVariant
+import iracingweekplannermobile.shared.generated.resources.Res
+import iracingweekplannermobile.shared.generated.resources.ic_favorites_tab
+import iracingweekplannermobile.shared.generated.resources.ic_filters_tab
+import iracingweekplannermobile.shared.generated.resources.ic_schedule_tab
+import iracingweekplannermobile.shared.generated.resources.ic_settings_tab
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -37,10 +42,30 @@ class ScheduleUiFoundationTest {
     @Test
     fun defaultBottomNavigationKeepsScheduleSelectedAndFutureTabsInactive() {
         val tabs = listOf(
-            ScheduleBottomTab(label = "Schedule", selected = true, enabled = true),
-            ScheduleBottomTab(label = "Filters", selected = false, enabled = false),
-            ScheduleBottomTab(label = "Favorites", selected = false, enabled = false),
-            ScheduleBottomTab(label = "Settings", selected = false, enabled = false),
+            ScheduleBottomTab(
+                label = "Schedule",
+                icon = Res.drawable.ic_schedule_tab,
+                selected = true,
+                enabled = true,
+            ),
+            ScheduleBottomTab(
+                label = "Filters",
+                icon = Res.drawable.ic_filters_tab,
+                selected = false,
+                enabled = false,
+            ),
+            ScheduleBottomTab(
+                label = "Favorites",
+                icon = Res.drawable.ic_favorites_tab,
+                selected = false,
+                enabled = false,
+            ),
+            ScheduleBottomTab(
+                label = "Settings",
+                icon = Res.drawable.ic_settings_tab,
+                selected = false,
+                enabled = false,
+            ),
         )
 
         assertEquals(listOf("Schedule", "Filters", "Favorites", "Settings"), tabs.map { it.label })

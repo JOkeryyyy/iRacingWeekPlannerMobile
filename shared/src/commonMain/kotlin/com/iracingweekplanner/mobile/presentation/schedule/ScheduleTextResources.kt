@@ -2,12 +2,16 @@ package com.iracingweekplanner.mobile.presentation.schedule
 
 import androidx.compose.runtime.Composable
 import com.iracingweekplanner.mobile.presentation.PlannerDataUiMessage
-import com.iracingweekplanner.mobile.presentation.schedule.model.DateWeekSelectorContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleHeaderContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelContent
-import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelVariant
+import com.iracingweekplanner.mobile.presentation.common.model.DateWeekSelectorContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleHeaderContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelVariant
 import iracingweekplannermobile.shared.generated.resources.Res
+import iracingweekplannermobile.shared.generated.resources.ic_favorites_tab
+import iracingweekplannermobile.shared.generated.resources.ic_filters_tab
+import iracingweekplannermobile.shared.generated.resources.ic_schedule_tab
+import iracingweekplannermobile.shared.generated.resources.ic_settings_tab
 import iracingweekplannermobile.shared.generated.resources.schedule_cached_data_message
 import iracingweekplannermobile.shared.generated.resources.schedule_cached_message
 import iracingweekplannermobile.shared.generated.resources.schedule_empty_message
@@ -34,8 +38,10 @@ import iracingweekplannermobile.shared.generated.resources.schedule_source_error
 import iracingweekplannermobile.shared.generated.resources.schedule_source_error_title
 import iracingweekplannermobile.shared.generated.resources.schedule_tab_label
 import iracingweekplannermobile.shared.generated.resources.schedule_today_label
+import iracingweekplannermobile.shared.generated.resources.schedule_week_dates_loading
 import iracingweekplannermobile.shared.generated.resources.schedule_week_label
 import iracingweekplannermobile.shared.generated.resources.schedule_week_title
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.StringResource
@@ -47,21 +53,25 @@ object ScheduleTextResources {
         listOf(
             ScheduleBottomTabResources(
                 label = Res.string.schedule_tab_label,
+                icon = Res.drawable.ic_schedule_tab,
                 selected = true,
                 enabled = true,
             ),
             ScheduleBottomTabResources(
                 label = Res.string.schedule_filters_tab_label,
+                icon = Res.drawable.ic_filters_tab,
                 selected = false,
                 enabled = false,
             ),
             ScheduleBottomTabResources(
                 label = Res.string.schedule_favorites_tab_label,
+                icon = Res.drawable.ic_favorites_tab,
                 selected = false,
                 enabled = false,
             ),
             ScheduleBottomTabResources(
                 label = Res.string.schedule_settings_tab_label,
+                icon = Res.drawable.ic_settings_tab,
                 selected = false,
                 enabled = false,
             ),
@@ -146,6 +156,7 @@ object ScheduleTextResources {
         bottomTabResources().map { tab ->
             ScheduleBottomTab(
                 label = stringResource(tab.label),
+                icon = tab.icon,
                 selected = tab.selected,
                 enabled = tab.enabled,
             )
@@ -171,6 +182,10 @@ object ScheduleTextResources {
     fun raceCount(count: Int): String =
         pluralStringResource(Res.plurals.schedule_race_count, count, count)
 
+    @Composable
+    fun loadingDateContext(): String =
+        stringResource(Res.string.schedule_week_dates_loading)
+
     suspend fun loadWeekTitle(weekNumber: Int): String =
         getString(Res.string.schedule_week_title, weekNumber)
 
@@ -192,6 +207,7 @@ object ScheduleTextResources {
 
 data class ScheduleBottomTabResources(
     val label: StringResource,
+    val icon: DrawableResource,
     val selected: Boolean,
     val enabled: Boolean,
 )

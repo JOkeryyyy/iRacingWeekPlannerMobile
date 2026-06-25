@@ -10,17 +10,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.iracingweekplanner.mobile.presentation.schedule.components.DateWeekSelector
-import com.iracingweekplanner.mobile.presentation.schedule.components.RaceCard
-import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleBottomNavigation
-import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleChip
-import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleHeader
-import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
-import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
+import com.iracingweekplanner.mobile.presentation.common.components.DateWeekSelector
+import com.iracingweekplanner.mobile.presentation.common.components.RaceCard
+import com.iracingweekplanner.mobile.presentation.common.components.ScheduleBottomNavigation
+import com.iracingweekplanner.mobile.presentation.common.components.ScheduleChip
+import com.iracingweekplanner.mobile.presentation.common.components.ScheduleHeader
+import com.iracingweekplanner.mobile.presentation.common.design.ScheduleUiTokens
+import com.iracingweekplanner.mobile.presentation.common.preview.IWPPreview
+import com.iracingweekplanner.mobile.presentation.common.preview.ScheduleUiPreviewData
+import com.iracingweekplanner.mobile.presentation.common.theme.IwpAppTheme
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 fun ScheduleUiFoundationPreview() {
     val sample = ScheduleUiPreviewData.foundationResourceSample()
 
