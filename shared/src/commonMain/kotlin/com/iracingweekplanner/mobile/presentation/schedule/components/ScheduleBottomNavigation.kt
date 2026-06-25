@@ -52,7 +52,7 @@ fun ScheduleBottomNavigation(
 private fun ScheduleBottomNavigationPreview() {
     ScheduleComponentPreviewTheme {
         ScheduleBottomNavigation(
-            tabs = ScheduleUiPreviewData.foundationSample().bottomTabs,
+            tabs = ScheduleUiPreviewData.foundationResourceSample().bottomTabs,
             onTabClick = {},
         )
     }

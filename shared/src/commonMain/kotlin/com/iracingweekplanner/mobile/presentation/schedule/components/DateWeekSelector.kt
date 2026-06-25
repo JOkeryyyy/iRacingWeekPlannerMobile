@@ -38,9 +38,10 @@ fun DateWeekSelector(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ScheduleButton(
-                label = "Prev",
+                label = content.previousLabel,
                 onClick = onPreviousClick,
                 enabled = content.previousEnabled,
+                contentDescription = content.previousContentDescription,
             )
             Column(
                 modifier = Modifier.weight(1f),
@@ -58,13 +59,14 @@ fun DateWeekSelector(
                 )
             }
             ScheduleButton(
-                label = "Today",
+                label = content.todayLabel,
                 onClick = onTodayClick,
             )
             ScheduleButton(
-                label = "Next",
+                label = content.nextLabel,
                 onClick = onNextClick,
                 enabled = content.nextEnabled,
+                contentDescription = content.nextContentDescription,
             )
         }
     }
@@ -75,7 +77,7 @@ fun DateWeekSelector(
 private fun DateWeekSelectorPreview() {
     ScheduleComponentPreviewTheme {
         DateWeekSelector(
-            content = ScheduleUiPreviewData.foundationSample().selector,
+            content = ScheduleUiPreviewData.foundationResourceSample().selector,
             onPreviousClick = {},
             onTodayClick = {},
             onNextClick = {},

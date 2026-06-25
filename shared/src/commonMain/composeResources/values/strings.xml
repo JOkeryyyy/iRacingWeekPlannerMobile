@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="schedule_tab_label">Schedule</string>
+    <string name="schedule_filters_tab_label">Filters</string>
+    <string name="schedule_favorites_tab_label">Favorites</string>
+    <string name="schedule_settings_tab_label">Settings</string>
+    <string name="schedule_refresh_label">Refresh</string>
+    <string name="schedule_refresh_content_description">Refresh schedule</string>
+    <string name="schedule_retry_label">Retry</string>
+    <string name="schedule_previous_week_label">Prev</string>
+    <string name="schedule_previous_week_content_description">Previous week</string>
+    <string name="schedule_today_label">Today</string>
+    <string name="schedule_next_week_label">Next</string>
+    <string name="schedule_next_week_content_description">Next week</string>
+    <string name="schedule_cached_data_message">Showing cached schedule data</string>
+    <string name="schedule_week_title">Week %1$d Schedule</string>
+    <string name="schedule_week_label">Week %1$d</string>
+    <string name="schedule_last_updated">Last updated %1$s</string>
+    <string name="schedule_loading_title">Loading schedule</string>
+    <string name="schedule_loading_message">Preparing race week data.</string>
+    <string name="schedule_empty_title">No races this week</string>
+    <string name="schedule_empty_message">Try another week or clear active filters.</string>
+    <string name="schedule_cached_message">You can keep browsing while refreshed data is unavailable.</string>
+    <string name="schedule_source_error_title">Schedule unavailable</string>
+    <string name="schedule_source_error_message">Retry when schedule data is available.</string>
+    <string name="schedule_invalid_data_title">Schedule data needs an update</string>
+    <string name="schedule_invalid_data_message">Retry to load a valid schedule.</string>
+    <string name="schedule_local_store_error_title">Saved schedule unavailable</string>
+    <string name="schedule_local_store_error_message">Retry to reload schedule data.</string>
+    <plurals name="schedule_race_count">
+        <item quantity="one">%1$d race</item>
+        <item quantity="other">%1$d races</item>
+    </plurals>
+</resources>

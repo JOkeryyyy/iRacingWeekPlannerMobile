@@ -65,7 +65,7 @@ fun RaceCard(
 private fun RaceCardPreview() {
     ScheduleComponentPreviewTheme {
         RaceCard(
-            content = ScheduleUiPreviewData.foundationSample().raceCard,
+            content = ScheduleUiPreviewData.foundationResourceSample().raceCard,
             modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal),
         )
     }

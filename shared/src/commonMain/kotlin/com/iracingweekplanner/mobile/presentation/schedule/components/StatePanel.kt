@@ -69,7 +69,7 @@ fun StatePanel(
 private fun StatePanelLoadingPreview() {
     ScheduleComponentPreviewTheme {
         StatePanel(
-            content = ScheduleUiPreviewData.loadingPanelSample(),
+            content = ScheduleUiPreviewData.loadingPanelResourceSample(),
             onRetryClick = {},
             modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal),
         )
@@ -81,7 +81,7 @@ private fun StatePanelLoadingPreview() {
 private fun StatePanelEmptyPreview() {
     ScheduleComponentPreviewTheme {
         StatePanel(
-            content = ScheduleUiPreviewData.emptyPanelSample(),
+            content = ScheduleUiPreviewData.emptyPanelResourceSample(),
             onRetryClick = {},
             modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal),
         )
@@ -93,7 +93,7 @@ private fun StatePanelEmptyPreview() {
 private fun StatePanelPreview() {
     ScheduleComponentPreviewTheme {
         StatePanel(
-            content = ScheduleUiPreviewData.errorPanelSample(),
+            content = ScheduleUiPreviewData.errorPanelResourceSample(),
             onRetryClick = {},
             modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal),
         )
