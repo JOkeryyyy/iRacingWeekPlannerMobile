@@ -11,7 +11,7 @@ private const val UI_MODE_NIGHT_YES = 0x20
 @Preview(name = "Large font", fontScale = 1.5f)
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
-annotation class ScheduleComponentPreview
+annotation class IWPPreview
 
 @Composable
 fun ScheduleComponentPreviewTheme(

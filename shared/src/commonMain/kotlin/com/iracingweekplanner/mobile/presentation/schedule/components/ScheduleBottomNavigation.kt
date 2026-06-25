@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
 
@@ -48,7 +48,7 @@ fun ScheduleBottomNavigation(
 }
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 private fun ScheduleBottomNavigationPreview() {
     ScheduleComponentPreviewTheme {
         ScheduleBottomNavigation(

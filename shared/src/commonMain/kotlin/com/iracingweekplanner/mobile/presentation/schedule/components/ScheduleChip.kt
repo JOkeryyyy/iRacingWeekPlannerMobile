@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleChipContent
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
 
@@ -51,7 +51,7 @@ fun ScheduleChip(
 }
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 private fun ScheduleChipPreview() {
     ScheduleComponentPreviewTheme {
         Row(

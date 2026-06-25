@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 
 @Composable
@@ -51,7 +51,7 @@ fun ScheduleCard(
 }
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 private fun ScheduleCardPreview() {
     ScheduleComponentPreviewTheme {
         ScheduleCard(

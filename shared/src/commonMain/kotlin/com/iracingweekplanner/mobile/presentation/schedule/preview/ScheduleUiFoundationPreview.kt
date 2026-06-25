@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.iracingweekplanner.mobile.presentation.schedule.components.DateWeekSelector
 import com.iracingweekplanner.mobile.presentation.schedule.components.RaceCard
 import com.iracingweekplanner.mobile.presentation.schedule.components.ScheduleBottomNavigation
@@ -20,7 +19,7 @@ import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiToke
 import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 fun ScheduleUiFoundationPreview() {
     val sample = ScheduleUiPreviewData.foundationResourceSample()
 

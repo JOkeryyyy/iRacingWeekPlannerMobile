@@ -13,7 +13,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 import iracingweekplannermobile.shared.generated.resources.Res
 import iracingweekplannermobile.shared.generated.resources.schedule_refresh_label
@@ -64,7 +64,7 @@ fun ScheduleButton(
 }
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 private fun ScheduleButtonPreview() {
     ScheduleComponentPreviewTheme {
         Row(modifier = Modifier.padding(ScheduleUiTokens.ScreenPaddingHorizontal)) {

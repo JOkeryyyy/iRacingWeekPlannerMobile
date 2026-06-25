@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelContent
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleStatePanelVariant
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreviewTheme
 import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleUiPreviewData
 
@@ -65,7 +65,7 @@ fun StatePanel(
 }
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 private fun StatePanelLoadingPreview() {
     ScheduleComponentPreviewTheme {
         StatePanel(
@@ -77,7 +77,7 @@ private fun StatePanelLoadingPreview() {
 }
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 private fun StatePanelEmptyPreview() {
     ScheduleComponentPreviewTheme {
         StatePanel(
@@ -89,7 +89,7 @@ private fun StatePanelEmptyPreview() {
 }
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 private fun StatePanelPreview() {
     ScheduleComponentPreviewTheme {
         StatePanel(

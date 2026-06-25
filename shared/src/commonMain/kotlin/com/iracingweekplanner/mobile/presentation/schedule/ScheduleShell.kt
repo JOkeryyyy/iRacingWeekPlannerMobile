@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.iracingweekplanner.mobile.presentation.scaffold.IwpAppScaffold
 import com.iracingweekplanner.mobile.presentation.schedule.components.DateWeekSelector
 import com.iracingweekplanner.mobile.presentation.schedule.components.RaceCard
@@ -22,7 +21,7 @@ import com.iracingweekplanner.mobile.presentation.schedule.design.ScheduleUiToke
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleChipContent
 import com.iracingweekplanner.mobile.presentation.schedule.model.ScheduleShellContent
-import com.iracingweekplanner.mobile.presentation.schedule.preview.ScheduleComponentPreview
+import com.iracingweekplanner.mobile.presentation.schedule.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.theme.IwpAppTheme
 
 @Composable
@@ -176,7 +175,7 @@ private fun ScheduleRaceList(
 }
 
 @Composable
-@ScheduleComponentPreview
+@IWPPreview
 private fun ScheduleShellPreview() {
     IwpAppTheme {
         ScheduleShell()
