@@ -9,7 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.iracingweekplanner.mobile.presentation.PlannerDataPresenter
 import com.iracingweekplanner.mobile.presentation.common.scaffold.IwpAppScaffold
 import com.iracingweekplanner.mobile.presentation.common.components.DateWeekSelector
 import com.iracingweekplanner.mobile.presentation.common.components.RaceCard
@@ -20,9 +26,53 @@ import com.iracingweekplanner.mobile.presentation.common.components.StatePanel
 import com.iracingweekplanner.mobile.presentation.common.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleChipContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleShellContent
 import com.iracingweekplanner.mobile.presentation.common.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.common.theme.IwpAppTheme
+import kotlinx.coroutines.launch
+
+@Composable
+fun ScheduleRoot(
+    plannerData: PlannerDataPresenter,
+    modifier: Modifier = Modifier,
+    currentWeekNumber: () -> Int? = { null },
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val stateHolder = remember(plannerData) {
+        ScheduleStateHolder(
+            plannerData = plannerData,
+            scope = coroutineScope,
+            currentWeekNumber = currentWeekNumber,
+        )
+    }
+    val state by stateHolder.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(stateHolder) {
+        stateHolder.onAction(ScheduleAction.InitialLoad)
+    }
+
+    ScheduleShell(
+        content = state.toShellContent(),
+        onRefreshClick = {
+            coroutineScope.launch { stateHolder.onAction(ScheduleAction.Refresh) }
+        },
+        onPreviousWeekClick = {
+            coroutineScope.launch { stateHolder.onAction(ScheduleAction.PreviousWeek) }
+        },
+        onTodayClick = {
+            coroutineScope.launch { stateHolder.onAction(ScheduleAction.Today) }
+        },
+        onNextWeekClick = {
+            coroutineScope.launch { stateHolder.onAction(ScheduleAction.NextWeek) }
+        },
+        onRetryClick = {
+            coroutineScope.launch { stateHolder.onAction(ScheduleAction.Retry) }
+        },
+        onTabClick = {},
+        modifier = modifier,
+    )
+}
 
 @Composable
 fun ScheduleShell(
@@ -173,6 +223,49 @@ private fun ScheduleRaceList(
         }
     }
 }
+
+@Composable
+private fun ScheduleState.toShellContent(): ScheduleShellContent =
+    ScheduleShellContent(
+        selectedWeekNumber = selectedWeekNumber,
+        header = ScheduleTextResources.headerContent(
+            weekNumber = selectedWeekNumber,
+            lastUpdatedTime = null,
+        ),
+        selector = ScheduleTextResources.dateWeekSelectorContent(
+            weekNumber = selectedWeekNumber,
+            dateContext = ScheduleTextResources.loadingDateContext(),
+            previousEnabled = canSelectPreviousWeek,
+            nextEnabled = canSelectNextWeek,
+        ),
+        summaryChips = listOf(
+            ScheduleChipContent(
+                label = ScheduleTextResources.weekLabel(selectedWeekNumber),
+                selected = true,
+            ),
+            ScheduleChipContent(label = ScheduleTextResources.raceCount(raceCards.size)),
+        ),
+        statePanel = toStatePanelContent(),
+        bottomTabs = ScheduleTextResources.bottomTabs(),
+        raceCards = raceCards.map { it.toContent() },
+    )
+
+@Composable
+private fun ScheduleState.toStatePanelContent() =
+    when {
+        isLoading -> ScheduleTextResources.loadingPanelContent()
+        panelMessage != null -> ScheduleTextResources.statePanelContent(panelMessage)
+        isEmpty -> ScheduleTextResources.emptyPanelContent()
+        else -> null
+    }
+
+private fun ScheduleRaceCardUi.toContent(): ScheduleRaceCardContent =
+    ScheduleRaceCardContent(
+        title = title,
+        track = track,
+        carSummary = carSummary,
+        metadataText = metadataText,
+    )
 
 @Composable
 @IWPPreview

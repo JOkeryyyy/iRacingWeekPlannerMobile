@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class PlannerDataStateHolder(
     private val loadPlannerData: LoadPlannerDataUseCase,
-) {
+) : PlannerDataPresenter {
     private val _uiState = MutableStateFlow<PlannerDataUiState>(PlannerDataUiState.Idle)
-    val uiState: StateFlow<PlannerDataUiState> = _uiState.asStateFlow()
+    override val uiState: StateFlow<PlannerDataUiState> = _uiState.asStateFlow()
 
-    suspend fun onAction(action: PlannerDataAction) {
+    override suspend fun onAction(action: PlannerDataAction) {
         when (action) {
             PlannerDataAction.Load,
             PlannerDataAction.Retry,

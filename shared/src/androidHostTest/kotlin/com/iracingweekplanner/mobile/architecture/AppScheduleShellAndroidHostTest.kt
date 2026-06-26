@@ -14,8 +14,8 @@ class AppScheduleShellAndroidHostTest {
         val appSource = readText(commonMainPackageRoot().resolve("presentation/App.kt"))
 
         assertTrue(
-            actual = appSource.contains("ScheduleShell("),
-            message = "The shared App root should open on the Sprint 3 Schedule shell.",
+            actual = appSource.contains("ScheduleRoot("),
+            message = "The shared App root should open on the Sprint 3 Schedule MVI root.",
         )
         assertFalse(
             actual = appSource.contains("Click me!"),
@@ -28,6 +28,25 @@ class AppScheduleShellAndroidHostTest {
         assertFalse(
             actual = appSource.contains("AppInfoStateHolder"),
             message = "The root Schedule shell should not depend on the old app-info starter state holder.",
+        )
+    }
+
+    @Test
+    fun platformEntryPointsPassPlannerDataStateHolderIntoSharedAppRoot() {
+        val androidSource = readText(projectRoot().resolve("androidApp/src/main/kotlin/com/iracingweekplanner/mobile/MainActivity.kt"))
+        val iosSource = readText(sharedProjectRoot().resolve("src/iosMain/kotlin/com/iracingweekplanner/mobile/MainViewController.kt"))
+
+        assertTrue(
+            actual = androidSource.contains("appDependencies.plannerDataStateHolder"),
+            message = "Android should pass the existing planner data state holder into the shared Schedule root.",
+        )
+        assertTrue(
+            actual = iosSource.contains("appDependencies.plannerDataStateHolder"),
+            message = "iOS should pass the existing planner data state holder into the shared Schedule root.",
+        )
+        assertFalse(
+            actual = androidSource.contains("PlannerDataSource") || iosSource.contains("PlannerDataSource"),
+            message = "Platform UI entry points should not construct planner data sources directly.",
         )
     }
 
@@ -126,6 +145,15 @@ class AppScheduleShellAndroidHostTest {
             Files.isDirectory(cwd.resolve("src/commonMain/kotlin")) -> cwd
             Files.isDirectory(cwd.resolve("shared/src/commonMain/kotlin")) -> cwd.resolve("shared")
             else -> error("Could not locate shared project root from $cwd")
+        }
+    }
+
+    private fun projectRoot(): Path {
+        val cwd = Path("").toAbsolutePath()
+        return when {
+            Files.isDirectory(cwd.resolve("androidApp")) -> cwd
+            Files.isDirectory(cwd.resolve("../androidApp")) -> cwd.resolve("..").normalize()
+            else -> error("Could not locate project root from $cwd")
         }
     }
 
