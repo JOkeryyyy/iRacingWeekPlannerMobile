@@ -16,6 +16,9 @@ The existing web repo is separate and remains the schedule generation/source-of-
 /Users/gaojiahao/Documents/iracing/iRacing-week-planner
 ```
 
+The current static JSON contract for frontend integration is documented in
+[Hosted JSON API](hosted-json-api.md).
+
 ## Required Tools
 
 Use common/popular versions compatible with the current Kotlin Multiplatform and Compose Multiplatform scaffold:
