@@ -8,8 +8,12 @@ import iracingweekplannermobile.shared.generated.resources.ic_settings_tab
 import iracingweekplannermobile.shared.generated.resources.schedule_invalid_data_message
 import iracingweekplannermobile.shared.generated.resources.schedule_invalid_data_title
 import iracingweekplannermobile.shared.generated.resources.schedule_empty_title
+import iracingweekplannermobile.shared.generated.resources.schedule_cars_unavailable
+import iracingweekplannermobile.shared.generated.resources.schedule_lap_count
+import iracingweekplannermobile.shared.generated.resources.schedule_rain_chance
 import iracingweekplannermobile.shared.generated.resources.schedule_race_count
 import iracingweekplannermobile.shared.generated.resources.schedule_tab_label
+import iracingweekplannermobile.shared.generated.resources.schedule_time_limit_minutes
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -19,6 +23,10 @@ class ScheduleComposeResourcesTest {
     fun scheduleTextUsesComposeMultiplatformResourcesDirectly() {
         assertEquals(Res.string.schedule_tab_label, Res.string.schedule_tab_label)
         assertEquals(Res.string.schedule_empty_title, Res.string.schedule_empty_title)
+        assertEquals(Res.string.schedule_cars_unavailable, Res.string.schedule_cars_unavailable)
+        assertEquals(Res.string.schedule_lap_count, Res.string.schedule_lap_count)
+        assertEquals(Res.string.schedule_time_limit_minutes, Res.string.schedule_time_limit_minutes)
+        assertEquals(Res.string.schedule_rain_chance, Res.string.schedule_rain_chance)
         assertEquals(Res.plurals.schedule_race_count, Res.plurals.schedule_race_count)
     }
 

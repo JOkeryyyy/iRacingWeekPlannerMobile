@@ -166,7 +166,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
   - nullable last-updated display text,
   - selected-week race card display models,
   - loading, empty, cached, and error rendering flags.
-- User-facing schedule title, race count text, state-panel copy, and navigation labels are resolved in the stateless screen through the shared Schedule text resource boundary.
+- User-facing schedule title, race count text, state-panel copy, navigation labels, and any Story 3.4 race-card fallback/metadata labels are resolved through the shared Schedule text resource boundary.
 - Last-updated display text remains `null` until planner freshness metadata includes a timestamp; Story 3.4 must not invent a timestamp source.
 - The app entry creates the Schedule ViewModel, collects state, and sends actions into a stateless `ScheduleScreen`.
 - MVI wiring uses the existing Sprint 2 domain-safe `LoadPlannerDataUseCase`. UI code does not call data sources, local storage, DTOs, SQLDelight, Ktor, or repository implementations directly.

@@ -29,5 +29,21 @@ class ScheduleComposeResourceOutputTest {
             "12 races",
             ScheduleTextResources.loadRaceCount(count = 12),
         )
+        assertEquals(
+            "Cars unavailable",
+            ScheduleTextResources.loadCarsUnavailable(),
+        )
+        assertEquals(
+            "10 laps",
+            ScheduleTextResources.loadLapCount(lapCount = 10),
+        )
+        assertEquals(
+            "45 min",
+            ScheduleTextResources.loadTimeLimitMinutes(minutes = 45),
+        )
+        assertEquals(
+            "25% rain",
+            ScheduleTextResources.loadRainChance(percent = 25),
+        )
     }
 }

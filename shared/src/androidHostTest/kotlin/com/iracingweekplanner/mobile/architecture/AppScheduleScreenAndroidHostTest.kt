@@ -102,6 +102,20 @@ class AppScheduleScreenAndroidHostTest {
     }
 
     @Test
+    fun iosEntryPointClosesSharedDependenciesWhenComposeHostDisposes() {
+        val iosSource = readText(sharedProjectRoot().resolve("src/iosMain/kotlin/com/iracingweekplanner/mobile/MainViewController.kt"))
+
+        assertTrue(
+            actual = iosSource.contains("DisposableEffect(appDependencies)"),
+            message = "iOS should tie AppDependencies cleanup to the Compose host lifecycle.",
+        )
+        assertTrue(
+            actual = iosSource.contains("onDispose {") && iosSource.contains("appDependencies.close()"),
+            message = "iOS should close Koin/database dependencies when the Compose host is disposed.",
+        )
+    }
+
+    @Test
     fun scheduleScreenUsesSprint3ComponentsAndResourceBackedTextBoundary() {
         val screenSource = readText(commonMainPackageRoot().resolve("presentation/schedule/ScheduleScreen.kt"))
 
@@ -128,6 +142,10 @@ class AppScheduleScreenAndroidHostTest {
         assertTrue(
             actual = screenSource.contains("ScheduleTextResources.bottomTabs()"),
             message = "Bottom navigation labels should come from the Schedule text resource boundary.",
+        )
+        assertTrue(
+            actual = screenSource.contains("ScheduleTextResources.raceCardContent("),
+            message = "Race card fallback and metadata labels should come from the Schedule text resource boundary.",
         )
     }
 
@@ -197,6 +215,9 @@ class AppScheduleScreenAndroidHostTest {
         val uiStateSource = readText(
             commonMainPackageRoot().resolve("presentation/schedule/ScheduleUiState.kt"),
         )
+        val textResourcesSource = readText(
+            commonMainPackageRoot().resolve("presentation/schedule/ScheduleTextResources.kt"),
+        )
 
         assertTrue(
             actual = viewModelSource.contains("StateFlow<ScheduleUiState>"),
@@ -233,7 +254,7 @@ class AppScheduleScreenAndroidHostTest {
             actual = mapperSource.contains("class ScheduleUiStateMapper"),
             message = "Schedule domain-to-UI mapping does not need a dedicated mapper class.",
         )
-        listOf("toRaceCardUi", "metadataText", "toUiMessage").forEach { mapperFunction ->
+        listOf("toRaceCardUi", "toUiMessage").forEach { mapperFunction ->
             assertFalse(
                 actual = viewModelSource.contains(mapperFunction),
                 message = "ScheduleViewModel should not own mapper function $mapperFunction.",
@@ -243,6 +264,10 @@ class AppScheduleScreenAndroidHostTest {
                 message = "ScheduleUiStateMapper should own mapper function $mapperFunction.",
             )
         }
+        assertTrue(
+            actual = textResourcesSource.contains("raceMetadataText"),
+            message = "ScheduleTextResources should own resource-backed race metadata formatting.",
+        )
 
         listOf("com.iracingweekplanner.mobile.data", "repository.", "PlannerDataSource", "SqlDelight", "Ktor").forEach { forbidden ->
             assertFalse(

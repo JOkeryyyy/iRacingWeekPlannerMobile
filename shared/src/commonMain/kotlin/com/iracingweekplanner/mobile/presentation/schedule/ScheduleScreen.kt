@@ -144,7 +144,7 @@ private fun ScheduleRaceList(
             }
         }
         items(raceCards) { raceCard ->
-            RaceCard(content = raceCard)
+            RaceCard(content = ScheduleTextResources.raceCardContent(raceCard))
         }
     }
 }

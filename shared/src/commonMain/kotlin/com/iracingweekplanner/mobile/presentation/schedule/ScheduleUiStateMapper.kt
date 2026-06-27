@@ -98,21 +98,20 @@ private fun PlannerData.selectedWeekRaceCards(selectedWeekNumber: Int): List<Sch
 private fun PlannerRace.toRaceCardUi(): ScheduleRaceCardUi {
     val trackName = listOfNotNull(track.name, track.configurationName)
         .joinToString(separator = " - ")
+    val carSummary = carClasses
+        .joinToString(separator = ", ")
+        .ifBlank { null }
+
     return ScheduleRaceCardUi(
         raceId = id.value,
         title = seriesId.value,
         track = trackName,
-        carSummary = carClasses.joinToString(separator = ", ").ifBlank { "Cars unavailable" },
-        metadataText = metadataText(),
+        carSummary = carSummary,
+        lapCount = length?.lapCount,
+        timeLimitMinutes = length?.timeLimitMinutes,
+        rainChancePercent = rainChance?.percentage?.toInt(),
     )
 }
-
-private fun PlannerRace.metadataText(): String? =
-    listOfNotNull(
-        length?.lapCount?.let { "$it laps" },
-        length?.timeLimitMinutes?.let { "$it min" },
-        rainChance?.let { "${it.percentage.toInt()}% rain" },
-    ).joinToString(separator = " - ").ifBlank { null }
 
 private fun PlannerDataFreshness.cachedMessage(): ScheduleUiMessage? =
     if (this == PlannerDataFreshness.CACHED) {

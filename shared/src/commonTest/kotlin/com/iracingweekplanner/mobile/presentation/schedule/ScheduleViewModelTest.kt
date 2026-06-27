@@ -104,6 +104,38 @@ class ScheduleViewModelTest {
     }
 
     @Test
+    fun loadedPlannerDataPreservesRaceMetadataValuesForResourceFormatting() = runTest {
+        val viewModel = viewModelFor(
+            PlannerDataResult.Loaded(
+                samplePlannerData(
+                    raceWeeks = listOf(sampleRaceWeek(13)),
+                    plannerRaces = listOf(
+                        samplePlannerRace(
+                            id = "race-13",
+                            weekNumber = 13,
+                            carClasses = emptyList(),
+                            length = RaceLength(lapCount = 10, timeLimitMinutes = 45),
+                            rainChance = RainChance(25.0),
+                        ),
+                    ),
+                ),
+                PlannerDataFreshness.FRESH,
+            ),
+            currentWeekNumber = { 13 },
+        )
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        advanceUntilIdle()
+
+        val raceCard = viewModel.state.value.raceCards.single()
+        assertNull(raceCard.carSummary)
+        assertEquals(10, raceCard.lapCount)
+        assertEquals(45, raceCard.timeLimitMinutes)
+        assertEquals(25, raceCard.rainChancePercent)
+        assertNull(raceCard.metadataText)
+    }
+
+    @Test
     fun cachedPlannerDataPreservesDisplayDataAndExposesCachedStatus() = runTest {
         val viewModel = viewModelFor(
             PlannerDataResult.Loaded(
@@ -319,6 +351,9 @@ class ScheduleViewModelTest {
     private fun samplePlannerRace(
         id: String,
         weekNumber: Int,
+        carClasses: List<String> = listOf("Global Mazda MX-5 Cup"),
+        length: RaceLength? = RaceLength(lapCount = 10),
+        rainChance: RainChance? = RainChance(0.0),
     ): PlannerRace =
         PlannerRace(
             id = RaceId(id),
@@ -331,15 +366,15 @@ class ScheduleViewModelTest {
                 configurationName = "Full Course",
             ),
             carIds = listOf(CarId("mazda-mx5-cup")),
-            carClasses = listOf("Global Mazda MX-5 Cup"),
+            carClasses = carClasses,
             sessions = listOf(
                 RaceSessionSchedule.Recurring(
                     firstSessionOffset = 60.minutes,
                     repeatEvery = 120.minutes,
                 ),
             ),
-            length = RaceLength(lapCount = 10),
-            rainChance = RainChance(0.0),
+            length = length,
+            rainChance = rainChance,
         )
 
     private fun sampleCars(): List<PlannerCar> =

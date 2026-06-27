@@ -34,11 +34,13 @@ fun RaceCard(
                 fontSize = ScheduleUiTokens.CaptionTextSize,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Text(
-                text = content.carSummary,
-                fontSize = ScheduleUiTokens.CaptionTextSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            content.carSummary?.takeIf { it.isNotBlank() }?.let { carSummary ->
+                Text(
+                    text = carSummary,
+                    fontSize = ScheduleUiTokens.CaptionTextSize,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             content.metadataText?.takeIf { it.isNotBlank() }?.let { metadataText ->
                 Text(
                     text = metadataText,
