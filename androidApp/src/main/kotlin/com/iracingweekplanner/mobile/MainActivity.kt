@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val appDependencies = (application as IRacingWeekPlannerApplication).appDependencies
-            App(plannerData = appDependencies.plannerDataStateHolder)
+            App(loadPlannerData = appDependencies.loadPlannerData)
         }
     }
 }

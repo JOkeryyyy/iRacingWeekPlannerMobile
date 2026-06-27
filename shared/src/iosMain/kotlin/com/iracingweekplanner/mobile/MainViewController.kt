@@ -8,6 +8,6 @@ import com.iracingweekplanner.mobile.presentation.App
 fun MainViewController() = ComposeUIViewController {
     val appDependencies = remember { createAppDependencies() }
     App(
-        plannerData = appDependencies.plannerDataStateHolder,
+        loadPlannerData = appDependencies.loadPlannerData,
     )
 }

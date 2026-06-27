@@ -83,17 +83,17 @@ class AppScheduleScreenAndroidHostTest {
     }
 
     @Test
-    fun platformEntryPointsPassPlannerDataStateHolderIntoSharedAppRoot() {
+    fun platformEntryPointsPassPlannerDataUseCaseIntoSharedAppRoot() {
         val androidSource = readText(projectRoot().resolve("androidApp/src/main/kotlin/com/iracingweekplanner/mobile/MainActivity.kt"))
         val iosSource = readText(sharedProjectRoot().resolve("src/iosMain/kotlin/com/iracingweekplanner/mobile/MainViewController.kt"))
 
         assertTrue(
-            actual = androidSource.contains("appDependencies.plannerDataStateHolder"),
-            message = "Android should pass the existing planner data state holder into the shared Schedule root.",
+            actual = androidSource.contains("appDependencies.loadPlannerData"),
+            message = "Android should pass the planner data use case into the shared Schedule root.",
         )
         assertTrue(
-            actual = iosSource.contains("appDependencies.plannerDataStateHolder"),
-            message = "iOS should pass the existing planner data state holder into the shared Schedule screen.",
+            actual = iosSource.contains("appDependencies.loadPlannerData"),
+            message = "iOS should pass the planner data use case into the shared Schedule screen.",
         )
         assertFalse(
             actual = androidSource.contains("PlannerDataSource") || iosSource.contains("PlannerDataSource"),
@@ -191,6 +191,9 @@ class AppScheduleScreenAndroidHostTest {
         val viewModelSource = readText(
             commonMainPackageRoot().resolve("presentation/schedule/ScheduleViewModel.kt"),
         )
+        val mapperSource = readText(
+            commonMainPackageRoot().resolve("presentation/schedule/ScheduleUiStateMapper.kt"),
+        )
         val uiStateSource = readText(
             commonMainPackageRoot().resolve("presentation/schedule/ScheduleUiState.kt"),
         )
@@ -199,15 +202,52 @@ class AppScheduleScreenAndroidHostTest {
             actual = viewModelSource.contains("StateFlow<ScheduleUiState>"),
             message = "ScheduleViewModel should expose the screen state as StateFlow<ScheduleUiState>.",
         )
+        assertTrue(
+            actual = viewModelSource.contains("LoadPlannerDataUseCase"),
+            message = "ScheduleViewModel should consume the domain-safe planner data use case.",
+        )
+        assertFalse(
+            actual = viewModelSource.contains("PlannerDataPresenter"),
+            message = "ScheduleViewModel should not depend on the old PlannerDataPresenter seam.",
+        )
         assertFalse(
             actual = uiStateSource.contains("data class ScheduleState"),
             message = "ScheduleState should be fully replaced by ScheduleUiState.",
         )
+        assertTrue(
+            actual = Files.exists(commonMainPackageRoot().resolve("presentation/schedule/ScheduleUiStateMapper.kt")),
+            message = "Schedule domain-to-UI mapping helpers should live in a dedicated file.",
+        )
+        assertFalse(
+            actual = viewModelSource.contains("ScheduleUiStateMapper(") ||
+                viewModelSource.contains("stateMapper"),
+            message = "ScheduleViewModel should not store a mapper object for stateless mapping helpers.",
+        )
+        assertTrue(
+            actual = mapperSource.contains("fun initialScheduleUiState(") &&
+                mapperSource.contains("fun PlannerData.toScheduleUiState(") &&
+                mapperSource.contains("fun PlannerDataError.toScheduleErrorState("),
+            message = "Schedule domain-to-UI mapping should be exposed as stateless helper functions.",
+        )
+        assertFalse(
+            actual = mapperSource.contains("class ScheduleUiStateMapper"),
+            message = "Schedule domain-to-UI mapping does not need a dedicated mapper class.",
+        )
+        listOf("toRaceCardUi", "metadataText", "toUiMessage").forEach { mapperFunction ->
+            assertFalse(
+                actual = viewModelSource.contains(mapperFunction),
+                message = "ScheduleViewModel should not own mapper function $mapperFunction.",
+            )
+            assertTrue(
+                actual = mapperSource.contains(mapperFunction),
+                message = "ScheduleUiStateMapper should own mapper function $mapperFunction.",
+            )
+        }
 
-        listOf("data.", "repository.", "PlannerDataSource", "SqlDelight", "Ktor").forEach { forbidden ->
+        listOf("com.iracingweekplanner.mobile.data", "repository.", "PlannerDataSource", "SqlDelight", "Ktor").forEach { forbidden ->
             assertFalse(
                 actual = viewModelSource.contains(forbidden),
-                message = "ScheduleViewModel should consume PlannerDataPresenter, not data-layer detail: $forbidden",
+                message = "ScheduleViewModel should consume a domain-safe use case, not data-layer detail: $forbidden",
             )
         }
     }

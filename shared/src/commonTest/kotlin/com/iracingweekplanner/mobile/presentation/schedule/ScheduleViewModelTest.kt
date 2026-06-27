@@ -2,7 +2,10 @@ package com.iracingweekplanner.mobile.presentation.schedule
 
 import com.iracingweekplanner.mobile.domain.model.CarId
 import com.iracingweekplanner.mobile.domain.model.PlannerCar
+import com.iracingweekplanner.mobile.domain.model.PlannerData
+import com.iracingweekplanner.mobile.domain.model.PlannerDataError
 import com.iracingweekplanner.mobile.domain.model.PlannerDataFreshness
+import com.iracingweekplanner.mobile.domain.model.PlannerDataResult
 import com.iracingweekplanner.mobile.domain.model.PlannerRace
 import com.iracingweekplanner.mobile.domain.model.PlannerTrack
 import com.iracingweekplanner.mobile.domain.model.RaceId
@@ -16,14 +19,11 @@ import com.iracingweekplanner.mobile.domain.model.SeriesId
 import com.iracingweekplanner.mobile.domain.model.TimeWindow
 import com.iracingweekplanner.mobile.domain.model.TrackId
 import com.iracingweekplanner.mobile.domain.model.TrackType
-import com.iracingweekplanner.mobile.presentation.PlannerDataAction
-import com.iracingweekplanner.mobile.presentation.PlannerDataPresenter
-import com.iracingweekplanner.mobile.presentation.PlannerDataUiMessage
-import com.iracingweekplanner.mobile.presentation.PlannerDataUiState
+import com.iracingweekplanner.mobile.domain.repository.PlannerDataRepository
+import com.iracingweekplanner.mobile.domain.usecase.LoadPlannerDataUseCase
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -54,27 +54,46 @@ class ScheduleViewModelTest {
     }
 
     @Test
+    fun startsLoadingUntilInitialPlannerDataLoadCompletes() = runTest {
+        val loadStarted = CompletableDeferred<Unit>()
+        val releaseLoad = CompletableDeferred<PlannerDataResult<PlannerData>>()
+        val repository = FakePlannerDataRepository {
+            loadStarted.complete(Unit)
+            releaseLoad.await()
+        }
+        val viewModel = viewModelFor(repository)
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        loadStarted.await()
+
+        assertTrue(viewModel.state.value.isLoading)
+
+        releaseLoad.complete(PlannerDataResult.Loaded(samplePlannerData(), PlannerDataFreshness.FRESH))
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.isLoading)
+    }
+
+    @Test
     fun loadedPlannerDataDerivesSelectedWeekScheduleUiState() = runTest {
-        val plannerData = FakePlannerDataPresenter(
-            PlannerDataUiState.Loaded(
-                raceWeeks = listOf(sampleRaceWeek(12), sampleRaceWeek(13)),
-                plannerRaces = listOf(
-                    samplePlannerRace(id = "race-12", weekNumber = 12),
-                    samplePlannerRace(id = "race-13", weekNumber = 13),
+        val viewModel = viewModelFor(
+            PlannerDataResult.Loaded(
+                samplePlannerData(
+                    raceWeeks = listOf(sampleRaceWeek(12), sampleRaceWeek(13)),
+                    plannerRaces = listOf(
+                        samplePlannerRace(id = "race-12", weekNumber = 12),
+                        samplePlannerRace(id = "race-13", weekNumber = 13),
+                    ),
                 ),
-                cars = sampleCars(),
-                tracks = sampleTracks(),
-                freshness = PlannerDataFreshness.FRESH,
+                PlannerDataFreshness.FRESH,
             ),
-        )
-        val viewModel = ScheduleViewModel(
-            plannerData = plannerData,
             currentWeekNumber = { 13 },
         )
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
         advanceUntilIdle()
 
         val state = viewModel.state.value
-
         assertEquals(13, state.selectedWeekNumber)
         assertNull(state.lastUpdatedDisplayText)
         assertFalse(state.isLoading)
@@ -86,45 +105,40 @@ class ScheduleViewModelTest {
 
     @Test
     fun cachedPlannerDataPreservesDisplayDataAndExposesCachedStatus() = runTest {
-        val plannerData = FakePlannerDataPresenter(
-            PlannerDataUiState.Loaded(
-                raceWeeks = listOf(sampleRaceWeek(13)),
-                plannerRaces = listOf(samplePlannerRace(id = "race-13", weekNumber = 13)),
-                cars = sampleCars(),
-                tracks = sampleTracks(),
-                freshness = PlannerDataFreshness.CACHED,
-                message = PlannerDataUiMessage.SHOWING_CACHED_PLANNER_DATA,
+        val viewModel = viewModelFor(
+            PlannerDataResult.Loaded(
+                samplePlannerData(
+                    raceWeeks = listOf(sampleRaceWeek(13)),
+                    plannerRaces = listOf(samplePlannerRace(id = "race-13", weekNumber = 13)),
+                ),
+                PlannerDataFreshness.CACHED,
             ),
-        )
-        val viewModel = ScheduleViewModel(
-            plannerData = plannerData,
             currentWeekNumber = { 13 },
         )
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
         advanceUntilIdle()
 
         val state = viewModel.state.value
-
         assertTrue(state.isCached)
         assertEquals(listOf("race-13"), state.raceCards.map { it.raceId })
-        assertEquals(PlannerDataUiMessage.SHOWING_CACHED_PLANNER_DATA, state.panelMessage)
+        assertEquals(ScheduleUiMessage.ShowingCachedPlannerData, state.panelMessage)
     }
 
     @Test
     fun emptyPlannerDataRequestsEmptyPanelInsteadOfBlankRaceList() = runTest {
-        val plannerData = FakePlannerDataPresenter(
-            PlannerDataUiState.Empty(
-                freshness = PlannerDataFreshness.FRESH,
-                message = null,
+        val viewModel = viewModelFor(
+            PlannerDataResult.Loaded(
+                samplePlannerData(plannerRaces = emptyList()),
+                PlannerDataFreshness.FRESH,
             ),
-        )
-        val viewModel = ScheduleViewModel(
-            plannerData = plannerData,
             currentWeekNumber = { 13 },
         )
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
         advanceUntilIdle()
 
         val state = viewModel.state.value
-
         assertTrue(state.isEmpty)
         assertTrue(state.raceCards.isEmpty())
         assertNull(state.panelMessage)
@@ -132,77 +146,109 @@ class ScheduleViewModelTest {
 
     @Test
     fun sourceErrorWithoutCacheRequestsRetryableErrorPanel() = runTest {
-        val plannerData = FakePlannerDataPresenter(
-            PlannerDataUiState.Error(PlannerDataUiMessage.PLANNER_DATA_UNAVAILABLE),
-        )
-        val viewModel = ScheduleViewModel(
-            plannerData = plannerData,
+        val viewModel = viewModelFor(
+            PlannerDataResult.Failure(
+                PlannerDataError.SourceUnavailable(
+                    path = "manifest.json",
+                    detail = "HTTP 500 should not become UI text",
+                ),
+            ),
             currentWeekNumber = { 13 },
         )
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
         advanceUntilIdle()
 
         val state = viewModel.state.value
-
-        assertEquals(PlannerDataUiMessage.PLANNER_DATA_UNAVAILABLE, state.panelMessage)
+        assertEquals(ScheduleUiMessage.PlannerDataUnavailable, state.panelMessage)
         assertFalse(state.isLoading)
         assertFalse(state.isEmpty)
         assertTrue(state.raceCards.isEmpty())
     }
 
     @Test
-    fun initialLoadRunsOnlyOnePlannerLoadAction() = runTest {
-        val plannerData = FakePlannerDataPresenter(PlannerDataUiState.Idle)
-        val viewModel = ScheduleViewModel(
-            plannerData = plannerData,
-            currentWeekNumber = { 13 },
+    fun invalidSourceDataRequestsInvalidDataPanel() = runTest {
+        val viewModel = viewModelFor(
+            PlannerDataResult.Failure(
+                PlannerDataError.InvalidSourceData(
+                    path = "season.races[0].startsAt",
+                    detail = "not-a-timestamp should not become UI text",
+                ),
+            ),
         )
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        advanceUntilIdle()
+
+        assertEquals(ScheduleUiMessage.InvalidPlannerData, viewModel.state.value.panelMessage)
+    }
+
+    @Test
+    fun localStoreFailureRequestsLocalDataUnavailablePanel() = runTest {
+        val viewModel = viewModelFor(
+            PlannerDataResult.Failure(
+                PlannerDataError.LocalStoreFailure(
+                    operation = PlannerDataError.LocalStoreOperation.READ,
+                ),
+            ),
+        )
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        advanceUntilIdle()
+
+        assertEquals(ScheduleUiMessage.LocalPlannerDataUnavailable, viewModel.state.value.panelMessage)
+    }
+
+    @Test
+    fun initialLoadRunsOnlyOnePlannerDataLoad() = runTest {
+        val repository = FakePlannerDataRepository {
+            PlannerDataResult.Loaded(samplePlannerData(), PlannerDataFreshness.FRESH)
+        }
+        val viewModel = viewModelFor(repository)
 
         viewModel.onAction(ScheduleAction.InitialLoad)
         viewModel.onAction(ScheduleAction.InitialLoad)
         advanceUntilIdle()
 
-        assertEquals(listOf<PlannerDataAction>(PlannerDataAction.Load), plannerData.actions)
+        assertEquals(1, repository.loadCount)
     }
 
     @Test
-    fun refreshAndRetryEachForwardOnePlannerRetryAction() = runTest {
-        val plannerData = FakePlannerDataPresenter(PlannerDataUiState.Idle)
-        val viewModel = ScheduleViewModel(
-            plannerData = plannerData,
-            currentWeekNumber = { 13 },
-        )
+    fun refreshAndRetryEachRunOnePlannerDataLoad() = runTest {
+        val repository = FakePlannerDataRepository {
+            PlannerDataResult.Loaded(samplePlannerData(), PlannerDataFreshness.FRESH)
+        }
+        val viewModel = viewModelFor(repository)
 
         viewModel.onAction(ScheduleAction.Refresh)
         viewModel.onAction(ScheduleAction.Retry)
         advanceUntilIdle()
 
-        assertEquals(
-            listOf<PlannerDataAction>(PlannerDataAction.Retry, PlannerDataAction.Retry),
-            plannerData.actions,
-        )
+        assertEquals(2, repository.loadCount)
     }
 
     @Test
     fun weekSelectionActionsDoNotReloadPlannerData() = runTest {
-        val plannerData = FakePlannerDataPresenter(
-            PlannerDataUiState.Loaded(
-                raceWeeks = listOf(sampleRaceWeek(12), sampleRaceWeek(13), sampleRaceWeek(14)),
-                plannerRaces = listOf(
-                    samplePlannerRace(id = "race-12", weekNumber = 12),
-                    samplePlannerRace(id = "race-13", weekNumber = 13),
-                    samplePlannerRace(id = "race-14", weekNumber = 14),
+        val repository = FakePlannerDataRepository {
+            PlannerDataResult.Loaded(
+                samplePlannerData(
+                    raceWeeks = listOf(sampleRaceWeek(12), sampleRaceWeek(13), sampleRaceWeek(14)),
+                    plannerRaces = listOf(
+                        samplePlannerRace(id = "race-12", weekNumber = 12),
+                        samplePlannerRace(id = "race-13", weekNumber = 13),
+                        samplePlannerRace(id = "race-14", weekNumber = 14),
+                    ),
                 ),
-                cars = sampleCars(),
-                tracks = sampleTracks(),
-                freshness = PlannerDataFreshness.FRESH,
-            ),
-        )
-        val viewModel = ScheduleViewModel(
-            plannerData = plannerData,
+                PlannerDataFreshness.FRESH,
+            )
+        }
+        val viewModel = viewModelFor(
+            repository = repository,
             currentWeekNumber = { 13 },
         )
-        advanceUntilIdle()
 
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        advanceUntilIdle()
         viewModel.onAction(ScheduleAction.NextWeek)
         advanceUntilIdle()
         assertEquals(14, viewModel.state.value.selectedWeekNumber)
@@ -213,20 +259,51 @@ class ScheduleViewModelTest {
         advanceUntilIdle()
 
         assertEquals(13, viewModel.state.value.selectedWeekNumber)
-        assertTrue(plannerData.actions.isEmpty())
+        assertEquals(1, repository.loadCount)
     }
 
-    private class FakePlannerDataPresenter(
-        initialState: PlannerDataUiState,
-    ) : PlannerDataPresenter {
-        private val mutableUiState = MutableStateFlow(initialState)
-        override val uiState: StateFlow<PlannerDataUiState> = mutableUiState
-        val actions = mutableListOf<PlannerDataAction>()
+    private fun viewModelFor(
+        result: PlannerDataResult<PlannerData>,
+        currentWeekNumber: () -> Int? = { null },
+    ): ScheduleViewModel =
+        viewModelFor(
+            repository = FakePlannerDataRepository { result },
+            currentWeekNumber = currentWeekNumber,
+        )
 
-        override suspend fun onAction(action: PlannerDataAction) {
-            actions += action
+    private fun viewModelFor(
+        repository: FakePlannerDataRepository,
+        currentWeekNumber: () -> Int? = { null },
+    ): ScheduleViewModel =
+        ScheduleViewModel(
+            loadPlannerData = LoadPlannerDataUseCase(repository),
+            currentWeekNumber = currentWeekNumber,
+        )
+
+    private class FakePlannerDataRepository(
+        private val load: suspend () -> PlannerDataResult<PlannerData>,
+    ) : PlannerDataRepository {
+        var loadCount = 0
+            private set
+
+        override suspend fun loadPlannerData(): PlannerDataResult<PlannerData> {
+            loadCount += 1
+            return load()
         }
     }
+
+    private fun samplePlannerData(
+        raceWeeks: List<RaceWeek> = listOf(sampleRaceWeek(number = 13)),
+        plannerRaces: List<PlannerRace> = listOf(samplePlannerRace(id = "race-13", weekNumber = 13)),
+        cars: List<PlannerCar> = sampleCars(),
+        tracks: List<PlannerTrack> = sampleTracks(),
+    ): PlannerData =
+        PlannerData(
+            raceWeeks = raceWeeks,
+            plannerRaces = plannerRaces,
+            cars = cars,
+            tracks = tracks,
+        )
 
     private fun sampleRaceWeek(number: Int): RaceWeek {
         val offset = ((number - 12) * 7 * 24 * 60).minutes

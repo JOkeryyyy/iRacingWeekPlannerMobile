@@ -1,7 +1,6 @@
 package com.iracingweekplanner.mobile.presentation.schedule
 
 import androidx.compose.runtime.Composable
-import com.iracingweekplanner.mobile.presentation.PlannerDataUiMessage
 import com.iracingweekplanner.mobile.presentation.common.model.DateWeekSelectorContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleHeaderContent
@@ -91,26 +90,26 @@ object ScheduleTextResources {
             message = Res.string.schedule_empty_message,
         )
 
-    fun statePanelResources(message: PlannerDataUiMessage): ScheduleStatePanelResources =
+    fun statePanelResources(message: ScheduleUiMessage): ScheduleStatePanelResources =
         when (message) {
-            PlannerDataUiMessage.SHOWING_CACHED_PLANNER_DATA -> ScheduleStatePanelResources(
+            ScheduleUiMessage.ShowingCachedPlannerData -> ScheduleStatePanelResources(
                 variant = ScheduleStatePanelVariant.Empty,
                 title = Res.string.schedule_cached_data_message,
                 message = Res.string.schedule_cached_message,
             )
-            PlannerDataUiMessage.PLANNER_DATA_UNAVAILABLE -> ScheduleStatePanelResources(
+            ScheduleUiMessage.PlannerDataUnavailable -> ScheduleStatePanelResources(
                 variant = ScheduleStatePanelVariant.Error,
                 title = Res.string.schedule_source_error_title,
                 message = Res.string.schedule_source_error_message,
                 retryLabel = Res.string.schedule_retry_label,
             )
-            PlannerDataUiMessage.INVALID_PLANNER_DATA -> ScheduleStatePanelResources(
+            ScheduleUiMessage.InvalidPlannerData -> ScheduleStatePanelResources(
                 variant = ScheduleStatePanelVariant.Error,
                 title = Res.string.schedule_invalid_data_title,
                 message = Res.string.schedule_invalid_data_message,
                 retryLabel = Res.string.schedule_retry_label,
             )
-            PlannerDataUiMessage.LOCAL_PLANNER_DATA_UNAVAILABLE -> ScheduleStatePanelResources(
+            ScheduleUiMessage.LocalPlannerDataUnavailable -> ScheduleStatePanelResources(
                 variant = ScheduleStatePanelVariant.Error,
                 title = Res.string.schedule_local_store_error_title,
                 message = Res.string.schedule_local_store_error_message,
@@ -171,7 +170,7 @@ object ScheduleTextResources {
         emptyPanelResources().toContent()
 
     @Composable
-    fun statePanelContent(message: PlannerDataUiMessage): ScheduleStatePanelContent =
+    fun statePanelContent(message: ScheduleUiMessage): ScheduleStatePanelContent =
         statePanelResources(message).toContent()
 
     @Composable

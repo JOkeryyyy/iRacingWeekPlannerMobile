@@ -150,7 +150,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 
 ### Current Starting Point
 
-- `PlannerDataStateHolder` already exposes planner data UI state and actions from Sprint 2.
+- Sprint 2 exposes `LoadPlannerDataUseCase` as the single logical planner-data load boundary.
 - Sprint 3 needs screen-specific selected-week/date state and formatted display models without pushing UI logic into raw composables.
 
 ### Acceptance Criteria
@@ -169,11 +169,11 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - User-facing schedule title, race count text, state-panel copy, and navigation labels are resolved in the stateless screen through the shared Schedule text resource boundary.
 - Last-updated display text remains `null` until planner freshness metadata includes a timestamp; Story 3.4 must not invent a timestamp source.
 - The app entry creates the Schedule ViewModel, collects state, and sends actions into a stateless `ScheduleScreen`.
-- MVI wiring uses the existing Sprint 2 planner data state holder or domain-safe use cases. UI code does not call data sources, local storage, DTOs, SQLDelight, Ktor, or repository implementations directly.
+- MVI wiring uses the existing Sprint 2 domain-safe `LoadPlannerDataUseCase`. UI code does not call data sources, local storage, DTOs, SQLDelight, Ktor, or repository implementations directly.
 - Schedule state models do not own route/back-stack state. Future navigation should be app-root state that calls into Schedule through callbacks.
 - Initial screen load happens once per root lifecycle entry and does not trigger independent duplicate loads for weeks, races, cars, and tracks.
-- Refresh/retry routes through the existing planner data load action.
-- Tests cover state derivation and action handling with fake planner data state.
+- Refresh/retry routes through the existing planner data use case.
+- Tests cover state derivation and action handling with fake planner data results.
 
 ### QA Test Cases
 

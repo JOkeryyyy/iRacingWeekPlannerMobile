@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.iracingweekplanner.mobile.domain.usecase.LoadPlannerDataUseCase
 import com.iracingweekplanner.mobile.presentation.common.theme.IwpAppTheme
 import com.iracingweekplanner.mobile.presentation.schedule.ScheduleAction
 import com.iracingweekplanner.mobile.presentation.schedule.ScheduleScreen
@@ -13,10 +14,10 @@ import com.iracingweekplanner.mobile.presentation.schedule.ScheduleUiState
 import com.iracingweekplanner.mobile.presentation.schedule.ScheduleViewModel
 
 @Composable
-fun App(plannerData: PlannerDataPresenter) {
+fun App(loadPlannerData: LoadPlannerDataUseCase) {
     IwpAppTheme {
         val viewModel = viewModel {
-            ScheduleViewModel(plannerData = plannerData)
+            ScheduleViewModel(loadPlannerData = loadPlannerData)
         }
         val state by viewModel.state.collectAsStateWithLifecycle()
 

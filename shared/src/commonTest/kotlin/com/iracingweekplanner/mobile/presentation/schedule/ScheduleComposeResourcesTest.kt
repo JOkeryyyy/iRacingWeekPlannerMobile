@@ -1,6 +1,5 @@
 package com.iracingweekplanner.mobile.presentation.schedule
 
-import com.iracingweekplanner.mobile.presentation.PlannerDataUiMessage
 import iracingweekplannermobile.shared.generated.resources.Res
 import iracingweekplannermobile.shared.generated.resources.ic_favorites_tab
 import iracingweekplannermobile.shared.generated.resources.ic_filters_tab
@@ -27,7 +26,7 @@ class ScheduleComposeResourcesTest {
     fun scheduleTextResourceBoundaryLivesOutsidePreviewData() {
         val tabs = ScheduleTextResources.bottomTabResources()
         val invalidData = ScheduleTextResources.statePanelResources(
-            PlannerDataUiMessage.INVALID_PLANNER_DATA,
+            ScheduleUiMessage.InvalidPlannerData,
         )
 
         assertEquals(Res.string.schedule_tab_label, tabs.first().label)

@@ -23,7 +23,6 @@ import com.iracingweekplanner.mobile.domain.repository.PlannerDataRepository
 import com.iracingweekplanner.mobile.domain.repository.PlannerScheduleRepository
 import com.iracingweekplanner.mobile.domain.repository.PlannerTrackRepository
 import com.iracingweekplanner.mobile.presentation.AppInfoStateHolder
-import com.iracingweekplanner.mobile.presentation.PlannerDataStateHolder
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -55,5 +54,4 @@ val commonAppModule: Module = module {
     factory { LoadPlannerCarsUseCase(repository = get()) }
     factory { LoadPlannerTracksUseCase(repository = get()) }
     factory { LoadPlannerDataUseCase(repository = get()) }
-    factory { PlannerDataStateHolder(loadPlannerData = get()) }
 }
