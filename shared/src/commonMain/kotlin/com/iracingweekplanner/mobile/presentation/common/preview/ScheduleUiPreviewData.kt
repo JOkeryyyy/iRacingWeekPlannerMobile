@@ -4,7 +4,7 @@ import com.iracingweekplanner.mobile.presentation.common.model.DateWeekSelectorC
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleChipContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleHeaderContent
-import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardUi
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
 import iracingweekplannermobile.shared.generated.resources.Res
 import iracingweekplannermobile.shared.generated.resources.ic_favorites_tab
@@ -37,7 +37,8 @@ object ScheduleUiPreviewData {
                 ScheduleChipContent(label = "Week 13"),
                 ScheduleChipContent(label = "Oval"),
             ),
-            raceCard = ScheduleRaceCardContent(
+            raceCard = ScheduleRaceCardUi(
+                raceId = "preview-gt-sprint",
                 title = "GT Sprint Series",
                 track = "Watkins Glen - Boot",
                 carSummary = "GT3 Cars",

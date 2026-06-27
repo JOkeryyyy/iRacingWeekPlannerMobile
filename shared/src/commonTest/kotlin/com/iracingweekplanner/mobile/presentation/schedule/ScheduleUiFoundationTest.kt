@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iracingweekplanner.mobile.presentation.common.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
-import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardUi
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelVariant
 import iracingweekplannermobile.shared.generated.resources.Res
@@ -100,13 +100,15 @@ class ScheduleUiFoundationTest {
 
     @Test
     fun raceCardModelAcceptsAlreadyPreparedMetadataText() {
-        val raceCard = ScheduleRaceCardContent(
+        val raceCard = ScheduleRaceCardUi(
+            raceId = "race-gt-sprint",
             title = "GT Sprint Series",
             track = "Watkins Glen - Boot",
             carSummary = "GT3 Cars",
             metadataText = "45 min | Rain 35% | Next 8:15 PM",
         )
 
+        assertEquals("race-gt-sprint", raceCard.raceId)
         assertEquals("45 min | Rain 35% | Next 8:15 PM", raceCard.metadataText)
     }
 

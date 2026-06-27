@@ -20,26 +20,41 @@ import com.iracingweekplanner.mobile.presentation.PlannerDataAction
 import com.iracingweekplanner.mobile.presentation.PlannerDataPresenter
 import com.iracingweekplanner.mobile.presentation.PlannerDataUiMessage
 import com.iracingweekplanner.mobile.presentation.PlannerDataUiState
-import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelVariant
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ScheduleStateHolderTest {
+class ScheduleViewModelTest {
+    private val testDispatcher = UnconfinedTestDispatcher()
+
+    @BeforeTest
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    @AfterTest
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
-    fun loadedPlannerDataDerivesSelectedWeekScheduleState() = runTest {
+    fun loadedPlannerDataDerivesSelectedWeekScheduleUiState() = runTest {
         val plannerData = FakePlannerDataPresenter(
             PlannerDataUiState.Loaded(
                 raceWeeks = listOf(sampleRaceWeek(12), sampleRaceWeek(13)),
@@ -52,23 +67,20 @@ class ScheduleStateHolderTest {
                 freshness = PlannerDataFreshness.FRESH,
             ),
         )
-        val stateHolder = ScheduleStateHolder(
+        val viewModel = ScheduleViewModel(
             plannerData = plannerData,
-            scope = backgroundScope,
             currentWeekNumber = { 13 },
         )
         advanceUntilIdle()
 
-        val state = stateHolder.state.value
+        val state = viewModel.state.value
 
         assertEquals(13, state.selectedWeekNumber)
-        assertEquals("Week 13 Schedule", state.scheduleTitle)
         assertNull(state.lastUpdatedDisplayText)
-        assertEquals("1 race", state.raceCountText)
         assertFalse(state.isLoading)
         assertFalse(state.isEmpty)
         assertFalse(state.isCached)
-        assertNull(state.statePanel)
+        assertNull(state.panelMessage)
         assertEquals(listOf("race-13"), state.raceCards.map { it.raceId })
     }
 
@@ -84,19 +96,17 @@ class ScheduleStateHolderTest {
                 message = PlannerDataUiMessage.SHOWING_CACHED_PLANNER_DATA,
             ),
         )
-        val stateHolder = ScheduleStateHolder(
+        val viewModel = ScheduleViewModel(
             plannerData = plannerData,
-            scope = backgroundScope,
             currentWeekNumber = { 13 },
         )
         advanceUntilIdle()
 
-        val state = stateHolder.state.value
+        val state = viewModel.state.value
 
         assertTrue(state.isCached)
-        assertEquals("1 race", state.raceCountText)
         assertEquals(listOf("race-13"), state.raceCards.map { it.raceId })
-        assertEquals(ScheduleStatePanelVariant.Empty, assertNotNull(state.statePanel).variant)
+        assertEquals(PlannerDataUiMessage.SHOWING_CACHED_PLANNER_DATA, state.panelMessage)
     }
 
     @Test
@@ -107,19 +117,17 @@ class ScheduleStateHolderTest {
                 message = null,
             ),
         )
-        val stateHolder = ScheduleStateHolder(
+        val viewModel = ScheduleViewModel(
             plannerData = plannerData,
-            scope = backgroundScope,
             currentWeekNumber = { 13 },
         )
         advanceUntilIdle()
 
-        val state = stateHolder.state.value
+        val state = viewModel.state.value
 
         assertTrue(state.isEmpty)
-        assertEquals("0 races", state.raceCountText)
         assertTrue(state.raceCards.isEmpty())
-        assertEquals(ScheduleStatePanelVariant.Empty, assertNotNull(state.statePanel).variant)
+        assertNull(state.panelMessage)
     }
 
     @Test
@@ -127,31 +135,31 @@ class ScheduleStateHolderTest {
         val plannerData = FakePlannerDataPresenter(
             PlannerDataUiState.Error(PlannerDataUiMessage.PLANNER_DATA_UNAVAILABLE),
         )
-        val stateHolder = ScheduleStateHolder(
+        val viewModel = ScheduleViewModel(
             plannerData = plannerData,
-            scope = backgroundScope,
             currentWeekNumber = { 13 },
         )
         advanceUntilIdle()
 
-        val panel = assertNotNull(stateHolder.state.value.statePanel)
+        val state = viewModel.state.value
 
-        assertEquals(ScheduleStatePanelVariant.Error, panel.variant)
-        assertTrue(panel.canRetry)
-        assertTrue(stateHolder.state.value.raceCards.isEmpty())
+        assertEquals(PlannerDataUiMessage.PLANNER_DATA_UNAVAILABLE, state.panelMessage)
+        assertFalse(state.isLoading)
+        assertFalse(state.isEmpty)
+        assertTrue(state.raceCards.isEmpty())
     }
 
     @Test
     fun initialLoadRunsOnlyOnePlannerLoadAction() = runTest {
         val plannerData = FakePlannerDataPresenter(PlannerDataUiState.Idle)
-        val stateHolder = ScheduleStateHolder(
+        val viewModel = ScheduleViewModel(
             plannerData = plannerData,
-            scope = backgroundScope,
             currentWeekNumber = { 13 },
         )
 
-        stateHolder.onAction(ScheduleAction.InitialLoad)
-        stateHolder.onAction(ScheduleAction.InitialLoad)
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        advanceUntilIdle()
 
         assertEquals(listOf<PlannerDataAction>(PlannerDataAction.Load), plannerData.actions)
     }
@@ -159,14 +167,14 @@ class ScheduleStateHolderTest {
     @Test
     fun refreshAndRetryEachForwardOnePlannerRetryAction() = runTest {
         val plannerData = FakePlannerDataPresenter(PlannerDataUiState.Idle)
-        val stateHolder = ScheduleStateHolder(
+        val viewModel = ScheduleViewModel(
             plannerData = plannerData,
-            scope = backgroundScope,
             currentWeekNumber = { 13 },
         )
 
-        stateHolder.onAction(ScheduleAction.Refresh)
-        stateHolder.onAction(ScheduleAction.Retry)
+        viewModel.onAction(ScheduleAction.Refresh)
+        viewModel.onAction(ScheduleAction.Retry)
+        advanceUntilIdle()
 
         assertEquals(
             listOf<PlannerDataAction>(PlannerDataAction.Retry, PlannerDataAction.Retry),
@@ -189,23 +197,22 @@ class ScheduleStateHolderTest {
                 freshness = PlannerDataFreshness.FRESH,
             ),
         )
-        val stateHolder = ScheduleStateHolder(
+        val viewModel = ScheduleViewModel(
             plannerData = plannerData,
-            scope = backgroundScope,
             currentWeekNumber = { 13 },
         )
         advanceUntilIdle()
 
-        stateHolder.onAction(ScheduleAction.NextWeek)
+        viewModel.onAction(ScheduleAction.NextWeek)
         advanceUntilIdle()
-        assertEquals(14, stateHolder.state.value.selectedWeekNumber)
-        assertEquals(listOf("race-14"), stateHolder.state.value.raceCards.map { it.raceId })
+        assertEquals(14, viewModel.state.value.selectedWeekNumber)
+        assertEquals(listOf("race-14"), viewModel.state.value.raceCards.map { it.raceId })
 
-        stateHolder.onAction(ScheduleAction.PreviousWeek)
-        stateHolder.onAction(ScheduleAction.Today)
+        viewModel.onAction(ScheduleAction.PreviousWeek)
+        viewModel.onAction(ScheduleAction.Today)
         advanceUntilIdle()
 
-        assertEquals(13, stateHolder.state.value.selectedWeekNumber)
+        assertEquals(13, viewModel.state.value.selectedWeekNumber)
         assertTrue(plannerData.actions.isEmpty())
     }
 

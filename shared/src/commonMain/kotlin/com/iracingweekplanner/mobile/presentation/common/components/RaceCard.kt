@@ -10,14 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.iracingweekplanner.mobile.presentation.common.design.ScheduleUiTokens
-import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardUi
 import com.iracingweekplanner.mobile.presentation.common.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.common.preview.ScheduleComponentPreviewTheme
 import com.iracingweekplanner.mobile.presentation.common.preview.ScheduleUiPreviewData
 
 @Composable
 fun RaceCard(
-    content: ScheduleRaceCardContent,
+    content: ScheduleRaceCardUi,
     modifier: Modifier = Modifier,
 ) {
     ScheduleCard(modifier = modifier) {

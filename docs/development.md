@@ -104,6 +104,15 @@ Default local shared verification:
 ./gradlew :shared:testAndroidHostTest
 ```
 
+## Presentation MVI Conventions
+
+- Screen state types use the `*UiState` suffix, for example `ScheduleUiState`.
+- Screen actions use the `*Action` suffix, for example `ScheduleAction`.
+- Public MVI contract types and reusable UI models each live in their own Kotlin file.
+- `Screen` composables stay stateless and render from UI state plus callbacks.
+- `ViewModel` classes own screen-level UI logic and expose `StateFlow<*UiState>` plus `onAction(*Action)`.
+- Avoid duplicate `Content` models when a component can render an existing UI model directly.
+
 Additional iOS verification when full Xcode is available:
 
 ```bash

@@ -1,6 +1,7 @@
 package com.iracingweekplanner.mobile.presentation.common.model
 
-data class ScheduleRaceCardContent(
+data class ScheduleRaceCardUi(
+    val raceId: String,
     val title: String,
     val track: String,
     val carSummary: String,

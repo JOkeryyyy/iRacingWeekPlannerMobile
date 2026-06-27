@@ -110,7 +110,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Verify reusable components can be rendered with alternate fake strings without changing component internals.
 - Verify no raw internal exception, source URL, SQLDelight detail, Ktor detail, DTO field name, or local file path appears in user-facing error text.
 
-## Story 3.3: Replace the Starter App With the Schedule Shell
+## Story 3.3: Replace the Starter App With the Schedule Screen
 
 **As a user, I want the app to open on a Schedule screen so I immediately understand that the app is for browsing iRacing race weeks.**
 
@@ -122,7 +122,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 ### Acceptance Criteria
 
 - The starter Compose logo/click-counter UI is removed from the main shared app surface.
-- The first screen is a Schedule shell with:
+- The first screen is a Schedule screen with:
   - `ScheduleHeader`,
   - date/week selector area,
   - action/count area,
@@ -132,13 +132,13 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - The header shows a last-updated line when freshness metadata is available.
 - Inactive future tabs are visually present only if they do not navigate to unimplemented screens.
 - Layout follows Sprint 3 screen padding, spacing, and bottom-navigation constraints.
-- The app shell is shared between Android and iOS through Compose Multiplatform.
-- The shell does not introduce Navigation 3 yet, but keeps app chrome separate from Schedule screen state so a future app-level route host can replace or wrap it without rewriting Schedule content.
+- The app screen is shared between Android and iOS through Compose Multiplatform.
+- The screen does not introduce Navigation 3 yet, but keeps app chrome separate from Schedule screen state so a future app-level route host can replace or wrap it without rewriting Schedule content.
 
 ### QA Test Cases
 
 - Launch Android debug app and confirm the starter screen is gone.
-- Launch iOS Compose host or build the iOS target and confirm the shared Schedule shell is the root UI.
+- Launch iOS Compose host or build the iOS target and confirm the shared Schedule screen is the root UI.
 - Verify the selected bottom item says `Schedule`.
 - Verify the header title uses a week title rather than the generic app name.
 - Verify the screen remains readable at the reference `390 x 844` frame and does not overlap the bottom navigation.
@@ -157,14 +157,18 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 
 - A Schedule presentation state model exists for the screen-level UI.
 - A Schedule action model exists for at least initial load, refresh/retry, previous week, next week, and today/current-week selection.
+- `ScheduleViewModel` owns screen-level UI logic and exposes `StateFlow<ScheduleUiState>` plus `onAction(ScheduleAction)`.
+- `ScheduleAction`, `ScheduleUiState`, and public UI models live in their own Kotlin files.
+- `ScheduleScreen` is the stateless full-screen UI and renders reusable components directly from `ScheduleUiState`.
+- Race cards use one reusable `ScheduleRaceCardUi` model; do not add a duplicate `Content` wrapper when a component can render the UI model directly.
 - Screen-level state derives:
   - selected week,
-  - schedule title,
-  - last-updated display text,
-  - race count text,
+  - nullable last-updated display text,
   - selected-week race card display models,
   - loading, empty, cached, and error rendering flags.
-- The root composable collects state and sends actions; stateless screen composables render state and callbacks.
+- User-facing schedule title, race count text, state-panel copy, and navigation labels are resolved in the stateless screen through the shared Schedule text resource boundary.
+- Last-updated display text remains `null` until planner freshness metadata includes a timestamp; Story 3.4 must not invent a timestamp source.
+- The app entry creates the Schedule ViewModel, collects state, and sends actions into a stateless `ScheduleScreen`.
 - MVI wiring uses the existing Sprint 2 planner data state holder or domain-safe use cases. UI code does not call data sources, local storage, DTOs, SQLDelight, Ktor, or repository implementations directly.
 - Schedule state models do not own route/back-stack state. Future navigation should be app-root state that calls into Schedule through callbacks.
 - Initial screen load happens once per root lifecycle entry and does not trigger independent duplicate loads for weeks, races, cars, and tracks.
@@ -173,7 +177,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 
 ### QA Test Cases
 
-- With fake loaded data, verify the state model produces `Week 13 Schedule`, a last-updated string, a race count string, and non-empty race cards.
+- With fake loaded data, verify the state model selects week 13, keeps last-updated absent when no timestamp metadata exists, and exposes non-empty race cards.
 - With fake cached data, verify the state model preserves displayable data and exposes a cached warning/status.
 - With fake empty data, verify state requests the empty panel rather than an empty race list with no explanation.
 - With fake source error and no cache, verify state requests an error panel with retry.
