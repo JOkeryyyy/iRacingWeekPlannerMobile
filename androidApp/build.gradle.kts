@@ -30,6 +30,8 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["plannerHostedManifestUrl"] =
+            providers.gradleProperty("plannerHostedManifestUrl").orElse("").get()
     }
     packaging {
         resources {

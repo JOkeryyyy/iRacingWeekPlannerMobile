@@ -40,9 +40,11 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.ktor.client.okhttp)
             implementation(libs.sqldelight.android.driver)
         }
         iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
             implementation(libs.sqldelight.native.driver)
         }
         commonMain.dependencies {

@@ -15,6 +15,7 @@ class AndroidEntryPointArchitectureAndroidHostTest {
         val applicationFile = androidPackageRoot.resolve("IRacingWeekPlannerApplication.kt")
         val activityFile = androidPackageRoot.resolve("MainActivity.kt")
         val manifestFile = repoRoot().resolve("androidApp/src/main/AndroidManifest.xml")
+        val androidBuildFile = repoRoot().resolve("androidApp/build.gradle.kts")
 
         assertTrue(
             actual = Files.exists(applicationFile),
@@ -24,10 +25,33 @@ class AndroidEntryPointArchitectureAndroidHostTest {
         val applicationSource = readText(applicationFile)
         val activitySource = readText(activityFile)
         val manifestSource = readText(manifestFile)
+        val androidBuildSource = readText(androidBuildFile)
 
         assertTrue(
             actual = manifestSource.contains("""android:name=".IRacingWeekPlannerApplication""""),
             message = "Expected AndroidManifest.xml to register IRacingWeekPlannerApplication.",
+        )
+        assertTrue(
+            actual = manifestSource.contains(
+                """<uses-permission android:name="android.permission.INTERNET" />""",
+            ),
+            message = "Expected AndroidManifest.xml to declare Internet permission for hosted JSON reads.",
+        )
+        assertTrue(
+            actual = manifestSource.contains(
+                "android:name=\"com.iracingweekplanner.mobile.HOSTED_MANIFEST_URL\"",
+            ),
+            message = "Expected AndroidManifest.xml to expose hosted manifest URL metadata.",
+        )
+        assertTrue(
+            actual = manifestSource.contains("android:value=\"${'$'}{plannerHostedManifestUrl}\""),
+            message = "Expected hosted manifest metadata to read from the Gradle manifest placeholder.",
+        )
+        assertTrue(
+            actual = androidBuildSource.contains(
+                "providers.gradleProperty(\"plannerHostedManifestUrl\").orElse(\"\").get()",
+            ),
+            message = "Expected Android defaultConfig to read the hosted manifest URL from a Gradle property with a blank default.",
         )
         assertTrue(
             actual = applicationSource.contains("class IRacingWeekPlannerApplication : Application()"),

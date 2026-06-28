@@ -204,6 +204,35 @@ Focused command:
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.schedule.ScheduleViewModelTest
 ```
 
+Story 3.5 hosted JSON consumption coverage:
+
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/PlannerDataSourceSelectionTest.kt` verifies local mock fallback and hosted source selection.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/data/datasource/KtorPlannerHostedDataSourceTest.kt` verifies hosted manifest-first loading, relative reference resolution, HTTP/decode failures, and unsafe reference rejection.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/data/HostedPlannerDataRefreshAndroidHostTest.kt` verifies hosted success persists through SQLDelight, hosted refresh failure returns cached data, and no-cache hosted failure returns a source error.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/AndroidEntryPointArchitectureAndroidHostTest.kt` verifies Android keeps app dependencies in `Application`, declares Internet permission, and leaves the hosted manifest URL blank by default.
+
+Focused commands:
+
+```bash
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.di.PlannerDataSourceSelectionTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.data.datasource.KtorPlannerHostedDataSourceTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.data.HostedPlannerDataRefreshAndroidHostTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.AndroidEntryPointArchitectureAndroidHostTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.schedule.ScheduleViewModelTest
+```
+
+Android hosted JSON configuration:
+
+```bash
+./gradlew :androidApp:assembleDebug -PplannerHostedManifestUrl=https://<project-ref>.supabase.co/storage/v1/object/public/planner-data/data/mobile/v1/manifest.json
+```
+
+The default Android manifest placeholder is blank, so local developer builds use bundled mock JSON unless the hosted manifest URL is supplied. The actual Supabase project ref is environment configuration and must not be hardcoded in common shared code.
+
+iOS hosted JSON configuration:
+
+`MainViewController(hostedManifestUrl: String? = null)` preserves the default bundled mock JSON path. A Swift or Info.plist wiring change can pass the Supabase Storage manifest URL into `MainViewController(hostedManifestUrl:)` when a production iOS configuration is ready.
+
 Story 2.7 DI wiring coverage:
 
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt`
