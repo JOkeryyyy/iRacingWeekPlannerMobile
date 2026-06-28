@@ -1,5 +1,9 @@
 # Data Contract
 
+For the current generated Supabase/static JSON contract used by frontend
+integration, see [Hosted JSON API](hosted-json-api.md). This document keeps the
+broader contract principles and older planning context.
+
 ## Strategy
 
 MVP development starts with local mock JSON. The contract should be designed for the mobile planner, while staying derived from the existing web generated data so the web repo can remain the source of truth.

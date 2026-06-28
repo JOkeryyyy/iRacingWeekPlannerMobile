@@ -16,6 +16,9 @@ The existing web repo is separate and remains the schedule generation/source-of-
 /Users/gaojiahao/Documents/iracing/iRacing-week-planner
 ```
 
+The current static JSON contract for frontend integration is documented in
+[Hosted JSON API](hosted-json-api.md).
+
 ## Required Tools
 
 Use common/popular versions compatible with the current Kotlin Multiplatform and Compose Multiplatform scaffold:
@@ -84,7 +87,7 @@ The shared module currently has smoke coverage in common, Android host, and iOS 
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/usecase/GetAppInfoUseCaseTest.kt` verifies the initial domain use case.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/domain/usecase/PlannerDataUseCasesTest.kt` verifies the planner repository/use-case contracts with fake repositories.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/AppInfoStateHolderTest.kt` verifies the presentation state holder.
-- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/PlannerDataStateHolderTest.kt` verifies planner data presentation states for loading, loaded, cached, empty, error, and retry outcomes.
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleViewModelTest.kt` verifies schedule loading, loaded, cached, empty, error, retry, and week-selection state.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleUiFoundationTest.kt` verifies the Sprint 3 reusable Schedule UI foundation contract.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/theme/IwpAppThemeTest.kt` verifies the shared app theme color contract.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/CommonAppModuleTest.kt` verifies app-info Koin wiring.
@@ -100,6 +103,15 @@ Default local shared verification:
 ```bash
 ./gradlew :shared:testAndroidHostTest
 ```
+
+## Presentation MVI Conventions
+
+- Screen state types use the `*UiState` suffix, for example `ScheduleUiState`.
+- Screen actions use the `*Action` suffix, for example `ScheduleAction`.
+- Public MVI contract types and reusable UI models each live in their own Kotlin file.
+- `Screen` composables stay stateless and render from UI state plus callbacks.
+- `ViewModel` classes own screen-level UI logic and expose `StateFlow<*UiState>` plus `onAction(*Action)`.
+- Avoid duplicate `Content` models when a component can render an existing UI model directly.
 
 Additional iOS verification when full Xcode is available:
 
@@ -182,14 +194,14 @@ Focused commands:
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.domain.usecase.PlannerDataUseCasesTest
 ```
 
-Story 2.6 planner presentation-state coverage:
+Story 3.4 schedule MVI coverage:
 
-- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/PlannerDataStateHolderTest.kt`
+- `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/presentation/schedule/ScheduleViewModelTest.kt`
 
 Focused command:
 
 ```bash
-./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.PlannerDataStateHolderTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.schedule.ScheduleViewModelTest
 ```
 
 Story 2.7 DI wiring coverage:

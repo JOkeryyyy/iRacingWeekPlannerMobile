@@ -17,6 +17,12 @@
     <string name="schedule_week_label">Week %1$d</string>
     <string name="schedule_week_dates_loading">Race dates loading</string>
     <string name="schedule_last_updated">Last updated %1$s</string>
+    <string name="schedule_cars_unavailable">Cars unavailable</string>
+    <string name="schedule_lap_count">%1$d laps</string>
+    <string name="schedule_time_limit_minutes">%1$d min</string>
+    <string name="schedule_rain_chance">%1$d% rain</string>
+    <string name="schedule_recurring_session_timing">First session +%1$d min, every %2$d min</string>
+    <string name="schedule_set_times_session_timing">Sessions at +%1$s min</string>
     <string name="schedule_loading_title">Loading schedule</string>
     <string name="schedule_loading_message">Preparing race week data.</string>
     <string name="schedule_empty_title">No races this week</string>

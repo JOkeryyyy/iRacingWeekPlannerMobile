@@ -12,7 +12,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            val appDependencies = (application as IRacingWeekPlannerApplication).appDependencies
+            App(loadPlannerData = appDependencies.loadPlannerData)
         }
     }
 }

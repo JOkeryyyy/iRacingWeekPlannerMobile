@@ -120,15 +120,23 @@ private fun SeriesDto.toDomain(): PlannerSeries =
         name = name,
         category = SeriesCategory(category),
         license = license.toDomain(),
-        setup = if (isFixedSetup) RaceSetup.FIXED else RaceSetup.OPEN,
+        setup = setupType.toRaceSetup(isFixedSetup),
         isOfficial = isOfficial,
     )
 
 private fun LicenseDto.toDomain(): LicenseRequirement =
     LicenseRequirement(
         className = className,
-        safetyRatingLevel = level,
+        safetyRatingLevel = level ?: safetyRating?.toInt(),
     )
+
+private fun String?.toRaceSetup(isFixedSetup: Boolean?): RaceSetup =
+    when {
+        isFixedSetup == true -> RaceSetup.FIXED
+        isFixedSetup == false -> RaceSetup.OPEN
+        this == "fixed" -> RaceSetup.FIXED
+        else -> RaceSetup.OPEN
+    }
 
 private fun RaceDto.toDomain(path: String): PlannerDataResult<PlannerRace> {
     val startsAt = startsAt.toInstantResult(path = "$path.startsAt").dataOrReturn { return it }

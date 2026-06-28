@@ -1,27 +1,20 @@
-package com.iracingweekplanner.mobile.presentation.schedule
+package com.iracingweekplanner.mobile.presentation.common.preview
 
 import com.iracingweekplanner.mobile.presentation.common.model.DateWeekSelectorContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleChipContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleHeaderContent
-import com.iracingweekplanner.mobile.presentation.common.model.ScheduleShellContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardUi
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
 import iracingweekplannermobile.shared.generated.resources.Res
 import iracingweekplannermobile.shared.generated.resources.ic_favorites_tab
 import iracingweekplannermobile.shared.generated.resources.ic_filters_tab
 import iracingweekplannermobile.shared.generated.resources.ic_schedule_tab
 import iracingweekplannermobile.shared.generated.resources.ic_settings_tab
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
-class ScheduleShellContentTest {
-
-    @Test
-    fun shellContentKeepsScheduleRegionsTogetherForTheRootAppSurface() {
-        val content = ScheduleShellContent(
-            selectedWeekNumber = 13,
+object ScheduleUiPreviewData {
+    fun foundationResourceSample(): ScheduleUiFoundationSample =
+        ScheduleUiFoundationSample(
             header = ScheduleHeaderContent(
                 weekTitle = "Week 13 Schedule",
                 lastUpdatedText = "Last updated 10:42 AM",
@@ -32,6 +25,7 @@ class ScheduleShellContentTest {
                 weekLabel = "Week 13",
                 dateContext = "Jun 16 - Jun 23",
                 previousEnabled = true,
+                todayEnabled = true,
                 nextEnabled = true,
                 previousLabel = "Prev",
                 previousContentDescription = "Previous week",
@@ -39,14 +33,23 @@ class ScheduleShellContentTest {
                 nextLabel = "Next",
                 nextContentDescription = "Next week",
             ),
-            summaryChips = listOf(
-                ScheduleChipContent(label = "Week 13", selected = true),
-                ScheduleChipContent(label = "12 races"),
+            chips = listOf(
+                ScheduleChipContent(label = "Current", selected = true),
+                ScheduleChipContent(label = "Week 13"),
+                ScheduleChipContent(label = "Oval"),
             ),
-            statePanel = ScheduleStatePanelContent.loading(
-                title = "Loading schedule",
-                message = "Preparing race week data.",
+            raceCard = ScheduleRaceCardUi(
+                raceId = "preview-gt-sprint",
+                title = "GT Sprint Series",
+                track = "Watkins Glen - Boot",
+                carSummary = "GT3 Cars",
+                metadataText = "45 min | Rain 35% | Next 8:15 PM | 12 races",
+                chips = listOf(
+                    ScheduleChipContent(label = "Road", selected = true),
+                    ScheduleChipContent(label = "B License"),
+                ),
             ),
+            statePanels = emptyList(),
             bottomTabs = listOf(
                 ScheduleBottomTab(
                     label = "Schedule",
@@ -75,14 +78,22 @@ class ScheduleShellContentTest {
             ),
         )
 
-        assertEquals(13, content.selectedWeekNumber)
-        assertEquals("Week 13 Schedule", content.header.weekTitle)
-        assertEquals("Last updated 10:42 AM", content.header.lastUpdatedText)
-        assertEquals("Week 13", content.selector.weekLabel)
-        assertEquals(listOf("Week 13", "12 races"), content.summaryChips.map { it.label })
-        assertTrue(content.summaryChips.single { it.label == "Week 13" }.selected)
-        assertTrue(content.bottomTabs.single { it.label == "Schedule" }.selected)
-        assertTrue(content.bottomTabs.single { it.label == "Schedule" }.enabled)
-        assertFalse(content.bottomTabs.filterNot { it.label == "Schedule" }.any { it.enabled })
-    }
+    fun loadingPanelResourceSample(): ScheduleStatePanelContent =
+        ScheduleStatePanelContent.loading(
+            title = "Loading schedule",
+            message = "Preparing race week data.",
+        )
+
+    fun emptyPanelResourceSample(): ScheduleStatePanelContent =
+        ScheduleStatePanelContent.empty(
+            title = "No races this week",
+            message = "Try another week or clear active filters.",
+        )
+
+    fun errorPanelResourceSample(): ScheduleStatePanelContent =
+        ScheduleStatePanelContent.error(
+            title = "Schedule unavailable",
+            message = "Retry when schedule data is available.",
+            retryLabel = "Retry",
+        )
 }

@@ -29,5 +29,32 @@ class ScheduleComposeResourceOutputTest {
             "12 races",
             ScheduleTextResources.loadRaceCount(count = 12),
         )
+        assertEquals(
+            "Cars unavailable",
+            ScheduleTextResources.loadCarsUnavailable(),
+        )
+        assertEquals(
+            "10 laps",
+            ScheduleTextResources.loadLapCount(lapCount = 10),
+        )
+        assertEquals(
+            "45 min",
+            ScheduleTextResources.loadTimeLimitMinutes(minutes = 45),
+        )
+        assertEquals(
+            "25% rain",
+            ScheduleTextResources.loadRainChance(percent = 25),
+        )
+        assertEquals(
+            "First session +60 min, every 120 min",
+            ScheduleTextResources.loadRecurringSessionTiming(
+                firstSessionOffsetMinutes = 60,
+                repeatEveryMinutes = 120,
+            ),
+        )
+        assertEquals(
+            "Sessions at +0, +1440 min",
+            ScheduleTextResources.loadSetTimesSessionTiming(offsetMinutes = "0, +1440"),
+        )
     }
 }

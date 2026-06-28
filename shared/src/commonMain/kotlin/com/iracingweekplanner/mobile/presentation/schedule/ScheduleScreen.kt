@@ -20,59 +20,20 @@ import com.iracingweekplanner.mobile.presentation.common.components.StatePanel
 import com.iracingweekplanner.mobile.presentation.common.design.ScheduleUiTokens
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleChipContent
-import com.iracingweekplanner.mobile.presentation.common.model.ScheduleShellContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardUi
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
 import com.iracingweekplanner.mobile.presentation.common.preview.IWPPreview
 import com.iracingweekplanner.mobile.presentation.common.theme.IwpAppTheme
 
 @Composable
-fun ScheduleShell(
-    modifier: Modifier = Modifier,
-    selectedWeekNumber: Int = ScheduleShellDefaults.SelectedWeekNumber,
-) {
-    ScheduleShell(
-        content = ScheduleShellContent(
-            selectedWeekNumber = selectedWeekNumber,
-            header = ScheduleTextResources.headerContent(
-                weekNumber = selectedWeekNumber,
-                lastUpdatedTime = null,
-            ),
-            selector = ScheduleTextResources.dateWeekSelectorContent(
-                weekNumber = selectedWeekNumber,
-                dateContext = ScheduleTextResources.loadingDateContext(),
-                previousEnabled = false,
-                nextEnabled = false,
-            ),
-            summaryChips = listOf(
-                ScheduleChipContent(
-                    label = ScheduleTextResources.weekLabel(selectedWeekNumber),
-                    selected = true,
-                ),
-                ScheduleChipContent(label = ScheduleTextResources.raceCount(count = 0)),
-            ),
-            statePanel = ScheduleTextResources.loadingPanelContent(),
-            bottomTabs = ScheduleTextResources.bottomTabs(),
-        ),
-        onRefreshClick = {},
-        onPreviousWeekClick = {},
-        onTodayClick = {},
-        onNextWeekClick = {},
-        onRetryClick = {},
-        onTabClick = {},
-        modifier = modifier,
-    )
-}
-
-@Composable
-fun ScheduleShell(
-    content: ScheduleShellContent,
-    onRefreshClick: () -> Unit,
-    onPreviousWeekClick: () -> Unit,
-    onTodayClick: () -> Unit,
-    onNextWeekClick: () -> Unit,
-    onRetryClick: () -> Unit,
+fun ScheduleScreen(
+    state: ScheduleUiState,
+    onAction: (ScheduleAction) -> Unit,
     onTabClick: (ScheduleBottomTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val bottomTabs = ScheduleTextResources.bottomTabs()
+
     IwpAppScaffold(
         modifier = modifier,
         contentPadding = PaddingValues(
@@ -83,31 +44,23 @@ fun ScheduleShell(
         ),
         bottomBar = {
             ScheduleBottomNavigation(
-                tabs = content.bottomTabs,
+                tabs = bottomTabs,
                 onTabClick = onTabClick,
             )
         },
     ) { contentPadding ->
-        ScheduleShellBody(
-            content = content,
-            onRefreshClick = onRefreshClick,
-            onPreviousWeekClick = onPreviousWeekClick,
-            onTodayClick = onTodayClick,
-            onNextWeekClick = onNextWeekClick,
-            onRetryClick = onRetryClick,
+        ScheduleScreenBody(
+            state = state,
+            onAction = onAction,
             modifier = Modifier.padding(contentPadding),
         )
     }
 }
 
 @Composable
-private fun ScheduleShellBody(
-    content: ScheduleShellContent,
-    onRefreshClick: () -> Unit,
-    onPreviousWeekClick: () -> Unit,
-    onTodayClick: () -> Unit,
-    onNextWeekClick: () -> Unit,
-    onRetryClick: () -> Unit,
+private fun ScheduleScreenBody(
+    state: ScheduleUiState,
+    onAction: (ScheduleAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -115,19 +68,32 @@ private fun ScheduleShellBody(
         verticalArrangement = Arrangement.spacedBy(ScheduleUiTokens.SectionGap),
     ) {
         ScheduleHeader(
-            content = content.header,
-            onRefreshClick = onRefreshClick,
+            content = ScheduleTextResources.headerContent(
+                weekNumber = state.selectedWeekNumber,
+                lastUpdatedTime = state.lastUpdatedDisplayText,
+            ),
+            onRefreshClick = { onAction(ScheduleAction.Refresh) },
         )
         DateWeekSelector(
-            content = content.selector,
-            onPreviousClick = onPreviousWeekClick,
-            onTodayClick = onTodayClick,
-            onNextClick = onNextWeekClick,
+            content = ScheduleTextResources.dateWeekSelectorContent(
+                weekNumber = state.selectedWeekNumber,
+                dateContext = state.dateContext ?: ScheduleTextResources.loadingDateContext(),
+                previousEnabled = state.canSelectPreviousWeek,
+                todayEnabled = state.canSelectCurrentWeek,
+                nextEnabled = state.canSelectNextWeek,
+            ),
+            onPreviousClick = { onAction(ScheduleAction.PreviousWeek) },
+            onTodayClick = { onAction(ScheduleAction.Today) },
+            onNextClick = { onAction(ScheduleAction.NextWeek) },
         )
-        ScheduleSummaryChips(chips = content.summaryChips)
+        ScheduleSummaryChips(
+            selectedWeekNumber = state.selectedWeekNumber,
+            raceCount = state.raceCards.size,
+        )
         ScheduleRaceList(
-            content = content,
-            onRetryClick = onRetryClick,
+            statePanel = state.toStatePanelContent(),
+            raceCards = state.raceCards,
+            onRetryClick = { onAction(ScheduleAction.Retry) },
             modifier = Modifier.weight(1f),
         )
     }
@@ -135,9 +101,18 @@ private fun ScheduleShellBody(
 
 @Composable
 private fun ScheduleSummaryChips(
-    chips: List<ScheduleChipContent>,
+    selectedWeekNumber: Int,
+    raceCount: Int,
     modifier: Modifier = Modifier,
 ) {
+    val chips = listOf(
+        ScheduleChipContent(
+            label = ScheduleTextResources.weekLabel(selectedWeekNumber),
+            selected = true,
+        ),
+        ScheduleChipContent(label = ScheduleTextResources.raceCount(raceCount)),
+    )
+
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(ScheduleUiTokens.CompactGap),
@@ -151,7 +126,8 @@ private fun ScheduleSummaryChips(
 
 @Composable
 private fun ScheduleRaceList(
-    content: ScheduleShellContent,
+    statePanel: ScheduleStatePanelContent?,
+    raceCards: List<ScheduleRaceCardUi>,
     onRetryClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -160,7 +136,7 @@ private fun ScheduleRaceList(
         verticalArrangement = Arrangement.spacedBy(ScheduleUiTokens.RaceCardListGap),
         contentPadding = PaddingValues(bottom = ScheduleUiTokens.DefaultGap),
     ) {
-        content.statePanel?.let { panel ->
+        statePanel?.let { panel ->
             item {
                 StatePanel(
                     content = panel,
@@ -168,20 +144,46 @@ private fun ScheduleRaceList(
                 )
             }
         }
-        items(content.raceCards) { raceCard ->
-            RaceCard(content = raceCard)
+        items(raceCards) { raceCard ->
+            RaceCard(content = ScheduleTextResources.raceCardContent(raceCard))
         }
     }
 }
 
 @Composable
+private fun ScheduleUiState.toStatePanelContent() =
+    when {
+        isLoading -> ScheduleTextResources.loadingPanelContent()
+        panelMessage != null -> ScheduleTextResources.statePanelContent(panelMessage)
+        isEmpty -> ScheduleTextResources.emptyPanelContent()
+        else -> null
+    }
+
+@Composable
 @IWPPreview
-private fun ScheduleShellPreview() {
+private fun ScheduleScreenPreview() {
     IwpAppTheme {
-        ScheduleShell()
+        ScheduleScreen(
+            state = ScheduleUiState(
+                selectedWeekNumber = ScheduleScreenDefaults.SelectedWeekNumber,
+                availableWeekNumbers = emptyList(),
+                dateContext = null,
+                lastUpdatedDisplayText = null,
+                raceCards = emptyList(),
+                panelMessage = null,
+                isLoading = true,
+                isEmpty = false,
+                isCached = false,
+                canSelectPreviousWeek = false,
+                canSelectCurrentWeek = false,
+                canSelectNextWeek = false,
+            ),
+            onAction = {},
+            onTabClick = {},
+        )
     }
 }
 
-private object ScheduleShellDefaults {
+private object ScheduleScreenDefaults {
     const val SelectedWeekNumber = 13
 }

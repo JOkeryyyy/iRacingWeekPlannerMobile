@@ -1,10 +1,11 @@
 package com.iracingweekplanner.mobile.presentation.schedule
 
 import androidx.compose.runtime.Composable
-import com.iracingweekplanner.mobile.presentation.PlannerDataUiMessage
 import com.iracingweekplanner.mobile.presentation.common.model.DateWeekSelectorContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleHeaderContent
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardUi
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceSessionTimingUi
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelVariant
 import iracingweekplannermobile.shared.generated.resources.Res
@@ -14,12 +15,14 @@ import iracingweekplannermobile.shared.generated.resources.ic_schedule_tab
 import iracingweekplannermobile.shared.generated.resources.ic_settings_tab
 import iracingweekplannermobile.shared.generated.resources.schedule_cached_data_message
 import iracingweekplannermobile.shared.generated.resources.schedule_cached_message
+import iracingweekplannermobile.shared.generated.resources.schedule_cars_unavailable
 import iracingweekplannermobile.shared.generated.resources.schedule_empty_message
 import iracingweekplannermobile.shared.generated.resources.schedule_empty_title
 import iracingweekplannermobile.shared.generated.resources.schedule_favorites_tab_label
 import iracingweekplannermobile.shared.generated.resources.schedule_filters_tab_label
 import iracingweekplannermobile.shared.generated.resources.schedule_invalid_data_message
 import iracingweekplannermobile.shared.generated.resources.schedule_invalid_data_title
+import iracingweekplannermobile.shared.generated.resources.schedule_lap_count
 import iracingweekplannermobile.shared.generated.resources.schedule_last_updated
 import iracingweekplannermobile.shared.generated.resources.schedule_loading_message
 import iracingweekplannermobile.shared.generated.resources.schedule_loading_title
@@ -29,14 +32,18 @@ import iracingweekplannermobile.shared.generated.resources.schedule_next_week_co
 import iracingweekplannermobile.shared.generated.resources.schedule_next_week_label
 import iracingweekplannermobile.shared.generated.resources.schedule_previous_week_content_description
 import iracingweekplannermobile.shared.generated.resources.schedule_previous_week_label
+import iracingweekplannermobile.shared.generated.resources.schedule_rain_chance
 import iracingweekplannermobile.shared.generated.resources.schedule_race_count
 import iracingweekplannermobile.shared.generated.resources.schedule_refresh_content_description
 import iracingweekplannermobile.shared.generated.resources.schedule_refresh_label
+import iracingweekplannermobile.shared.generated.resources.schedule_recurring_session_timing
 import iracingweekplannermobile.shared.generated.resources.schedule_retry_label
 import iracingweekplannermobile.shared.generated.resources.schedule_settings_tab_label
+import iracingweekplannermobile.shared.generated.resources.schedule_set_times_session_timing
 import iracingweekplannermobile.shared.generated.resources.schedule_source_error_message
 import iracingweekplannermobile.shared.generated.resources.schedule_source_error_title
 import iracingweekplannermobile.shared.generated.resources.schedule_tab_label
+import iracingweekplannermobile.shared.generated.resources.schedule_time_limit_minutes
 import iracingweekplannermobile.shared.generated.resources.schedule_today_label
 import iracingweekplannermobile.shared.generated.resources.schedule_week_dates_loading
 import iracingweekplannermobile.shared.generated.resources.schedule_week_label
@@ -91,26 +98,26 @@ object ScheduleTextResources {
             message = Res.string.schedule_empty_message,
         )
 
-    fun statePanelResources(message: PlannerDataUiMessage): ScheduleStatePanelResources =
+    fun statePanelResources(message: ScheduleUiMessage): ScheduleStatePanelResources =
         when (message) {
-            PlannerDataUiMessage.SHOWING_CACHED_PLANNER_DATA -> ScheduleStatePanelResources(
+            ScheduleUiMessage.ShowingCachedPlannerData -> ScheduleStatePanelResources(
                 variant = ScheduleStatePanelVariant.Empty,
                 title = Res.string.schedule_cached_data_message,
                 message = Res.string.schedule_cached_message,
             )
-            PlannerDataUiMessage.PLANNER_DATA_UNAVAILABLE -> ScheduleStatePanelResources(
+            ScheduleUiMessage.PlannerDataUnavailable -> ScheduleStatePanelResources(
                 variant = ScheduleStatePanelVariant.Error,
                 title = Res.string.schedule_source_error_title,
                 message = Res.string.schedule_source_error_message,
                 retryLabel = Res.string.schedule_retry_label,
             )
-            PlannerDataUiMessage.INVALID_PLANNER_DATA -> ScheduleStatePanelResources(
+            ScheduleUiMessage.InvalidPlannerData -> ScheduleStatePanelResources(
                 variant = ScheduleStatePanelVariant.Error,
                 title = Res.string.schedule_invalid_data_title,
                 message = Res.string.schedule_invalid_data_message,
                 retryLabel = Res.string.schedule_retry_label,
             )
-            PlannerDataUiMessage.LOCAL_PLANNER_DATA_UNAVAILABLE -> ScheduleStatePanelResources(
+            ScheduleUiMessage.LocalPlannerDataUnavailable -> ScheduleStatePanelResources(
                 variant = ScheduleStatePanelVariant.Error,
                 title = Res.string.schedule_local_store_error_title,
                 message = Res.string.schedule_local_store_error_message,
@@ -137,12 +144,14 @@ object ScheduleTextResources {
         weekNumber: Int,
         dateContext: String,
         previousEnabled: Boolean,
+        todayEnabled: Boolean,
         nextEnabled: Boolean,
     ): DateWeekSelectorContent =
         DateWeekSelectorContent(
             weekLabel = stringResource(Res.string.schedule_week_label, weekNumber),
             dateContext = dateContext,
             previousEnabled = previousEnabled,
+            todayEnabled = todayEnabled,
             nextEnabled = nextEnabled,
             previousLabel = stringResource(Res.string.schedule_previous_week_label),
             previousContentDescription = stringResource(Res.string.schedule_previous_week_content_description),
@@ -171,7 +180,7 @@ object ScheduleTextResources {
         emptyPanelResources().toContent()
 
     @Composable
-    fun statePanelContent(message: PlannerDataUiMessage): ScheduleStatePanelContent =
+    fun statePanelContent(message: ScheduleUiMessage): ScheduleStatePanelContent =
         statePanelResources(message).toContent()
 
     @Composable
@@ -186,6 +195,15 @@ object ScheduleTextResources {
     fun loadingDateContext(): String =
         stringResource(Res.string.schedule_week_dates_loading)
 
+    @Composable
+    fun raceCardContent(content: ScheduleRaceCardUi): ScheduleRaceCardUi =
+        content.copy(
+            carSummary = content.carSummary
+                ?.takeIf { it.isNotBlank() }
+                ?: stringResource(Res.string.schedule_cars_unavailable),
+            metadataText = content.metadataText ?: raceMetadataText(content),
+        )
+
     suspend fun loadWeekTitle(weekNumber: Int): String =
         getString(Res.string.schedule_week_title, weekNumber)
 
@@ -195,6 +213,56 @@ object ScheduleTextResources {
     suspend fun loadRaceCount(count: Int): String =
         getPluralString(Res.plurals.schedule_race_count, count, count)
 
+    suspend fun loadCarsUnavailable(): String =
+        getString(Res.string.schedule_cars_unavailable)
+
+    suspend fun loadLapCount(lapCount: Int): String =
+        getString(Res.string.schedule_lap_count, lapCount)
+
+    suspend fun loadTimeLimitMinutes(minutes: Int): String =
+        getString(Res.string.schedule_time_limit_minutes, minutes)
+
+    suspend fun loadRainChance(percent: Int): String =
+        getString(Res.string.schedule_rain_chance, percent)
+
+    suspend fun loadRecurringSessionTiming(
+        firstSessionOffsetMinutes: Int,
+        repeatEveryMinutes: Int,
+    ): String =
+        getString(
+            Res.string.schedule_recurring_session_timing,
+            firstSessionOffsetMinutes,
+            repeatEveryMinutes,
+        )
+
+    suspend fun loadSetTimesSessionTiming(offsetMinutes: String): String =
+        getString(Res.string.schedule_set_times_session_timing, offsetMinutes)
+
+    @Composable
+    private fun raceMetadataText(content: ScheduleRaceCardUi): String? =
+        listOfNotNull(
+            content.sessionTiming?.let { sessionTiming -> sessionTimingText(sessionTiming) },
+            content.lapCount?.let { lapCount -> stringResource(Res.string.schedule_lap_count, lapCount) },
+            content.timeLimitMinutes?.let { minutes ->
+                stringResource(Res.string.schedule_time_limit_minutes, minutes)
+            },
+            content.rainChancePercent?.let { percent -> stringResource(Res.string.schedule_rain_chance, percent) },
+        ).joinToString(separator = " - ").ifBlank { null }
+
+    @Composable
+    private fun sessionTimingText(timing: ScheduleRaceSessionTimingUi): String =
+        when (timing) {
+            is ScheduleRaceSessionTimingUi.Recurring -> stringResource(
+                Res.string.schedule_recurring_session_timing,
+                timing.firstSessionOffsetMinutes,
+                timing.repeatEveryMinutes,
+            )
+            is ScheduleRaceSessionTimingUi.SetTimes -> stringResource(
+                Res.string.schedule_set_times_session_timing,
+                timing.offsetMinutes.formatSessionOffsets(),
+            )
+        }
+
     @Composable
     private fun ScheduleStatePanelResources.toContent(): ScheduleStatePanelContent =
         ScheduleStatePanelContent(
@@ -203,6 +271,9 @@ object ScheduleTextResources {
             message = stringResource(message),
             retryLabel = retryLabel?.let { stringResource(it) },
         )
+
+    private fun List<Int>.formatSessionOffsets(): String =
+        joinToString(separator = ", +")
 }
 
 data class ScheduleBottomTabResources(

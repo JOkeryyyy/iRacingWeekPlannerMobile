@@ -23,7 +23,6 @@ import com.iracingweekplanner.mobile.domain.repository.PlannerScheduleRepository
 import com.iracingweekplanner.mobile.domain.repository.PlannerTrackRepository
 import com.iracingweekplanner.mobile.platform.createAppDependenciesWith
 import com.iracingweekplanner.mobile.presentation.AppInfoStateHolder
-import com.iracingweekplanner.mobile.presentation.PlannerDataStateHolder
 import kotlin.test.Test
 import kotlin.test.assertIs
 import kotlin.test.assertSame
@@ -54,7 +53,6 @@ class CommonPlannerDataModuleAndroidHostTest {
             assertIs<LoadPlannerCarsUseCase>(koin.get<LoadPlannerCarsUseCase>())
             assertIs<LoadPlannerTracksUseCase>(koin.get<LoadPlannerTracksUseCase>())
             assertIs<LoadPlannerDataUseCase>(koin.get<LoadPlannerDataUseCase>())
-            assertIs<PlannerDataStateHolder>(koin.get<PlannerDataStateHolder>())
         } finally {
             koinApplication.close()
         }
@@ -74,17 +72,17 @@ class CommonPlannerDataModuleAndroidHostTest {
     }
 
     @Test
-    fun publicDependenciesOwnerExposesAppInfoAndPlannerStateHoldersUntilClosed() {
+    fun publicDependenciesOwnerExposesAppInfoAndPlannerDataUseCaseUntilClosed() {
         val dependencies = createAppDependenciesWith(testPlannerDatabaseModule())
 
         try {
             val appInfoStateHolder = dependencies.appInfoStateHolder
-            val plannerDataStateHolder = dependencies.plannerDataStateHolder
+            val loadPlannerData = dependencies.loadPlannerData
 
             assertIs<AppInfoStateHolder>(appInfoStateHolder)
-            assertIs<PlannerDataStateHolder>(plannerDataStateHolder)
+            assertIs<LoadPlannerDataUseCase>(loadPlannerData)
             assertSame(appInfoStateHolder, dependencies.appInfoStateHolder)
-            assertSame(plannerDataStateHolder, dependencies.plannerDataStateHolder)
+            assertSame(loadPlannerData, dependencies.loadPlannerData)
         } finally {
             dependencies.close()
         }

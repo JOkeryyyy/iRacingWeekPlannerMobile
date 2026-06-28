@@ -34,11 +34,11 @@ class IwpAppScaffoldAndroidHostTest {
         )
 
         assertTrue(
-            actual = source.contains("containerColor = MaterialTheme.colorScheme.background"),
+            actual = source.contains(".background(MaterialTheme.colorScheme.background)"),
             message = "Bottom navigation should use the same background color as the app surface.",
         )
-        assertTrue(
-            actual = source.contains("tonalElevation = 0.dp"),
+        assertFalse(
+            actual = source.contains("tonalElevation"),
             message = "Bottom navigation should not apply a tonal overlay that shifts its color.",
         )
     }

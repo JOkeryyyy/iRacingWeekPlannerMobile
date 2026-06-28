@@ -76,6 +76,37 @@ class PlannerDataMappersTest {
     }
 
     @Test
+    fun mapsHostedSeriesContractIntoPlannerDomainModel() {
+        val season = assertLoaded(
+            sampleSeasonDto(
+                series = listOf(
+                    SeriesDto(
+                        seriesId = "series-advanced-mazda",
+                        name = "Advanced Mazda MX-5 Cup",
+                        category = "Sports Car",
+                        license = LicenseDto(
+                            className = "Class D",
+                            safetyRating = 4.0,
+                            raw = "Class D 4.0 --> Pro/WC 4.0",
+                        ),
+                        isOfficial = true,
+                        setupType = "fixed",
+                        setupSource = "officialResults",
+                        startType = "standing",
+                        startTypeSource = "weatherText",
+                        raceIds = listOf("race-recurring"),
+                    ),
+                ),
+            ).toDomain(),
+        )
+
+        val series = season.series.single()
+        assertEquals(SeriesId("series-advanced-mazda"), series.id)
+        assertEquals(4, series.license.safetyRatingLevel)
+        assertEquals(RaceSetup.FIXED, series.setup)
+    }
+
+    @Test
     fun mapsCatalogDtosIntoPlannerDomainModels() {
         val cars = assertLoaded(
             CarsCatalogDto(
@@ -277,6 +308,16 @@ class PlannerDataMappersTest {
         seasonId: String = "2026-s2",
         seasonStart: String = "2026-03-17T00:00:00Z",
         seasonEnd: String = "2026-06-09T00:00:00Z",
+        series: List<SeriesDto> = listOf(
+            SeriesDto(
+                seriesId = "series-global-mazda-mx5",
+                name = "Global Mazda MX-5 Cup",
+                category = "Sports Car",
+                license = LicenseDto(className = "Rookie", level = 1),
+                isOfficial = true,
+                isFixedSetup = true,
+            ),
+        ),
         races: List<RaceDto> = listOf(
             sampleRaceDto(raceId = "race-recurring"),
             sampleRaceDto(
@@ -306,16 +347,7 @@ class PlannerDataMappersTest {
                     endsAt = "2026-03-24T00:00:00Z",
                 ),
             ),
-            series = listOf(
-                SeriesDto(
-                    seriesId = "series-global-mazda-mx5",
-                    name = "Global Mazda MX-5 Cup",
-                    category = "Sports Car",
-                    license = LicenseDto(className = "Rookie", level = 1),
-                    isOfficial = true,
-                    isFixedSetup = true,
-                ),
-            ),
+            series = series,
             races = races,
         )
 
