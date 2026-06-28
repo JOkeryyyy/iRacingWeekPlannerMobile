@@ -18,5 +18,6 @@ class RefreshCachePlannerDataRepository(
             plannerRaces = season.races,
             cars = cars,
             tracks = tracks,
+            series = season.series,
         )
 }

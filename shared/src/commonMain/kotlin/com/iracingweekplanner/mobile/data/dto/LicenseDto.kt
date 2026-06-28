@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 data class LicenseDto(
     val className: String,
     val level: Int? = null,
+    val safetyRating: Double? = null,
+    val raw: String? = null,
 )

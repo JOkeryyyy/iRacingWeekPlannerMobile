@@ -49,7 +49,7 @@ class MobileDataDtoSerializationTest {
         assertEquals("C", porscheCup.license.className)
         assertEquals(3, porscheCup.license.level)
         assertTrue(porscheCup.isOfficial)
-        assertTrue(porscheCup.isFixedSetup)
+        assertTrue(porscheCup.isFixedSetup == true)
 
         val timedRace = season.races.first { it.seriesId == "series-porsche-cup" }
         assertEquals("virginia-international-raceway", timedRace.trackPackageId)

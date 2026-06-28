@@ -77,8 +77,9 @@ private fun ScheduleScreenBody(
         DateWeekSelector(
             content = ScheduleTextResources.dateWeekSelectorContent(
                 weekNumber = state.selectedWeekNumber,
-                dateContext = ScheduleTextResources.loadingDateContext(),
+                dateContext = state.dateContext ?: ScheduleTextResources.loadingDateContext(),
                 previousEnabled = state.canSelectPreviousWeek,
+                todayEnabled = state.canSelectCurrentWeek,
                 nextEnabled = state.canSelectNextWeek,
             ),
             onPreviousClick = { onAction(ScheduleAction.PreviousWeek) },
@@ -166,6 +167,7 @@ private fun ScheduleScreenPreview() {
             state = ScheduleUiState(
                 selectedWeekNumber = ScheduleScreenDefaults.SelectedWeekNumber,
                 availableWeekNumbers = emptyList(),
+                dateContext = null,
                 lastUpdatedDisplayText = null,
                 raceCards = emptyList(),
                 panelMessage = null,
@@ -173,6 +175,7 @@ private fun ScheduleScreenPreview() {
                 isEmpty = false,
                 isCached = false,
                 canSelectPreviousWeek = false,
+                canSelectCurrentWeek = false,
                 canSelectNextWeek = false,
             ),
             onAction = {},

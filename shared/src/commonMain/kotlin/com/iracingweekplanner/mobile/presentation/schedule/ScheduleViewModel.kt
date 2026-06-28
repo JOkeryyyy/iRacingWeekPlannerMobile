@@ -21,6 +21,7 @@ class ScheduleViewModel(
     private var latestPlannerData: PlannerData? = null
     private var latestFreshness: PlannerDataFreshness? = null
     private var hasRequestedInitialLoad = false
+    private var latestLoadRequestId = 0
 
     val state: StateFlow<ScheduleUiState> = _state.asStateFlow()
 
@@ -43,12 +44,14 @@ class ScheduleViewModel(
     }
 
     private fun load() {
+        val requestId = ++latestLoadRequestId
         viewModelScope.launch {
             _state.update { currentState ->
                 currentState.toScheduleLoadingState(requestedWeek = requestedWeekNumber.value)
             }
             when (val result = loadPlannerData()) {
                 is PlannerDataResult.Loaded -> {
+                    if (requestId != latestLoadRequestId) return@launch
                     latestPlannerData = result.data
                     latestFreshness = result.freshness
                     _state.value = result.data.toScheduleUiState(
@@ -58,6 +61,7 @@ class ScheduleViewModel(
                     )
                 }
                 is PlannerDataResult.Failure -> {
+                    if (requestId != latestLoadRequestId) return@launch
                     latestPlannerData = null
                     latestFreshness = null
                     _state.value = result.error.toScheduleErrorState(currentWeekNumber)

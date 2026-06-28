@@ -5,4 +5,5 @@ data class PlannerData(
     val plannerRaces: List<PlannerRace>,
     val cars: List<PlannerCar>,
     val tracks: List<PlannerTrack>,
+    val series: List<PlannerSeries> = emptyList(),
 )

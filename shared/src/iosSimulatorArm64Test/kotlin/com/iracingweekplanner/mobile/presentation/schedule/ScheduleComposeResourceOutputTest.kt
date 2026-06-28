@@ -45,5 +45,16 @@ class ScheduleComposeResourceOutputTest {
             "25% rain",
             ScheduleTextResources.loadRainChance(percent = 25),
         )
+        assertEquals(
+            "First session +60 min, every 120 min",
+            ScheduleTextResources.loadRecurringSessionTiming(
+                firstSessionOffsetMinutes = 60,
+                repeatEveryMinutes = 120,
+            ),
+        )
+        assertEquals(
+            "Sessions at +0, +1440 min",
+            ScheduleTextResources.loadSetTimesSessionTiming(offsetMinutes = "0, +1440"),
+        )
     }
 }

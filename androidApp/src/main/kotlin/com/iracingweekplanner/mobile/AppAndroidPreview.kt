@@ -15,6 +15,7 @@ fun AppAndroidPreview() {
             state = ScheduleUiState(
                 selectedWeekNumber = 13,
                 availableWeekNumbers = emptyList(),
+                dateContext = null,
                 lastUpdatedDisplayText = null,
                 raceCards = emptyList(),
                 panelMessage = null,
@@ -22,6 +23,7 @@ fun AppAndroidPreview() {
                 isEmpty = false,
                 isCached = false,
                 canSelectPreviousWeek = false,
+                canSelectCurrentWeek = false,
                 canSelectNextWeek = false,
             ),
             onAction = { _: ScheduleAction -> },

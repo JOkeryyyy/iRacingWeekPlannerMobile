@@ -1,26 +1,31 @@
 package com.iracingweekplanner.mobile.presentation.schedule
 
 import com.iracingweekplanner.mobile.domain.model.CarId
+import com.iracingweekplanner.mobile.domain.model.LicenseRequirement
 import com.iracingweekplanner.mobile.domain.model.PlannerCar
 import com.iracingweekplanner.mobile.domain.model.PlannerData
 import com.iracingweekplanner.mobile.domain.model.PlannerDataError
 import com.iracingweekplanner.mobile.domain.model.PlannerDataFreshness
 import com.iracingweekplanner.mobile.domain.model.PlannerDataResult
 import com.iracingweekplanner.mobile.domain.model.PlannerRace
+import com.iracingweekplanner.mobile.domain.model.PlannerSeries
 import com.iracingweekplanner.mobile.domain.model.PlannerTrack
 import com.iracingweekplanner.mobile.domain.model.RaceId
 import com.iracingweekplanner.mobile.domain.model.RaceLength
 import com.iracingweekplanner.mobile.domain.model.RaceSessionSchedule
+import com.iracingweekplanner.mobile.domain.model.RaceSetup
 import com.iracingweekplanner.mobile.domain.model.RaceTrackRef
 import com.iracingweekplanner.mobile.domain.model.RaceWeek
 import com.iracingweekplanner.mobile.domain.model.RaceWeekNumber
 import com.iracingweekplanner.mobile.domain.model.RainChance
+import com.iracingweekplanner.mobile.domain.model.SeriesCategory
 import com.iracingweekplanner.mobile.domain.model.SeriesId
 import com.iracingweekplanner.mobile.domain.model.TimeWindow
 import com.iracingweekplanner.mobile.domain.model.TrackId
 import com.iracingweekplanner.mobile.domain.model.TrackType
 import com.iracingweekplanner.mobile.domain.repository.PlannerDataRepository
 import com.iracingweekplanner.mobile.domain.usecase.LoadPlannerDataUseCase
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceSessionTimingUi
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -100,7 +105,10 @@ class ScheduleViewModelTest {
         assertFalse(state.isEmpty)
         assertFalse(state.isCached)
         assertNull(state.panelMessage)
+        assertEquals("Jun 16 - Jun 23", state.dateContext)
+        assertTrue(state.canSelectCurrentWeek)
         assertEquals(listOf("race-13"), state.raceCards.map { it.raceId })
+        assertEquals("Global Mazda MX-5 Cup", state.raceCards.single().title)
     }
 
     @Test
@@ -132,6 +140,13 @@ class ScheduleViewModelTest {
         assertEquals(10, raceCard.lapCount)
         assertEquals(45, raceCard.timeLimitMinutes)
         assertEquals(25, raceCard.rainChancePercent)
+        assertEquals(
+            ScheduleRaceSessionTimingUi.Recurring(
+                firstSessionOffsetMinutes = 60,
+                repeatEveryMinutes = 120,
+            ),
+            raceCard.sessionTiming,
+        )
         assertNull(raceCard.metadataText)
     }
 
@@ -260,6 +275,48 @@ class ScheduleViewModelTest {
     }
 
     @Test
+    fun olderLoadResultDoesNotOverwriteNewerRefreshResult() = runTest {
+        val firstLoad = CompletableDeferred<PlannerDataResult<PlannerData>>()
+        val secondLoad = CompletableDeferred<PlannerDataResult<PlannerData>>()
+        val pendingLoads = ArrayDeque(listOf(firstLoad, secondLoad))
+        val repository = FakePlannerDataRepository {
+            pendingLoads.removeFirst().await()
+        }
+        val viewModel = viewModelFor(repository)
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        viewModel.onAction(ScheduleAction.Refresh)
+
+        secondLoad.complete(
+            PlannerDataResult.Loaded(
+                samplePlannerData(
+                    raceWeeks = listOf(sampleRaceWeek(14)),
+                    plannerRaces = listOf(samplePlannerRace(id = "race-14", weekNumber = 14)),
+                ),
+                PlannerDataFreshness.FRESH,
+            ),
+        )
+        advanceUntilIdle()
+
+        assertEquals(14, viewModel.state.value.selectedWeekNumber)
+        assertEquals(listOf("race-14"), viewModel.state.value.raceCards.map { it.raceId })
+
+        firstLoad.complete(
+            PlannerDataResult.Failure(
+                PlannerDataError.SourceUnavailable(
+                    path = "manifest.json",
+                    detail = "older request failed",
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        assertEquals(14, viewModel.state.value.selectedWeekNumber)
+        assertEquals(listOf("race-14"), viewModel.state.value.raceCards.map { it.raceId })
+        assertNull(viewModel.state.value.panelMessage)
+    }
+
+    @Test
     fun weekSelectionActionsDoNotReloadPlannerData() = runTest {
         val repository = FakePlannerDataRepository {
             PlannerDataResult.Loaded(
@@ -290,6 +347,34 @@ class ScheduleViewModelTest {
         viewModel.onAction(ScheduleAction.Today)
         advanceUntilIdle()
 
+        assertEquals(13, viewModel.state.value.selectedWeekNumber)
+        assertEquals(1, repository.loadCount)
+    }
+
+    @Test
+    fun todaySelectionIsUnavailableWithoutCurrentWeekProvider() = runTest {
+        val repository = FakePlannerDataRepository {
+            PlannerDataResult.Loaded(
+                samplePlannerData(
+                    raceWeeks = listOf(sampleRaceWeek(12), sampleRaceWeek(13), sampleRaceWeek(14)),
+                    plannerRaces = listOf(
+                        samplePlannerRace(id = "race-12", weekNumber = 12),
+                        samplePlannerRace(id = "race-13", weekNumber = 13),
+                        samplePlannerRace(id = "race-14", weekNumber = 14),
+                    ),
+                ),
+                PlannerDataFreshness.FRESH,
+            )
+        }
+        val viewModel = viewModelFor(repository)
+
+        viewModel.onAction(ScheduleAction.InitialLoad)
+        advanceUntilIdle()
+        viewModel.onAction(ScheduleAction.NextWeek)
+        viewModel.onAction(ScheduleAction.Today)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.canSelectCurrentWeek)
         assertEquals(13, viewModel.state.value.selectedWeekNumber)
         assertEquals(1, repository.loadCount)
     }
@@ -327,12 +412,14 @@ class ScheduleViewModelTest {
     private fun samplePlannerData(
         raceWeeks: List<RaceWeek> = listOf(sampleRaceWeek(number = 13)),
         plannerRaces: List<PlannerRace> = listOf(samplePlannerRace(id = "race-13", weekNumber = 13)),
+        series: List<PlannerSeries> = listOf(sampleSeries()),
         cars: List<PlannerCar> = sampleCars(),
         tracks: List<PlannerTrack> = sampleTracks(),
     ): PlannerData =
         PlannerData(
             raceWeeks = raceWeeks,
             plannerRaces = plannerRaces,
+            series = series,
             cars = cars,
             tracks = tracks,
         )
@@ -375,6 +462,16 @@ class ScheduleViewModelTest {
             ),
             length = length,
             rainChance = rainChance,
+        )
+
+    private fun sampleSeries(): PlannerSeries =
+        PlannerSeries(
+            id = SeriesId("series-global-mazda-mx5"),
+            name = "Global Mazda MX-5 Cup",
+            category = SeriesCategory("Sports Car"),
+            license = LicenseRequirement(className = "Rookie", safetyRatingLevel = 1),
+            setup = RaceSetup.FIXED,
+            isOfficial = true,
         )
 
     private fun sampleCars(): List<PlannerCar> =

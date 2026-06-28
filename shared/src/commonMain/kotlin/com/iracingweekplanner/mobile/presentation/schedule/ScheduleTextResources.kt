@@ -5,6 +5,7 @@ import com.iracingweekplanner.mobile.presentation.common.model.DateWeekSelectorC
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleBottomTab
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleHeaderContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceCardUi
+import com.iracingweekplanner.mobile.presentation.common.model.ScheduleRaceSessionTimingUi
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelContent
 import com.iracingweekplanner.mobile.presentation.common.model.ScheduleStatePanelVariant
 import iracingweekplannermobile.shared.generated.resources.Res
@@ -35,8 +36,10 @@ import iracingweekplannermobile.shared.generated.resources.schedule_rain_chance
 import iracingweekplannermobile.shared.generated.resources.schedule_race_count
 import iracingweekplannermobile.shared.generated.resources.schedule_refresh_content_description
 import iracingweekplannermobile.shared.generated.resources.schedule_refresh_label
+import iracingweekplannermobile.shared.generated.resources.schedule_recurring_session_timing
 import iracingweekplannermobile.shared.generated.resources.schedule_retry_label
 import iracingweekplannermobile.shared.generated.resources.schedule_settings_tab_label
+import iracingweekplannermobile.shared.generated.resources.schedule_set_times_session_timing
 import iracingweekplannermobile.shared.generated.resources.schedule_source_error_message
 import iracingweekplannermobile.shared.generated.resources.schedule_source_error_title
 import iracingweekplannermobile.shared.generated.resources.schedule_tab_label
@@ -141,12 +144,14 @@ object ScheduleTextResources {
         weekNumber: Int,
         dateContext: String,
         previousEnabled: Boolean,
+        todayEnabled: Boolean,
         nextEnabled: Boolean,
     ): DateWeekSelectorContent =
         DateWeekSelectorContent(
             weekLabel = stringResource(Res.string.schedule_week_label, weekNumber),
             dateContext = dateContext,
             previousEnabled = previousEnabled,
+            todayEnabled = todayEnabled,
             nextEnabled = nextEnabled,
             previousLabel = stringResource(Res.string.schedule_previous_week_label),
             previousContentDescription = stringResource(Res.string.schedule_previous_week_content_description),
@@ -220,15 +225,43 @@ object ScheduleTextResources {
     suspend fun loadRainChance(percent: Int): String =
         getString(Res.string.schedule_rain_chance, percent)
 
+    suspend fun loadRecurringSessionTiming(
+        firstSessionOffsetMinutes: Int,
+        repeatEveryMinutes: Int,
+    ): String =
+        getString(
+            Res.string.schedule_recurring_session_timing,
+            firstSessionOffsetMinutes,
+            repeatEveryMinutes,
+        )
+
+    suspend fun loadSetTimesSessionTiming(offsetMinutes: String): String =
+        getString(Res.string.schedule_set_times_session_timing, offsetMinutes)
+
     @Composable
     private fun raceMetadataText(content: ScheduleRaceCardUi): String? =
         listOfNotNull(
+            content.sessionTiming?.let { sessionTiming -> sessionTimingText(sessionTiming) },
             content.lapCount?.let { lapCount -> stringResource(Res.string.schedule_lap_count, lapCount) },
             content.timeLimitMinutes?.let { minutes ->
                 stringResource(Res.string.schedule_time_limit_minutes, minutes)
             },
             content.rainChancePercent?.let { percent -> stringResource(Res.string.schedule_rain_chance, percent) },
         ).joinToString(separator = " - ").ifBlank { null }
+
+    @Composable
+    private fun sessionTimingText(timing: ScheduleRaceSessionTimingUi): String =
+        when (timing) {
+            is ScheduleRaceSessionTimingUi.Recurring -> stringResource(
+                Res.string.schedule_recurring_session_timing,
+                timing.firstSessionOffsetMinutes,
+                timing.repeatEveryMinutes,
+            )
+            is ScheduleRaceSessionTimingUi.SetTimes -> stringResource(
+                Res.string.schedule_set_times_session_timing,
+                timing.offsetMinutes.formatSessionOffsets(),
+            )
+        }
 
     @Composable
     private fun ScheduleStatePanelResources.toContent(): ScheduleStatePanelContent =
@@ -238,6 +271,9 @@ object ScheduleTextResources {
             message = stringResource(message),
             retryLabel = retryLabel?.let { stringResource(it) },
         )
+
+    private fun List<Int>.formatSessionOffsets(): String =
+        joinToString(separator = ", +")
 }
 
 data class ScheduleBottomTabResources(

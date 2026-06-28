@@ -8,6 +8,7 @@ data class ScheduleRaceCardUi(
     val lapCount: Int? = null,
     val timeLimitMinutes: Int? = null,
     val rainChancePercent: Int? = null,
+    val sessionTiming: ScheduleRaceSessionTimingUi? = null,
     val metadataText: String? = null,
     val chips: List<ScheduleChipContent> = emptyList(),
 )

@@ -12,6 +12,7 @@ enum class ScheduleUiMessage {
 data class ScheduleUiState(
     val selectedWeekNumber: Int,
     val availableWeekNumbers: List<Int>,
+    val dateContext: String?,
     val lastUpdatedDisplayText: String?,
     val raceCards: List<ScheduleRaceCardUi>,
     val panelMessage: ScheduleUiMessage?,
@@ -19,5 +20,6 @@ data class ScheduleUiState(
     val isEmpty: Boolean,
     val isCached: Boolean,
     val canSelectPreviousWeek: Boolean,
+    val canSelectCurrentWeek: Boolean,
     val canSelectNextWeek: Boolean,
 )

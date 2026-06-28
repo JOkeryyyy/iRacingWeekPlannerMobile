@@ -6,21 +6,21 @@ Build the first usable shared Compose schedule screen for Android and iOS.
 
 Sprint 3 should turn the Sprint 2 planner data state into a mobile Schedule tab that can load planner data, show the selected week, render ordered race cards, and handle loading, cached, empty, and error states. The implementation should follow a lightweight shared MVI shape so later Sprint 4 filtering and Sprint 5 race-detail work can extend the screen without rewriting the presentation boundary.
 
-Sprint 3 should still be implemented story-by-story. Do not combine all UI foundation, localization readiness, state wiring, date controls, race list, and platform verification work into one implementation diff unless explicitly approved.
+Sprint 3 should still be implemented story-by-story. Do not combine all UI foundation, localization readiness, state wiring, hosted JSON consumption, date controls, race list, and platform verification work into one implementation diff unless explicitly approved.
 
 ## Scope Defaults
 
 - The primary bottom-tab label is `Schedule`, not `Planner`.
 - The Schedule header uses a week-specific title such as `Week 13 Schedule` and a last-updated line such as `Last updated 10:42 AM`.
 - Race display order is deterministic by selected week, then stable source order or a simple stable display key. Sprint 3 does not expose user-controlled sorting.
-- Sprint 3 uses existing Sprint 2 local mock-first planner data and presentation state.
+- Sprint 3 starts from existing Sprint 2 local mock-first planner data and presentation state. Story 3.5 may switch the app to a configured hosted JSON source while preserving local mock data as the safe default when no hosted manifest URL is configured.
 - Sprint 3 ships English-only, but user-facing Schedule strings should use Compose Multiplatform string/plural resources or resource-backed parameters so later localization work can add languages without rewriting screen components.
 - Sprint 3 may show inactive future affordances only when they do not imply completed behavior. Filters, preferences, sorting controls, owned/favorite settings, and race details stay out of scope.
 - Sprint 3 does not introduce Navigation 3 or real route/back-stack ownership. Navigation 3 should arrive with the first real navigation feature, currently planned as Sprint 5 Race Detail.
 - Responsive design should still be considered in Sprint 3 components. Components should avoid phone-only assumptions that would block future compact/expanded layouts.
 - Data-backed race-card display models should keep stable race identifiers when introduced, so Sprint 5 can open Race Detail without remapping UI-only state.
 - App-level chrome and navigation state should remain outside Schedule business state. Schedule UI should stay stateless and callback-driven where practical.
-- No Firebase, account login, cloud sync, mobile scraping, production hosted URL, or iRacing credential handling is part of this sprint.
+- No Firebase, account login, cloud sync, mobile scraping, iRacing credential handling, Supabase Edge Function, hosted JSON publishing/upload tooling, or hardcoded production Supabase project URL is part of this sprint.
 
 ## Linked Knowledge and Design References
 
@@ -28,6 +28,7 @@ Sprint 3 should still be implemented story-by-story. Do not combine all UI found
 - Architecture boundaries: [docs/architecture.md](architecture.md)
 - Current development commands and Sprint 2 verification: [docs/development.md](development.md)
 - Mobile data contract for displayed fields: [docs/data-contract.md](data-contract.md)
+- Hosted JSON API contract: [docs/hosted-json-api.md](hosted-json-api.md)
 - Sprint 2 presentation-state starting point: [docs/sprint-2-user-stories.md](sprint-2-user-stories.md)
 - Adaptive and Navigation 3 readiness strategy: [docs/superpowers/specs/2026-06-25-adaptive-navigation3-readiness-design.md](superpowers/specs/2026-06-25-adaptive-navigation3-readiness-design.md)
 - Annotated Sprint 3/4/5 wireframe board: [docs/diagrams/sprint-3-wireframes.html](diagrams/sprint-3-wireframes.html)
@@ -184,7 +185,48 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Trigger refresh/retry and verify one planner load action is sent.
 - Trigger previous/next/today actions and verify selected-week state changes without reloading source data unnecessarily.
 
-## Story 3.5: Implement Date and Week Selector Behavior
+## Story 3.5: Consume Hosted JSON from Supabase Storage
+
+**As a user, I want the app to load planner data from the hosted Supabase Storage JSON release so the Schedule screen can show current generated iRacing schedule data instead of only bundled mock data.**
+
+### Current Starting Point
+
+- Sprint 2 introduced a source-agnostic `PlannerDataSource` contract, local Compose-resource source, `KtorPlannerHostedDataSource`, SQLDelight local storage, and refresh/cache repository flow.
+- The current app dependency graph still binds the planner source to bundled local mock JSON by default.
+- [docs/hosted-json-api.md](hosted-json-api.md) defines the public static Supabase Storage JSON entry point and states that app reads do not use a runtime backend API or Supabase Edge Function.
+- Story 3.4 keeps Schedule UI data access behind `LoadPlannerDataUseCase`, so hosted-source selection should stay below presentation code.
+
+### Acceptance Criteria
+
+- The app can consume a configured Supabase Storage manifest URL shaped like `https://<project-ref>.supabase.co/storage/v1/object/public/planner-data/data/mobile/v1/manifest.json`.
+- The actual Supabase project ref and manifest URL are configuration, not hardcoded in common shared code.
+- When no hosted manifest URL is configured, the app continues to use bundled local mock JSON as the safe developer/default source.
+- App source selection is owned by DI/platform/data wiring. Schedule UI and presentation state continue to use `LoadPlannerDataUseCase` and do not call DTOs, Ktor, SQLDelight, data sources, or source URLs directly.
+- Production Android and iOS wiring can provide a Ktor client to `KtorPlannerHostedDataSource` when hosted JSON is configured.
+- Android declares the network permission required for hosted JSON reads.
+- iOS consumption uses HTTPS Supabase Storage URLs and does not require a broad App Transport Security exception.
+- Hosted loading fetches `manifest.json` first, then resolves `seasonFile`, `carsFile`, and `tracksFile` relative to the manifest URL.
+- Existing hosted-source safety rules remain in force: blank references, leading slashes, `//`, `.` or `..` path segments, and URI-scheme references are rejected.
+- Successful hosted JSON loads persist the returned manifest, season, cars, and tracks data through the existing SQLDelight local store via the refresh/cache coordinator.
+- If a later hosted refresh fails because of network, HTTP, decode, or invalid-reference failure, the repository reads the last successful SQLDelight dataset before showing a source error.
+- If hosted refresh fails and no SQLDelight cache exists, the Schedule state remains presentation-safe and shows a retryable source-error state without raw exception messages, Supabase URLs, Ktor details, DTO field names, or local file paths.
+- Hosted JSON remains public static schedule/catalog data only. Owned cars, owned tracks, favorites, account identifiers, iRacing credentials, and Firebase/cloud sync state are not read from or written to hosted JSON.
+- This story does not add JSON publishing/upload tooling, Supabase Edge Functions, account login, scraping, filtering, sorting, or race detail navigation.
+
+### QA Test Cases
+
+- With no configured manifest URL, verify DI resolves the bundled local mock JSON source.
+- With a configured manifest URL, verify DI resolves a hosted source backed by a production Ktor client.
+- With a fake hosted endpoint, verify the source requests `manifest.json` first and then requests the manifest-relative season, cars, and tracks files.
+- With hosted success, verify the loaded manifest, season, cars, and tracks are persisted to SQLDelight through the existing refresh/cache path.
+- After one hosted success, force a hosted refresh failure and verify the app returns cached SQLDelight data with cached/stale status instead of dropping to an empty or fatal state.
+- With hosted refresh failure and an empty local store, verify the Schedule state exposes a retryable source error with presentation-safe copy.
+- Verify unsafe manifest references are rejected without requesting external or parent-directory URLs.
+- Verify Android debug build still succeeds with required network permission present.
+- Verify shared Android host tests cover source selection, hosted-source success, hosted cache fallback, and no-cache source error.
+- Run `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :shared:iosSimulatorArm64Test` when Xcode is available, or document the local tooling blocker.
+
+## Story 3.6: Implement Date and Week Selector Behavior
 
 **As a user, I want to move between race weeks so I can browse the schedule for the week I care about.**
 
@@ -214,7 +256,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Given a fake current date outside the season, tapping today selects the nearest available week and keeps the UI stable.
 - Verify the selector labels remain readable on a narrow mobile width.
 
-## Story 3.6: Render the Selected-Week Race Card List
+## Story 3.7: Render the Selected-Week Race Card List
 
 **As a user, I want to scan races for the selected week so I can quickly see series, track, car class, session timing, duration, and rain context.**
 
@@ -253,7 +295,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Verify no sort controls are present.
 - Verify tapping a race card does not navigate to an unimplemented detail screen or crash.
 
-## Story 3.7: Complete Schedule UI States and Platform Verification
+## Story 3.8: Complete Schedule UI States and Platform Verification
 
 **As a user, I want loading, cached, empty, and error states to be understandable so I know whether schedule data is ready, stale, unavailable, or invalid.**
 
@@ -294,6 +336,8 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - The Schedule header displays a selected-week title and last-updated status.
 - Week/date controls can move between available weeks and select the current week.
 - The selected week’s races render as deterministic race cards.
+- When configured, the app can consume the public Supabase Storage hosted JSON contract; when not configured, bundled local mock JSON remains the safe default.
+- Successful hosted JSON loads are persisted to SQLDelight, and later hosted refresh failures can fall back to the last successful SQLDelight dataset.
 - Loading, cached, empty, invalid-data, source-error, and local-store-error states are visible and testable.
 - UI components follow the Sprint 3 design constraints and are reusable for Sprint 4/5.
 - Sprint 3 does not introduce Navigation 3, but keeps Schedule components, app chrome, and race-card display models compatible with future adaptive Navigation 3 list-detail work.
@@ -306,7 +350,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 
 ## Verification Plan
 
-Run story-focused tests first, especially Schedule string-boundary tests, Schedule state/action tests, and component rendering tests.
+Run story-focused tests first, especially Schedule string-boundary tests, Schedule state/action tests, hosted-source selection/cache tests, and component rendering tests.
 
 Common Sprint 3 verification commands:
 

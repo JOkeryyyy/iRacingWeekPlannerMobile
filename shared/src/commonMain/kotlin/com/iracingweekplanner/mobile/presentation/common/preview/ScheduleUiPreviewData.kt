@@ -25,6 +25,7 @@ object ScheduleUiPreviewData {
                 weekLabel = "Week 13",
                 dateContext = "Jun 16 - Jun 23",
                 previousEnabled = true,
+                todayEnabled = true,
                 nextEnabled = true,
                 previousLabel = "Prev",
                 previousContentDescription = "Previous week",

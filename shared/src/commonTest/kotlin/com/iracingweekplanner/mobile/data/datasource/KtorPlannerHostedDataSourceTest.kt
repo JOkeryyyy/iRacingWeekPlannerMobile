@@ -194,17 +194,26 @@ class KtorPlannerHostedDataSourceTest {
                   "name": "Series One",
                   "category": "Sports Car",
                   "license": {
-                    "className": "Rookie",
-                    "level": 1
+                    "className": "Class D",
+                    "safetyRating": 4.0,
+                    "raw": "Class D 4.0 --> Pro/WC 4.0"
                   },
                   "isOfficial": true,
-                  "isFixedSetup": true
+                  "setupType": "unknown",
+                  "setupSource": "unknown",
+                  "startType": "standing",
+                  "startTypeSource": "weatherText",
+                  "raceIds": [
+                    "race-1"
+                  ]
                 }
               ],
               "races": [
                 {
                   "raceId": "race-1",
                   "seriesId": "series-1",
+                  "seriesName": "Series One",
+                  "category": "Sports Car",
                   "weekNumber": 1,
                   "startsAt": "2026-03-17T00:00:00Z",
                   "endsAt": "2026-03-24T00:00:00Z",
@@ -216,6 +225,10 @@ class KtorPlannerHostedDataSourceTest {
                   "carClasses": [
                     "Class One"
                   ],
+                  "setupType": "unknown",
+                  "setupSource": "unknown",
+                  "startType": "standing",
+                  "startTypeSource": "weatherText",
                   "sessions": [
                     {
                       "type": "recurring",

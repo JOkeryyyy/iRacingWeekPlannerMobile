@@ -62,6 +62,7 @@ fun DateWeekSelector(
                 icon = ScheduleButtonIcons.Today,
                 contentDescription = content.todayLabel,
                 onClick = onTodayClick,
+                enabled = content.todayEnabled,
             )
             ScheduleButton(
                 icon = ScheduleButtonIcons.Next,
