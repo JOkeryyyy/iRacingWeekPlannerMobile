@@ -47,7 +47,7 @@ The wireframe HTML is a review artifact. The implementation-facing design constr
 - Icon buttons: minimum `44 x 44dp` touch target, `12dp` visual radius.
 - Chips: minimum `32dp` height, `12dp` horizontal padding, full radius.
 - Race cards: `12dp` radius, `1dp` border, `14dp` internal padding, `10dp` internal gap, `12dp` card-to-card gap.
-- Bottom navigation: `64dp` to `72dp` height, four equal items, each item at least `48dp` touch height.
+- Bottom navigation: `64dp` default minimum height, four equal items, each item at least `48dp` touch height. Accessibility font scaling may grow the bar vertically so all tab labels remain readable.
 
 ## Story 3.1: Add Reusable Schedule UI Foundation
 

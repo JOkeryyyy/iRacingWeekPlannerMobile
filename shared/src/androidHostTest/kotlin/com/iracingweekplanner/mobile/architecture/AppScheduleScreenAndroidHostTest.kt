@@ -205,6 +205,35 @@ class AppScheduleScreenAndroidHostTest {
     }
 
     @Test
+    fun scheduleBottomNavigationSupportsLargeFontLabelsWithoutFixedHeightCap() {
+        val bottomNavigationSource = readText(
+            commonMainPackageRoot()
+                .resolve("presentation/common/components/ScheduleBottomNavigation.kt"),
+        )
+        val scaffoldSource = readText(commonMainPackageRoot().resolve("presentation/common/scaffold/IwpAppScaffold.kt"))
+
+        assertFalse(
+            actual = bottomNavigationSource.contains("NavigationBarItem("),
+            message = "ScheduleBottomNavigation should own a custom adaptive tab layout for large font labels.",
+        )
+        assertFalse(
+            actual = bottomNavigationSource.contains("BottomNavigationMaxHeight"),
+            message = "Bottom navigation should not cap height when labels need two lines at large font sizes.",
+        )
+        assertTrue(
+            actual = bottomNavigationSource.contains(".weight(1f)") &&
+                bottomNavigationSource.contains("maxLines = 2") &&
+                bottomNavigationSource.contains("overflow = TextOverflow.Ellipsis") &&
+                bottomNavigationSource.contains("Role.Tab"),
+            message = "Bottom navigation should keep equal tab widths, two-line labels, and tab semantics.",
+        )
+        assertFalse(
+            actual = scaffoldSource.contains("ScheduleBottomNavigation"),
+            message = "Large-font bottom-nav behavior should stay inside the nav component, not the generic scaffold.",
+        )
+    }
+
+    @Test
     fun scheduleViewModelDoesNotCallDataLayerDirectly() {
         val viewModelSource = readText(
             commonMainPackageRoot().resolve("presentation/schedule/ScheduleViewModel.kt"),

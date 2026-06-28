@@ -34,6 +34,7 @@ class ScheduleUiFoundationTest {
         assertEquals(44.dp, ScheduleUiTokens.MinimumIconTouchTarget)
         assertEquals(32.dp, ScheduleUiTokens.MinimumChipHeight)
         assertEquals(64.dp, ScheduleUiTokens.BottomNavigationMinHeight)
+        assertEquals(48.dp, ScheduleUiTokens.BottomNavigationItemMinTouchHeight)
         assertEquals(24.sp, ScheduleUiTokens.ScheduleTitleTextSize)
         assertEquals(16.sp, ScheduleUiTokens.SectionTitleTextSize)
         assertEquals(13.sp, ScheduleUiTokens.CaptionTextSize)

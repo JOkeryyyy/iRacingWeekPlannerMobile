@@ -19,8 +19,9 @@ object ScheduleUiTokens {
     val MinimumIconTouchTarget = 44.dp
     val MinimumChipHeight = 32.dp
     val BottomNavigationMinHeight = 64.dp
-    val BottomNavigationMaxHeight = 72.dp
     val BottomNavigationItemMinTouchHeight = 48.dp
+    val BottomNavigationSelectedIconContainerWidth = 56.dp
+    val BottomNavigationSelectedIconContainerHeight = 32.dp
     val RaceCardBorderWidth = 1.dp
     val RaceCardPadding = 14.dp
     val RaceCardInternalGap = 10.dp
