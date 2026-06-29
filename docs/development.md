@@ -209,7 +209,7 @@ Story 3.5 hosted JSON consumption coverage:
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/di/PlannerDataSourceSelectionTest.kt` verifies local mock fallback and hosted source selection.
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/data/datasource/KtorPlannerHostedDataSourceTest.kt` verifies hosted manifest-first loading, relative reference resolution, HTTP/decode failures, and unsafe reference rejection.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/data/HostedPlannerDataRefreshAndroidHostTest.kt` verifies hosted success persists through SQLDelight, hosted refresh failure returns cached data, and no-cache hosted failure returns a source error.
-- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/AndroidEntryPointArchitectureAndroidHostTest.kt` verifies Android keeps app dependencies in `Application`, declares Internet permission, and leaves the hosted manifest URL blank by default.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/AndroidEntryPointArchitectureAndroidHostTest.kt` verifies Android keeps app dependencies in `Application`, declares Internet permission, exposes the hosted manifest URL metadata, and configures data-source build flavors without hardcoding individual data file endpoints.
 
 Focused commands:
 
@@ -223,11 +223,17 @@ Focused commands:
 
 Android hosted JSON configuration:
 
+Use Android Studio **Build Variants > hostedDevDebug** to run against hosted Supabase JSON.
+Use Android Studio **Build Variants > localMockDebug** to run against bundled mock data.
+
+CLI equivalents:
+
 ```bash
-./gradlew :androidApp:assembleDebug -PplannerHostedManifestUrl=https://<project-ref>.supabase.co/storage/v1/object/public/planner-data/data/mobile/v1/manifest.json
+./gradlew :androidApp:assembleHostedDevDebug
+./gradlew :androidApp:assembleLocalMockDebug
 ```
 
-The default Android manifest placeholder is blank, so local developer builds use bundled mock JSON unless the hosted manifest URL is supplied. The actual Supabase project ref is environment configuration and must not be hardcoded in common shared code.
+The `hostedDev` Android flavor hardcodes only the hosted manifest URL. The manifest owns the concrete `seasonFile`, `carsFile`, `tracksFile`, and checksum references, so individual data file endpoints remain manifest-driven rather than Android build configuration. `localMock` leaves the manifest placeholder blank so local developer builds use bundled mock JSON.
 
 iOS hosted JSON configuration:
 

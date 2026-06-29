@@ -20,9 +20,14 @@ dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
 
+val hostedDevManifestUrl =
+    "https://ivuwegboyxrzucbfgzvh.supabase.co/storage/v1/object/public/planner-data/data/mobile/v1/manifest.json"
+
 android {
     namespace = "com.iracingweekplanner.mobile"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+
+    flavorDimensions += "dataSource"
 
     defaultConfig {
         applicationId = "com.iracingweekplanner.mobile"
@@ -30,8 +35,17 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-        manifestPlaceholders["plannerHostedManifestUrl"] =
-            providers.gradleProperty("plannerHostedManifestUrl").orElse("").get()
+        manifestPlaceholders["plannerHostedManifestUrl"] = ""
+    }
+    productFlavors {
+        create("hostedDev") {
+            dimension = "dataSource"
+            manifestPlaceholders["plannerHostedManifestUrl"] = hostedDevManifestUrl
+        }
+        create("localMock") {
+            dimension = "dataSource"
+            manifestPlaceholders["plannerHostedManifestUrl"] = ""
+        }
     }
     packaging {
         resources {

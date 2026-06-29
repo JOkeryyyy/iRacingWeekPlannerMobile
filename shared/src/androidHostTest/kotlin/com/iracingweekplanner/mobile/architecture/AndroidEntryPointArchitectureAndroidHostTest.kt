@@ -48,10 +48,32 @@ class AndroidEntryPointArchitectureAndroidHostTest {
             message = "Expected hosted manifest metadata to read from the Gradle manifest placeholder.",
         )
         assertTrue(
+            actual = androidBuildSource.contains("""flavorDimensions += "dataSource""""),
+            message = "Expected Android builds to expose a dataSource flavor dimension.",
+        )
+        assertTrue(
+            actual = androidBuildSource.contains("""create("hostedDev")"""),
+            message = "Expected Android builds to provide a hostedDev flavor.",
+        )
+        assertTrue(
             actual = androidBuildSource.contains(
-                "providers.gradleProperty(\"plannerHostedManifestUrl\").orElse(\"\").get()",
+                "https://ivuwegboyxrzucbfgzvh.supabase.co/storage/v1/object/public/planner-data/data/mobile/v1/manifest.json",
             ),
-            message = "Expected Android defaultConfig to read the hosted manifest URL from a Gradle property with a blank default.",
+            message = "Expected hostedDev to point at the hosted Supabase manifest URL.",
+        )
+        assertTrue(
+            actual = androidBuildSource.contains("""create("localMock")"""),
+            message = "Expected Android builds to provide a localMock flavor.",
+        )
+        assertTrue(
+            actual = androidBuildSource.contains("""manifestPlaceholders["plannerHostedManifestUrl"] = """""),
+            message = "Expected localMock/default Android builds to leave the hosted manifest URL blank.",
+        )
+        assertFalse(
+            actual = androidBuildSource.contains("season.json") ||
+                androidBuildSource.contains("cars.json") ||
+                androidBuildSource.contains("tracks.json"),
+            message = "Android build config should hardcode only the manifest URL, not individual data file endpoints.",
         )
         assertTrue(
             actual = applicationSource.contains("class IRacingWeekPlannerApplication : Application()"),
