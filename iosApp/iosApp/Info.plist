@@ -6,6 +6,8 @@
 	<string>iRacing Week Planner</string>
 	<key>CFBundleName</key>
 	<string>iRacing Week Planner</string>
+	<key>PlannerHostedManifestUrl</key>
+	<string>$(PLANNER_HOSTED_MANIFEST_URL)</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 </dict>

@@ -1,0 +1,5 @@
+#include "Config.xcconfig"
+
+// Hosted manifest URL: https://ivuwegboyxrzucbfgzvh.supabase.co/storage/v1/object/public/planner-data/data/mobile/v1/manifest.json
+PLANNER_HOSTED_MANIFEST_URL=https:/$()/ivuwegboyxrzucbfgzvh.supabase.co/storage/v1/object/public/planner-data/data/mobile/v1/manifest.json
+KOTLIN_FRAMEWORK_BUILD_TYPE=Debug

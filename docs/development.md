@@ -210,6 +210,7 @@ Story 3.5 hosted JSON consumption coverage:
 - `shared/src/commonTest/kotlin/com/iracingweekplanner/mobile/data/datasource/KtorPlannerHostedDataSourceTest.kt` verifies hosted manifest-first loading, relative reference resolution, HTTP/decode failures, and unsafe reference rejection.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/data/HostedPlannerDataRefreshAndroidHostTest.kt` verifies hosted success persists through SQLDelight, hosted refresh failure returns cached data, and no-cache hosted failure returns a source error.
 - `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/AndroidEntryPointArchitectureAndroidHostTest.kt` verifies Android keeps app dependencies in `Application`, declares Internet permission, exposes the hosted manifest URL metadata, and configures data-source build flavors without hardcoding individual data file endpoints.
+- `shared/src/androidHostTest/kotlin/com/iracingweekplanner/mobile/architecture/IosHostedManifestConfigurationAndroidHostTest.kt` verifies iOS exposes one manifest URL through Xcode configuration, trims blank values to the local mock default, and keeps individual hosted data files manifest-driven.
 
 Focused commands:
 
@@ -218,6 +219,7 @@ Focused commands:
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.data.datasource.KtorPlannerHostedDataSourceTest
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.data.HostedPlannerDataRefreshAndroidHostTest
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.AndroidEntryPointArchitectureAndroidHostTest
+./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.architecture.IosHostedManifestConfigurationAndroidHostTest
 ./gradlew :shared:testAndroidHostTest --tests com.iracingweekplanner.mobile.presentation.schedule.ScheduleViewModelTest
 ```
 
@@ -237,7 +239,23 @@ The `hostedDev` Android flavor hardcodes only the hosted manifest URL. The manif
 
 iOS hosted JSON configuration:
 
-`MainViewController(hostedManifestUrl: String? = null)` preserves the default bundled mock JSON path. A Swift or Info.plist wiring change can pass the Supabase Storage manifest URL into `MainViewController(hostedManifestUrl:)` when a production iOS configuration is ready.
+Use Xcode scheme **iosApp-HostedDev** to run against hosted Supabase JSON.
+Use Xcode scheme **iosApp-LocalMock** to run against bundled mock data.
+
+`iosApp-LocalMock` uses the normal `Debug` build configuration. `iosApp-HostedDev` uses the `HostedDevDebug` build configuration, which includes `iosApp/Configuration/HostedDev.xcconfig` and sets `KOTLIN_FRAMEWORK_BUILD_TYPE=Debug` for KMP framework embedding.
+
+The default `Config.xcconfig` leaves `PLANNER_HOSTED_MANIFEST_URL` blank, and `ContentView.swift` trims blank Info.plist values to `nil` before calling `MainViewController(hostedManifestUrl:)`. A nil manifest URL preserves the bundled local mock JSON path. Hosted builds configure only the Supabase Storage `manifest.json` URL; the concrete `season.json`, `cars.json`, and `tracks.json` references remain resolved from the hosted manifest.
+
+Xcode hosted build check:
+
+```bash
+xcodebuild \
+  -project iosApp/iosApp.xcodeproj \
+  -scheme iosApp-HostedDev \
+  -configuration HostedDevDebug \
+  -sdk iphonesimulator \
+  build
+```
 
 Story 2.7 DI wiring coverage:
 
